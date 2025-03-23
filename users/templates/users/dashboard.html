@@ -1,0 +1,14 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Dashboard - Rental Management{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <h2>Welcome to the Dashboard</h2>
+            <p>Hello, <strong>{{ request.user.username }}</strong>! You are logged in.</p>
+        </div>
+    </div>
+
+    
+{% endblock %}

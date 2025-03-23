@@ -1,0 +1,14 @@
+exit
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+.env
+venv/
+*.log
+media/
+staticfiles/
+exit
+x
+exix()
+
