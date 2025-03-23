@@ -1,27 +1,137 @@
-{% extends 'users/base.html' %}
+{% load static %}  <!-- ✅ Load static files at the top -->
 
-{% block title %}Login - Rental Management{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Apartment Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        /* Full-Screen Centered Video */
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            z-index: -1;
+        }
 
-{% block content %}
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header text-center">Login</div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">Username</label>
-                            <input type="text" name="username" id="id_username" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">Password</label>
-                            <input type="password" name="password" id="id_password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+        .video-container video {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        /* Centered Login Card */
+        .login-container {
+            width: 380px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease-in-out;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome Text Styling */
+        .welcome-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #f8d210;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
+            margin-bottom: 20px;
+            text-align: center;
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        /* Video Controls */
+        .video-controls {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        .video-controls button {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="welcome-text">🏢 Welcome to <span style="color: #f8d210;">BBS MALL</span> 🏢</h1>
+    
+    <div class="video-container">
+        <video id="bg-video" autoplay loop>
+            <source src="{% static 'videos/background.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     </div>
-{% endblock %}
+
+    <div class="login-container text-center">
+        <h2 class="mb-3">Login</h2>
+        
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Incorrect username or password. Please try again.</strong>
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Username</label>
+                <input type="text" class="form-control" name="username" id="id_username" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" id="id_password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+    </div>
+
+    <!-- Video Controls -->
+    <div class="video-controls">
+        <button id="toggle-video">
+            <span id="video-icon">⏸️</span>
+        </button>
+    </div>
+
+    <script>
+        const video = document.getElementById("bg-video");
+        const toggleButton = document.getElementById("toggle-video");
+        const videoIcon = document.getElementById("video-icon");
+
+        toggleButton.addEventListener("click", function() {
+            if (video.paused) {
+                video.play();
+                videoIcon.textContent = "⏸️"; // Pause icon
+            } else {
+                video.pause();
+                videoIcon.textContent = "▶️"; // Play icon
+            }
+        });
+    </script>
+</body>
+</html>
