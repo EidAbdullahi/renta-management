@@ -1,0 +1,49 @@
+{% extends "users/base.html" %}
+
+{% block title %}Tenant List | Rental Management{% endblock %}
+
+{% block content %}
+    <h1>Tenant List</h1>
+
+    <!-- Make the table responsive for small screens -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Property Address</th>
+                    <th>Move-in Date</th>
+                    <th>Rent Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tenant in tenants %}
+                    <tr>
+                        <td>{{ tenant.name }}</td>
+                        <td>{{ tenant.email }}</td>
+                        <td>{{ tenant.phone }}</td>
+                        <td>{{ tenant.property_address }}</td>
+                        <td>{{ tenant.move_in_date }}</td>
+                        <td>{{ tenant.rent_amount }}</td>
+                        <td>
+                            <a href="{% url 'edit_tenant' tenant.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'delete_tenant' tenant.id %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No tenants found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add New Tenant Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'add_tenant' %}" class="btn btn-primary">Add New Tenant</a>
+    </div>
+{% endblock %}

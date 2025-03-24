@@ -68,8 +68,11 @@ ROOT_URLCONF = 'rental_management.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # Leave this empty when using app templates
-        'APP_DIRS': True,  # ✅ This will allow Django to find templates inside apps
+        'DIRS': [
+            BASE_DIR / 'templates',  # If you have a global templates folder
+            BASE_DIR / 'users/templates',  # If your app has its own templates folder
+        ],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -80,7 +83,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 WSGI_APPLICATION = 'rental_management.wsgi.application'
 
@@ -140,5 +142,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'  # Redirect after login
 LOGOUT_REDIRECT_URL = '/login/'  # Redirect to login after logout
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
