@@ -7,7 +7,7 @@ class Tenant(models.Model):
     property_address = models.CharField(max_length=255)
     move_in_date = models.DateField()
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    photo = models.ImageField(upload_to='tenant_photos/', blank=True, null=True)  # ✅ Stores tenant photo
+    # photo = models.ImageField(upload_to='tenant_photos/', blank=True, null=True)  # ✅ Stores tenant photo
     id_document = models.FileField(upload_to='tenant_documents/', blank=True, null=True)  # ✅ Stores ID document
 
     def __str__(self):

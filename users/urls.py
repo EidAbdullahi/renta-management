@@ -6,8 +6,9 @@ from django.shortcuts import redirect
 from . import views  # Import views from your app
 from django.conf import settings
 from django.conf.urls.static import static
-
+from .views import update_rent_status
 urlpatterns = [
+    path("update-rent-status/<int:tenant_id>/", update_rent_status, name="update_rent_status"),
     path('', lambda request: redirect('login'), name='home'),  # Redirect root to login
     path('login/', LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),

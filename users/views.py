@@ -78,3 +78,11 @@ def login_view(request):
 @login_required(login_url='/login/')
 def dashboard(request):
     return render(request, 'users/dashboard.html')  # Ensure 'dashboard.html' exists
+
+def update_rent_status(request, tenant_id):
+    tenant = get_object_or_404(Tenant, id=tenant_id)
+    if request.method == "POST":
+        rent_status = request.POST.get("rent_status")
+        tenant.rent_amount_paid = True if rent_status == "Paid" else False
+        tenant.save()
+    return redirect("tenant_list")  # Redirect back to the tenant list
