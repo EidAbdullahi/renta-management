@@ -22,7 +22,6 @@
                     <th>Property</th>
                     <th>Move-in</th>
                     <th>Rent</th>
-                    <th>Photo</th>
                     <th>ID</th>
                     <th>Actions</th>
                 </tr>
@@ -36,17 +35,6 @@
                     <td style="font-size: 13px;">{{ tenant.property_address }}</td>
                     <td style="font-size: 13px;">{{ tenant.move_in_date }}</td>
                     <td><span class="fw-bold text-success">${{ tenant.rent_amount }}</span></td>
-
-                    <!-- Photo Column (Small Image) -->
-                    <td>
-                        {% if tenant.photo %}
-                            <a href="{{ tenant.photo.url }}" target="_blank">
-                                <img src="{{ tenant.photo.url }}" alt="Tenant Photo" width="40" class="img-thumbnail">
-                            </a>
-                        {% else %}
-                            <span class="text-muted" style="font-size: 12px;">No Photo</span>
-                        {% endif %}
-                    </td>
 
                     <!-- ID Document Column (Compact Button) -->
                     <td>
@@ -73,7 +61,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="9" class="text-muted text-center fw-semibold py-3">No tenants found.</td>
+                    <td colspan="8" class="text-muted text-center fw-semibold py-3">No tenants found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

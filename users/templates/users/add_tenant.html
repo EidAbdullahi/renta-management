@@ -2,7 +2,7 @@
 
 {% block content %}
     <h2>Add Tenant</h2>
-    <form method="POST" enctype="multipart/form-data" class="container mt-4">  <!-- Added enctype -->
+    <form method="POST" enctype="multipart/form-data" class="container mt-4">
         {% csrf_token %}
         
         <div class="row">
@@ -41,13 +41,8 @@
             </div>
         </div>
 
-        <!-- FILE UPLOAD FIELDS -->
+        <!-- ID Document Upload (Photo Removed) -->
         <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="id_photo" class="form-label">Tenant Photo</label>
-                <input type="file" name="photo" class="form-control" id="id_photo">
-            </div>
-
             <div class="col-md-6 mb-3">
                 <label for="id_id_document" class="form-label">ID Document</label>
                 <input type="file" name="id_document" class="form-control" id="id_id_document">

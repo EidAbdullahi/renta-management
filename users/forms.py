@@ -7,5 +7,5 @@ class TenantForm(forms.ModelForm):
         fields = '__all__'  # Or list fields explicitly
 
     # Ensure correct file input handling
-    photo = forms.ImageField(required=False)
+    # photo = forms.ImageField(required=False)
     id_document = forms.FileField(required=False)
