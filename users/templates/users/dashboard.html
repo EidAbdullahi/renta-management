@@ -3,12 +3,21 @@
 {% block title %}Dashboard - Rental Management{% endblock %}
 
 {% block content %}
-    <div class="card">
-        <div class="card-body">
-            <h2>Welcome to the Dashboard</h2>
-            <p>Hello, <strong>{{ request.user.username }}</strong>! You are logged in.</p>
+<div class="card">
+    <div class="card-body">
+        <h2>Welcome to the Dashboard</h2>
+        <p>Hello, <strong>{{ request.user.username }}</strong>! You are logged in.</p>
+        <div class="mt-3">
+            <a href="{% url 'add_tenant' %}" class="btn btn-primary">Add Tenant</a>
+            <a href="{% url 'tenant_list' %}" class="btn btn-secondary">View Tenants</a>
         </div>
     </div>
+</div>
+<div class="card mt-4">
+    <div class="card-body">
+        <h3>Tenants Overview</h3>
+        <p>Total tenants: {{ tenants.count }}</p>
+    </div>
+</div>
 
-    
 {% endblock %}
