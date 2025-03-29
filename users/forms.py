@@ -1,5 +1,24 @@
 from django import forms
 from .models import Tenant
+from django import forms
+from .models import Payment, Tenant
+
+class PaymentForm(forms.ModelForm):
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        empty_label="Select Tenant",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Payment
+        fields = ['tenant', 'payment_date', 'amount_paid', 'payment_method', 'status']
+        widgets = {
+            'payment_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'amount_paid': forms.NumberInput(attrs={'class': 'form-control'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+        }
 
 class TenantForm(forms.ModelForm):
     class Meta:

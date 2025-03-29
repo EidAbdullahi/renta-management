@@ -6,6 +6,69 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Tenant
 from .forms import TenantForm  
+from django.shortcuts import render, redirect
+from .models import Payment
+from .forms import PaymentForm
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Payment, Tenant
+from .forms import PaymentForm
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Tenant, Payment
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Tenant, Payment
+from django.contrib.auth.decorators import login_required
+
+
+from django.urls import reverse
+from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404
+from .models import Payment, Tenant
+
+def tenant_payments(request, tenant_id):
+    tenant = get_object_or_404(Tenant, id=tenant_id)
+    payments = Payment.objects.filter(tenant=tenant)  # Get all payments for the tenant
+    return render(request, 'users/tenant_payments.html', {'payments': payments, 'tenant': tenant})
+
+
+def payment_list(request):
+    payments = Payment.objects.all()  # Get all payments
+    return render(request, 'users/payment_list.html', {'payments': payments})
+def tenant_payments(request, tenant_id):
+    tenant = get_object_or_404(Tenant, id=tenant_id)
+    payments = Payment.objects.filter(tenant=tenant)  # Get payments for this tenant
+    return render(request, 'users/tenant_payments.html', {'payments': payments, 'tenant': tenant})
+
+def some_view(request, tenant_id):
+    return redirect(reverse('add_payment_tenant', args=[tenant_id]))
+
+@login_required
+# def add_payment(request, tenant_id):
+#     tenant = get_object_or_404(Tenant, id=tenant_id)
+#     if request.method == 'POST':
+#         # Handle payment form submission
+#         pass
+#     return render(request, 'users/add_payment.html', {'tenant': tenant})
+def add_payment(request, tenant_id):
+    tenant = get_object_or_404(Tenant, id=tenant_id)
+    if request.method == 'POST':
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            payment = form.save(commit=False)
+            payment.tenant = tenant  # ✅ Assign Tenant, not User
+            payment.save()
+            return redirect('payment_list')
+    else:
+        form = PaymentForm()
+    return render(request, 'users/add_payment.html', {'form': form, 'tenant': tenant})
+
+
+# def payment_list(request):
+#     payments = Payment.objects.all().select_related('tenant')  # Optimize query
+#     return render(request, 'users/payment_list.html', {'payments': payments})
+
 
 # Add Tenant
 @login_required
