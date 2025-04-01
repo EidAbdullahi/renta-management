@@ -19,8 +19,8 @@
             <td>{{ payment.tenant.name }}</td>
             <td>{{ payment.tenant.property_address }}</td>
             <td>{{ payment.payment_date }}</td>
-            <td>KES {{ payment.amount }}</td>
-            <td>{{ payment.method }}</td>
+            <td>KES {{ payment.amount_paid }}</td>  <!-- Updated field name -->
+            <td>{{ payment.payment_method }}</td>  <!-- Updated field name -->
             <td>{{ payment.status }}</td>
             <td>
                 <a href="{% url 'tenant_payments' payment.tenant.id %}" class="btn btn-primary">View History</a>
@@ -29,6 +29,8 @@
         {% endfor %}
     </tbody>
 </table>
+
+
 
 
 {% endblock %}
