@@ -1,43 +1,34 @@
 {% extends "users/base.html" %}
 
 {% block content %}
-<div class="container">
-    <h2>All Payments</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Tenant</th>
-                <th>Property Address</th>
-                <th>Payment Date</th>
-                <th>Amount Paid</th>
-                <th>Method</th>
-                <th>Status</th>
-                <th>Receipt</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for payment in payments %}
-            <tr>
-                <td>{{ payment.tenant.name }}</td>
-                <td>{{ payment.tenant.property_address }}</td>  <!-- FIX: Tenant object doesn't have property_address -->
-                <td>{{ payment.payment_date }}</td>
-                <td>KES {{ payment.amount_paid }}</td>
-                <td>{{ payment.payment_method }}</td>
-                <td>{{ payment.status }}</td>
-                <td>
-                    {% if payment.receipt %}
-                        <a href="{{ payment.receipt.url }}" target="_blank" class="btn btn-success btn-sm">View Receipt</a>
-                    {% else %}
-                        No Receipt
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'tenant_payments' payment.tenant.id %}" class="btn btn-info btn-sm">View</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tenant</th>
+            <th>Property Address</th>
+            <th>Payment Date</th>
+            <th>Amount Paid</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in payments %}
+        <tr>
+            <td>{{ payment.tenant.name }}</td>
+            <td>{{ payment.tenant.property_address }}</td>
+            <td>{{ payment.payment_date }}</td>
+            <td>KES {{ payment.amount }}</td>
+            <td>{{ payment.method }}</td>
+            <td>{{ payment.status }}</td>
+            <td>
+                <a href="{% url 'tenant_payments' payment.tenant.id %}" class="btn btn-primary">View History</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
 {% endblock %}

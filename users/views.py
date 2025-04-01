@@ -8,12 +8,19 @@ from .models import Tenant, Payment
 from .forms import TenantForm, PaymentForm
 from django.conf import settings
 from django.http import HttpResponse
-
+from django.db.models import Max
 # ✅ List Payments (Optimized with select_related)
+
+
 @login_required
 def payment_list(request):
-    payments = Payment.objects.select_related('tenant').all()
-    return render(request, 'users/payment_list.html', {'payments': payments})
+    # Get the latest payment per tenant
+    latest_payments = Payment.objects.filter(
+        id__in=Payment.objects.values('tenant').annotate(latest=Max('id')).values('latest')
+    ).select_related('tenant')
+
+    return render(request, 'users/payment_list.html', {'payments': latest_payments})
+
 
 # ✅ View Payments for a Specific Tenant
 @login_required

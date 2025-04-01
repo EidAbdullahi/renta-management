@@ -1,44 +1,28 @@
 {% extends "users/base.html" %}
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">💰 Tenant Payments</h2>
-    <div class="card shadow-lg p-3 bg-white rounded">
-        <div class="table-responsive">
-            <table class="table table-hover text-center">
-                <thead class="bg-dark text-white">
-                    <tr>
-                        <th>👤 Tenant</th>
-                        <th>💵 Amount (KES)</th>
-                        <th>📅 Payment Date</th>
-                        <th>🧾 Receipt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for payment in payments %}
-                    <tr>
-                        <td class="fw-bold">{{ payment.tenant.name }}</td>
-                        <td class="text-success">KES {{ payment.amount_paid|floatformat:2 }}</td>
-                        <td>{{ payment.payment_date|date:"F d, Y" }}</td>
-                        <td>
-                            {% if payment.receipt %}
-                                <a href="{{ payment.receipt.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
-                                    📄 View Receipt
-                                </a>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">No Receipt</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-muted">No payments recorded.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<h2>Payment History for {{ tenant.name }}</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Payment Date</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in payments %}
+        <tr>
+            <td>{{ payment.payment_date }}</td>
+            <td>KES {{ payment.amount }}</td>
+            <td>{{ payment.method }}</td>
+            <td>{{ payment.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'payment_list' %}" class="btn btn-secondary">Back</a>
+
 
 {% endblock %}
 
