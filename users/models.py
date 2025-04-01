@@ -16,6 +16,8 @@ class Payment(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)  # ✅ Fixed here
     payment_date = models.DateField()
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    receipt = models.FileField(upload_to="receipts/", blank=True, null=True)  # Add receipt upload field
+
     PAYMENT_METHODS = [
         ('M-Pesa', 'M-Pesa'),
         ('Bank', 'Bank Transfer'),

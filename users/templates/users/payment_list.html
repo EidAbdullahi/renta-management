@@ -8,11 +8,11 @@
             <tr>
                 <th>Tenant</th>
                 <th>Property Address</th>
-                <th>Unit</th>
                 <th>Payment Date</th>
                 <th>Amount Paid</th>
                 <th>Method</th>
                 <th>Status</th>
+                <th>Receipt</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,12 +20,18 @@
             {% for payment in payments %}
             <tr>
                 <td>{{ payment.tenant.name }}</td>
-                <td>{{ payment.tenant.property_address }}</td>
-                <td>{{ payment.tenant.unit_number }}</td>
+                <td>{{ payment.tenant.property_address }}</td>  <!-- FIX: Tenant object doesn't have property_address -->
                 <td>{{ payment.payment_date }}</td>
                 <td>KES {{ payment.amount_paid }}</td>
                 <td>{{ payment.payment_method }}</td>
                 <td>{{ payment.status }}</td>
+                <td>
+                    {% if payment.receipt %}
+                        <a href="{{ payment.receipt.url }}" target="_blank" class="btn btn-success btn-sm">View Receipt</a>
+                    {% else %}
+                        No Receipt
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{% url 'tenant_payments' payment.tenant.id %}" class="btn btn-info btn-sm">View</a>
                 </td>

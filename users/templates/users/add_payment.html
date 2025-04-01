@@ -49,6 +49,10 @@
                     {{ form.status }}
                 </div>
             </div>
+            <div class="col-md-6">
+                <label for="id_receipt" class="form-label">Upload Receipt</label>
+                {{ form.receipt }}  <!-- ✅ Receipt Upload Field -->
+            </div>
 
             <div class="mt-4 d-flex justify-content-between">
                 <a href="{% url 'tenant_list' %}" class="btn btn-outline-secondary">

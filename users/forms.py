@@ -12,12 +12,13 @@ class PaymentForm(forms.ModelForm):
 
     class Meta:
         model = Payment
-        fields = ['tenant', 'payment_date', 'amount_paid', 'payment_method', 'status']
+        fields = ['tenant', 'payment_date', 'amount_paid', 'payment_method', 'status', 'receipt']  # Add receipt
         widgets = {
             'payment_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'amount_paid': forms.NumberInput(attrs={'class': 'form-control'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
+            'receipt': forms.ClearableFileInput(attrs={'class': 'form-control'})  # Add this
         }
 
 class TenantForm(forms.ModelForm):
