@@ -1,36 +1,66 @@
 {% extends "users/base.html" %}
 
 {% block content %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Tenant</th>
-            <th>Property Address</th>
-            <th>Payment Date</th>
-            <th>Amount Paid</th>
-            <th>Method</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for payment in payments %}
-        <tr>
-            <td>{{ payment.tenant.name }}</td>
-            <td>{{ payment.tenant.property_address }}</td>
-            <td>{{ payment.payment_date }}</td>
-            <td>KES {{ payment.amount_paid }}</td>  <!-- Updated field name -->
-            <td>{{ payment.payment_method }}</td>  <!-- Updated field name -->
-            <td>{{ payment.status }}</td>
-            <td>
-                <a href="{% url 'tenant_payments' payment.tenant.id %}" class="btn btn-primary">View History</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-4">
+    <h2 class="mb-3 text-center text-primary">
+        <i class="fas fa-receipt"></i> Payment List
+    </h2>
+    
+    <div class="table-responsive shadow-sm rounded"> 
+        <table class="table table-hover table-bordered text-center align-middle">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Tenant</th>
+                    <th>Property Address</th>
+                    <th>Payment Date</th>
+                    <th>Amount Paid</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.tenant.name }}</td>
+                    <td>{{ payment.tenant.property_address }}</td>
+                    <td>{{ payment.payment_date }}</td>
+                    <td><strong class="text-success">KES {{ payment.amount_paid }}</strong></td>
+                    <td>{{ payment.payment_method }}</td>
+                    <td>
+                        <span class="badge px-3 py-2 fs-6 
+                            {% if payment.status == 'Paid' %}bg-success
+                            {% elif payment.status == 'Pending' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ payment.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'tenant_payments' payment.tenant.id %}" 
+                           class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Payment History">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-muted text-center py-3">
+                        <i class="fas fa-info-circle"></i> No payments recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-
-
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
 
 {% endblock %}
