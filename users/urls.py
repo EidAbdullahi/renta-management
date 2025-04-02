@@ -35,6 +35,7 @@ urlpatterns = [
     path('payments/', payment_list, name='payment_list'),  # View all payments
     # Rent Status Update
     path('update-rent-status/<int:tenant_id>/', update_rent_status, name='update_rent_status'),
+    path('add-payment/<int:tenant_id>/', add_payment, name='add_payment'),
 ]
 
 # Serve media files in development

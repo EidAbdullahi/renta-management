@@ -11,9 +11,11 @@ from django.http import HttpResponse
 from django.db.models import Max
 from django.shortcuts import render
 from .models import Tenant, Property, Payment
-from django.shortcuts import render
 from users.models import Payment, Tenant, Property
 from django.db.models import Sum
+from django.contrib import messages  # Import the messages module
+from django.shortcuts import redirect
+
 # ✅ List Payments (Optimized with select_related)
 
 
@@ -36,18 +38,26 @@ def tenant_payments(request, tenant_id):
 
 # ✅ Add Payment for Tenant (Handles Receipt Upload)
 @login_required
+
+
+
+@login_required
 def add_payment(request, tenant_id):
     tenant = get_object_or_404(Tenant, id=tenant_id)
     if request.method == 'POST':
-        form = PaymentForm(request.POST, request.FILES)  # ✅ Ensure request.FILES is included
+        form = PaymentForm(request.POST, request.FILES)
         if form.is_valid():
             payment = form.save(commit=False)
             payment.tenant = tenant
             payment.save()
-            return redirect('payment_list')
+            messages.success(request, "✅ Payment added successfully!")  # ✅ Success message
+            return redirect('add_payment', tenant_id=tenant.id)  # Redirect to avoid form resubmission
     else:
         form = PaymentForm()
     return render(request, 'users/add_payment.html', {'form': form, 'tenant': tenant})
+
+
+
 
 # ✅ Add New Tenant
 @login_required

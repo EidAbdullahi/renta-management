@@ -29,11 +29,14 @@
         <div class="col-md-4">
             <div class="card shadow-lg border-0 bg-warning text-dark">
                 <div class="card-body">
-                    <h5 class="card-title">Pending Payments</h5>
-                    <p class="display-6">{{ pending_payments }}</p>
+                    <h5 class="card-title">Recent Payments</h5>
+                    <p class="display-6">
+                        <a href="{% url 'payment_list' %}" class="btn btn-light btn-sm">View All</a>
+                    </p>
                 </div>
             </div>
         </div>
+        
     </div>
 
     <!-- Total Payments -->
