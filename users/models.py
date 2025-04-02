@@ -33,3 +33,14 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.tenant.name} - {self.amount_paid} ({self.status})"
+    
+    from django.db import models
+
+class Property(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_rented = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name

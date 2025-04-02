@@ -9,6 +9,11 @@ from .forms import TenantForm, PaymentForm
 from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Max
+from django.shortcuts import render
+from .models import Tenant, Property, Payment
+from django.shortcuts import render
+from users.models import Payment, Tenant, Property
+from django.db.models import Sum
 # ✅ List Payments (Optimized with select_related)
 
 
@@ -120,6 +125,26 @@ def login_view(request):
     return render(request, 'users/login.html', {'form': form})
 
 # ✅ Dashboard
-@login_required(login_url='/login/')
+
+
+
+
 def dashboard(request):
-    return render(request, 'users/dashboard.html')
+    total_tenants = Tenant.objects.count()
+    total_properties = Property.objects.count()
+    pending_payments = Payment.objects.filter(status="Pending").count()
+    total_paid = Payment.objects.aggregate(total=Sum('amount_paid'))['total'] or 0
+
+    # Fetch last 5 recent payments
+    recent_payments = Payment.objects.order_by('-payment_date')[:5]
+
+    context = {
+        'total_tenants': total_tenants,
+        'total_properties': total_properties,
+        'pending_payments': pending_payments,
+        'total_paid': total_paid,
+        'recent_payments': recent_payments,  # Make sure this is passed
+    }
+    
+
+    return render(request, 'users/dashboard.html', context)
