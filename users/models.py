@@ -34,7 +34,6 @@ class Payment(models.Model):
     def __str__(self):
         return f"{self.tenant.name} - {self.amount_paid} ({self.status})"
     
-    from django.db import models
 
 class Property(models.Model):
     name = models.CharField(max_length=255)

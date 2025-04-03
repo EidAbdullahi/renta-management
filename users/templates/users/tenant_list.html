@@ -4,9 +4,15 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <h4 class="text-primary fw-bold">🏠 Tenant List</h4>
-        <a href="{% url 'add_tenant' %}" class="btn btn-success btn-sm shadow-sm">
-            <i class="fas fa-user-plus"></i> Add Tenant
-        </a>
+        
+        <div>
+            <button class="btn btn-secondary btn-sm shadow-sm" onclick="printTable()">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <a href="{% url 'add_tenant' %}" class="btn btn-success btn-sm shadow-sm">
+                <i class="fas fa-user-plus"></i> Add Tenant
+            </a>
+        </div>
     </div>
 
     <!-- Search Bar -->
@@ -87,6 +93,29 @@ function filterTable() {
         }
         rows[i].style.display = rowText.includes(input) ? "" : "none";
     }
+}
+
+// Function to Print the Table
+function printTable() {
+    let printContent = document.getElementById("tenantTable").outerHTML;
+    let originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = `
+        <html>
+        <head>
+            <title>Print Tenant List</title>
+            <style>
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid black; padding: 8px; text-align: center; }
+                th { background-color: #333; color: white; }
+            </style>
+        </head>
+        <body>${printContent}</body>
+        </html>
+    `;
+    
+    window.print();
+    document.body.innerHTML = originalContent;
 }
 </script>
 
