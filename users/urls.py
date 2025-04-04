@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect
 from django.conf import settings
+from . import views
 from django.conf.urls.static import static
 from .views import payment_list, tenant_payments
 from .views import (
@@ -36,8 +37,12 @@ urlpatterns = [
     # Rent Status Update
     path('update-rent-status/<int:tenant_id>/', update_rent_status, name='update_rent_status'),
     path('add-payment/<int:tenant_id>/', add_payment, name='add_payment'),
-
     
+    path('register_employee/', views.register_employee, name='register_employee'),
+    path('employee_list/', views.employee_list, name='employee_list'),
+    path('edit_employee/<int:id>/', views.edit_employee, name='edit_employee'),
+    path('delete_employee/<int:id>/', views.delete_employee, name='delete_employee'),
+    path('employee_list/', views.employee_list, name='employee_list'),
 ]
 
 # Serve media files in development

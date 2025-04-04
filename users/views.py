@@ -17,6 +17,69 @@ from django.contrib import messages  # Import the messages module
 from django.shortcuts import redirect
 
 # ✅ List Payments (Optimized with select_related)
+from django.shortcuts import render, redirect
+from .forms import EmployeeForm
+from .models import Employee
+
+from django.shortcuts import render
+from .models import Employee  # Make sure this is imported
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Employee
+from .forms import EmployeeForm  # Assuming you have a form for Employee
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Employee
+from django.template.loader import get_template
+from django.shortcuts import render
+from .models import Employee  # Import the Employee model
+
+def employee_list(request):
+    # Get all employees
+    employees = Employee.objects.all()
+    return render(request, 'users/employee_list.html', {'employees': employees})
+
+
+
+
+    # Your delete logic follows.
+def delete_employee(request, id):
+    employee = get_object_or_404(Employee, id=id)
+    if request.method == 'POST':
+        employee.delete()
+        return redirect('employee_list')  # Redirect to employee list after deletion
+    return render(request, 'users/confirm_delete.html', {'employee': employee})
+
+def edit_employee(request, id):
+    employee = get_object_or_404(Employee, id=id)
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, instance=employee)
+        if form.is_valid():
+            form.save()
+            return redirect('employee_list')
+    else:
+        form = EmployeeForm(instance=employee)
+
+    return render(request, 'users/edit_employee.html', {'form': form, 'employee': employee})
+
+def employee_list(request):
+    employees = Employee.objects.all()  # Fetch all employees from the database
+    return render(request, 'users/employee_list.html', {'employees': employees})
+
+
+# users/views.py
+from django.shortcuts import render, redirect
+from .forms import EmployeeForm
+
+def register_employee(request):
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('employee_list')
+    else:
+        form = EmployeeForm()
+
+    return render(request, 'users/register_employee.html', {'form': form})
+
 
 
 @login_required

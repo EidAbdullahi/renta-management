@@ -1,0 +1,52 @@
+{% extends "users/base.html" %}
+
+{% block title %}Employee List{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Employee List</h2>
+    
+    <!-- Table wrapped in a responsive div -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Position</th>
+                    <th>Salary</th>
+                    <th>Uploaded ID</th>
+                    <th>Actions</th>    
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.first_name }}</td>
+                        <td>{{ employee.last_name }}</td>
+                        <td>{{ employee.position }}</td>
+                        <td>${{ employee.salary|floatformat:2 }}</td> <!-- Display salary with 2 decimal places -->
+                        <td>
+                            {% if employee.upload_id %}
+                              <a href="{{ employee.upload_id.url }}" target="_blank">View</a>
+                            {% else %}
+                              No document
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_employee' employee.id %}" class="btn btn-primary btn-sm">Edit</a>
+                            <a href="{% url 'delete_employee' employee.id %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No employees found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <a href="{% url 'register_employee' %}" class="btn btn-success btn-sm">Register New Employee</a>
+</div>
+{% endblock %}

@@ -2,6 +2,22 @@ from django import forms
 from .models import Tenant
 from django import forms
 from .models import Payment, Tenant
+from django import forms
+from .models import Employee
+
+# users/forms.py
+from django import forms
+from .models import Employee
+
+class EmployeeForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = ['first_name', 'last_name', 'email', 'phone', 'position', 'salary', 'gender', 'emergency_contact', 'upload_id']
+        widgets = {
+            'position': forms.Select(choices=[('Manager', 'Manager'), ('Guard', 'Guard'), ('Cleaner', 'Cleaner')]),
+            'gender': forms.Select(choices=[('Male', 'Male'), ('Female', 'Female')]),
+        }
+
 
 class PaymentForm(forms.ModelForm):
     tenant = forms.ModelChoiceField(
