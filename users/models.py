@@ -1,10 +1,29 @@
 from django.db import models
 # users/models.py
 from django.db import models
+from django.utils import timezone
+
+class MaintenanceRequest(models.Model):
+    tenant = models.ForeignKey('Tenant', on_delete=models.CASCADE)
+    property = models.ForeignKey('Property', on_delete=models.CASCADE)
+    description = models.TextField()
+    date_requested = models.DateTimeField(default=timezone.now)
+    date_resolved = models.DateTimeField(null=True, blank=True)
+    status_choices = [
+        ('OPEN', 'Open'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('RESOLVED', 'Resolved'),
+    ]
+    status = models.CharField(max_length=15, choices=status_choices, default='OPEN')
+    assigned_to = models.CharField(max_length=255, null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Request from {self.tenant.name} - {self.status}"
+
 
 class Employee(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    full_name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15)
     position = models.CharField(max_length=50)
@@ -12,9 +31,11 @@ class Employee(models.Model):
     gender = models.CharField(max_length=6)
     emergency_contact = models.CharField(max_length=15)
     upload_id = models.FileField(upload_to='employee_ids/')
+    face_image = models.ImageField(upload_to='employee_faces/', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.full_name
+
 
 
 class Tenant(models.Model):

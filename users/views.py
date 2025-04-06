@@ -32,11 +32,11 @@ from django.template.loader import get_template
 from django.shortcuts import render
 from .models import Employee  # Import the Employee model
 
-def employee_list(request):
-    # Get all employees
-    employees = Employee.objects.all()
-    return render(request, 'users/employee_list.html', {'employees': employees})
 
+
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Employee  # Assuming you have an Employee model
 
 
 
@@ -59,15 +59,38 @@ def edit_employee(request, id):
         form = EmployeeForm(instance=employee)
 
     return render(request, 'users/edit_employee.html', {'form': form, 'employee': employee})
+# forms.py
+from django import forms
+
+class EmployeeSearchForm(forms.Form):
+    search = forms.CharField(required=False, label='Search by Name')
+    position = forms.ChoiceField(
+        required=False,
+        choices=[('', 'Filter by Position'), 
+                 ('Manager', 'Manager'), 
+                 ('Developer', 'Developer'), 
+                 ('Designer', 'cleaner')],
+        label='Position'
+    )
 
 def employee_list(request):
     employees = Employee.objects.all()  # Fetch all employees from the database
+    form = EmployeeSearchForm(request.GET)  # Get form data from the request
+
+    if form.is_valid():
+        search_term = form.cleaned_data.get('search')
+        position_filter = form.cleaned_data.get('position')
+        
+        if search_term:
+            employees = employees.filter(full_name__icontains=search_term)  # Case-insensitive search
+        
+        if position_filter:
+            employees = employees.filter(position=position_filter)  # Filter by position
+    
     return render(request, 'users/employee_list.html', {'employees': employees})
 
 
 # users/views.py
-from django.shortcuts import render, redirect
-from .forms import EmployeeForm
 
 def register_employee(request):
     if request.method == 'POST':
