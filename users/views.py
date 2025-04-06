@@ -39,8 +39,7 @@ from django.db.models import Q
 from .models import Employee  # Assuming you have an Employee model
 
 
-
-    # Your delete logic follows.
+# Employeees views.
 def delete_employee(request, id):
     employee = get_object_or_404(Employee, id=id)
     if request.method == 'POST':
@@ -58,7 +57,7 @@ def edit_employee(request, id):
     else:
         form = EmployeeForm(instance=employee)
 
-    return render(request, 'users/edit_employee.html', {'form': form, 'employee': employee})
+    return render(request, 'employee/edit_employee.html', {'form': form, 'employee': employee})
 # forms.py
 from django import forms
 
@@ -87,10 +86,10 @@ def employee_list(request):
         if position_filter:
             employees = employees.filter(position=position_filter)  # Filter by position
     
-    return render(request, 'users/employee_list.html', {'employees': employees})
+    return render(request, 'employee/employee_list.html', {'employees': employees})
 
 
-# users/views.py
+
 
 def register_employee(request):
     if request.method == 'POST':
@@ -101,7 +100,12 @@ def register_employee(request):
     else:
         form = EmployeeForm()
 
-    return render(request, 'users/register_employee.html', {'form': form})
+    return render(request, 'employee/register_employee.html', {'form': form})
+
+
+
+
+
 
 
 
@@ -112,7 +116,7 @@ def payment_list(request):
         id__in=Payment.objects.values('tenant').annotate(latest=Max('id')).values('latest')
     ).select_related('tenant')
 
-    return render(request, 'users/payment_list.html', {'payments': latest_payments})
+    return render(request, 'tenant/payment_list.html', {'payments': latest_payments})
 
 
 # ✅ View Payments for a Specific Tenant
@@ -120,7 +124,7 @@ def payment_list(request):
 def tenant_payments(request, tenant_id):
     tenant = get_object_or_404(Tenant, id=tenant_id)
     payments = Payment.objects.filter(tenant=tenant)
-    return render(request, 'users/tenant_payments.html', {'payments': payments, 'tenant': tenant})
+    return render(request, 'tenant/tenant_payments.html', {'payments': payments, 'tenant': tenant})
 
 # ✅ Add Payment for Tenant (Handles Receipt Upload)
 @login_required
@@ -140,7 +144,7 @@ def add_payment(request, tenant_id):
             return redirect('add_payment', tenant_id=tenant.id)  # Redirect to avoid form resubmission
     else:
         form = PaymentForm()
-    return render(request, 'users/add_payment.html', {'form': form, 'tenant': tenant})
+    return render(request, 'tenant/add_payment.html', {'form': form, 'tenant': tenant})
 
 
 
@@ -155,13 +159,13 @@ def add_tenant(request):
             return redirect('tenant_list')
     else:
         form = TenantForm()
-    return render(request, 'users/add_tenant.html', {'form': form})
+    return render(request, 'tenant/add_tenant.html', {'form': form})
 
 # ✅ List All Tenants
 @login_required
 def tenant_list(request):
     tenants = Tenant.objects.all()
-    return render(request, 'users/tenant_list.html', {'tenants': tenants})
+    return render(request, 'tenant/tenant_list.html', {'tenants': tenants})
 
 # ✅ Edit Tenant Details
 @login_required
@@ -174,7 +178,7 @@ def edit_tenant(request, tenant_id):
             return redirect('tenant_list')
     else:
         form = TenantForm(instance=tenant)
-    return render(request, 'users/edit_tenant.html', {'form': form, 'tenant': tenant})
+    return render(request, 'tenant/edit_tenant.html', {'form': form, 'tenant': tenant})
 
 # ✅ Delete Tenant
 @login_required
@@ -183,7 +187,7 @@ def delete_tenant(request, tenant_id):
     if request.method == 'POST':
         tenant.delete()
         return redirect('tenant_list')
-    return render(request, 'users/delete_tenant.html', {'tenant': tenant})
+    return render(request, 'tenant/delete_tenant.html', {'tenant': tenant})
 
 # ✅ Update Tenant Rent Payment Status
 @login_required

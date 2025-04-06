@@ -1,0 +1,74 @@
+<!-- users/register_employee.html -->
+{% extends "users/base.html" %}
+
+
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="id_tenant" class="form-label">Full name</label>
+                    {{ form.full_name|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_payment_date" class="form-label">Email</label>
+                    {{ form.email|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_amount_paid" class="form-label">Phone number</label>
+                    {{ form.phone|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_payment_method" class="form-label">Gender</label>
+                    {{ form.gender|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_payment_method" class="form-label">Position</label>
+                    {{ form.position|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_status" class="form-label">Salary</label>
+                    {{ form.salary|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_payment_method" class="form-label">Emergency contact</label>
+                    {{ form.emergency_contact|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_receipt" class="form-label">Upload ID</label>
+                    {{ form.upload_id|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_receipt" class="form-label">Upload passport photo</label>
+                    {{ form.face_image|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a href="{% url 'tenant_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Register
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center mt-3" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

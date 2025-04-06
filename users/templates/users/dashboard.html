@@ -4,6 +4,47 @@
 
 {% block content %}
 <div class="container mt-4">
+<nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+    <div class="position-sticky">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'dashboard' %}">
+                    <i class="bi bi-house-door"></i></i> Overview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-building"></i> Properties
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tenant_list' %}">
+                    <i class="bi bi-person"></i> Tenants
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-wallet"></i> Financials
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-tools"></i> Maintenance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-chat-dots"></i> Communication
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- Main Content Area -->
+
+</div>
+
+<div class="container mt-4">
     <h3 class="text-center mb-4">Dashboard Overview</h3>
     
     <!-- Stats Cards -->
@@ -39,56 +80,11 @@
         
     </div>
 
-    <!-- Total Payments -->
-    <!-- <div class="mt-4">
-        <div class="card shadow-lg border-0 bg-info text-white">
-            <div class="card-header">Total Payments</div>
-            <div class="card-body">
-                <h4>${{ total_paid }}</h4>
-            </div>
-        </div>
-    </div> -->
+   
 
-    <!-- Recent Payments Table -->
-    <div class="card shadow mt-4">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Recent Payments</h5>
-            <a href="{% url 'payment_list' %}" class="btn btn-light btn-sm">View All</a>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Tenant Name</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for payment in recent_payments %}
-                        <tr>
-                            <td>{{ payment.tenant.name }}</td>
-                            <td>${{ payment.amount_paid }}</td>
-                            <td>
-                                {% if payment.status == "Paid" %}
-                                    <span class="badge bg-success">Paid</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Pending</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">No recent payments</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
+
+<!-- Layout for Property Management Dashboard -->
+
+
 {% endblock %}

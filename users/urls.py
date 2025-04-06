@@ -24,6 +24,7 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'),
 
     # Tenant Management
+
     path('tenant_list/', tenant_list, name='tenant_list'),
     path('add_tenant/', add_tenant, name='add_tenant'),
     path('edit_tenant/<int:tenant_id>/', edit_tenant, name='edit_tenant'),

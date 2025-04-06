@@ -22,6 +22,7 @@
         <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
             <thead class="table-dark">
                 <tr>
+                    <th>No</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -36,6 +37,7 @@
             <tbody>
                 {% for tenant in tenants %}
                 <tr>
+                    <td class="fw-semibold">{{ tenant.id}}</td>
                     <td class="fw-semibold">{{ tenant.name }}</td>
                     <td>{{ tenant.email }}</td>
                     <td>{{ tenant.phone }}</td>

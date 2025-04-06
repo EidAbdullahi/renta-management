@@ -37,6 +37,7 @@
                     <table class="table table-striped table-hover table-bordered border-light rounded-3 table-sm" id="employeeTable">
                         <thead class="thead-dark">
                             <tr>
+                                <th>No</th>
                                 <th>Full Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -50,6 +51,7 @@
                         <tbody>
                             {% for employee in employees %}
                                 <tr>
+                                    <td>{{ employee.id}}.</td>
                                     <td>{{ employee.full_name }}</td>
                                     <td>{{ employee.email }}</td>
                                     <td>{{ employee.phone }}</td>
@@ -151,5 +153,6 @@
     </div>
 
 </div>
+
 
 {% endblock %}
