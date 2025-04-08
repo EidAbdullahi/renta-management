@@ -1,4 +1,4 @@
-#!/home/baraka/renta-management/virtual/bin/python3
+#!/home/baraka/Desktop/renta-management/virtual/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

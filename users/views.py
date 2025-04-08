@@ -15,7 +15,8 @@ from users.models import Payment, Tenant, Property
 from django.db.models import Sum
 from django.contrib import messages  # Import the messages module
 from django.shortcuts import redirect
-
+from users.models import Tenant, Employee, Payment  # Import Employee
+from django.db.models import Sum
 # ✅ List Payments (Optimized with select_related)
 from django.shortcuts import render, redirect
 from .forms import EmployeeForm
@@ -229,22 +230,25 @@ def login_view(request):
 
 
 
+
+
 def dashboard(request):
     total_tenants = Tenant.objects.count()
-    total_properties = Property.objects.count()
+    total_employees = Employee.objects.count()  # Add employee count
     pending_payments = Payment.objects.filter(status="Pending").count()
     total_paid = Payment.objects.aggregate(total=Sum('amount_paid'))['total'] or 0
+    total_payment_list = Payment.objects.count()  # Example, count all payments
 
     # Fetch last 5 recent payments
     recent_payments = Payment.objects.order_by('-payment_date')[:5]
 
     context = {
         'total_tenants': total_tenants,
-        'total_properties': total_properties,
+        'total_employees': total_employees,  # Add to context
         'pending_payments': pending_payments,
         'total_paid': total_paid,
-        'recent_payments': recent_payments,  # Make sure this is passed
+        'recent_payments': recent_payments,
+        'total_payment_list': total_payment_list,
     }
-    
 
     return render(request, 'users/dashboard.html', context)
