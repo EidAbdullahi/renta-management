@@ -3,156 +3,155 @@
 {% block title %}Employee List{% endblock %}
 
 {% block content %}
-<div class="container my-5 bg-light p-4 rounded">
-    <h2 class="text-center mb-5 display-4 font-weight-bold text-primary">Employee List</h2>
-
-    <!-- Filter Section -->
-    <!-- employee_list.html -->
-<form method="get" class="d-flex justify-content-between mb-4">
-    <div class="d-flex">
-        <!-- Search input -->
-        <input type="text" class="form-control me-2" name="search" id="employeeSearch" placeholder="Search by Name..." value="{{ request.GET.search }}">
-        
-        <!-- Filter dropdown -->
-        <select class="form-select" name="position" id="employeeFilterPosition">
-            <option value="">Filter by Position</option>
-            <option value="Manager" {% if request.GET.position == 'Manager' %}selected{% endif %}>Manager</option>
-            <option value="Developer" {% if request.GET.position == 'Developer' %}selected{% endif %}>Developer</option>
-            <option value="Designer" {% if request.GET.position == 'cleaner' %}selected{% endif %}>cleaner</option>
-        </select>
-    </div>
-
-    <!-- Clear button -->
-    <button class="btn btn-secondary" type="submit">Search</button>
-</form>
-
-
-
-
-    <!-- Card View for Mobile -->
-    <div class="row d-none d-md-flex"> <!-- Hidden for mobile, visible on medium screens and up -->
-        <div class="card shadow-lg p-4 mb-5 bg-white rounded">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover table-bordered border-light rounded-3 table-sm" id="employeeTable">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th>No</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Position</th>
-                                <th>Salary</th>
-                                <th>Gender</th>
-                                <th>Emergency Contact</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for employee in employees %}
-                                <tr>
-                                    <td>{{ employee.id}}.</td>
-                                    <td>{{ employee.full_name }}</td>
-                                    <td>{{ employee.email }}</td>
-                                    <td>{{ employee.phone }}</td>
-                                    <td>{{ employee.position }}</td>
-                                    <td>${{ employee.salary|floatformat:2 }}</td>
-                                    <td>{{ employee.gender }}</td>
-                                    <td>{{ employee.emergency_contact }}</td>
-                                    <td class="d-flex flex-column flex-sm-row justify-content-start">
-                                        <!-- Edit Button -->
-                                        <a href="{% url 'edit_employee' employee.id %}" class="btn btn-warning btn-sm shadow-sm me-2 mb-2 mb-sm-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Employee">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </a>
-
-                                        <!-- Delete Button (Modal for confirmation) -->
-                                        <button type="button" class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employee.id }}" data-bs-placement="top" title="Delete Employee">
-                                            <i class="bi bi-trash-fill"></i> Delete
-                                        </button>
-
-                                        <!-- Modal for Delete Confirmation -->
-                                        <div class="modal fade" id="deleteModal{{ employee.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ employee.id }}" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    <div class="modal-header bg-danger text-white">
-                                                        <h5 class="modal-title" id="deleteModalLabel{{ employee.id }}">Confirm Deletion</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure you want to delete this employee? This action cannot be undone.
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <a href="{% url 'delete_employee' employee.id %}" class="btn btn-danger">Delete</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">No employees found.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 p-0 bg-dark text-white">
+            <div class="sidebar">
+                <h4 class="p-3">Employee</h4>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a href="{% url 'employee_list' %}" class="nav-link text-white">Employee List</a>
+                    </li>
+                    <li class="nav-item">
+                    <a href="{% url 'register_employee' %}" class="nav-link text-white">Add Employee</a> 
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'register_employee' %}" class="nav-link text-white">Employee Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'register_employee' %}"class="nav-link text-white">Settings</a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
 
-    <!-- Mobile Card View -->
-    <div class="row d-block d-md-none"> <!-- Visible only on mobile (hidden on medium screens and up) -->
-        {% for employee in employees %}
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm">
+        <!-- Main Content Area -->
+     
+        <div class="col-md-9 col-lg-10 p-4 bg-light">
+            <h2 class="text-center mb-5 display-4 font-weight-bold text-primary">Employee List</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm shadow-sm">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            <!-- Filter Section -->
+            <form method="get" class="d-flex justify-content-between mb-4">
+                <div class="d-flex">
+                    <!-- Search input -->
+                    <input type="text" class="form-control me-2" name="search" id="employeeSearch" placeholder="Search by Name..." value="{{ request.GET.search }}">
+
+                    <!-- Filter dropdown -->
+                    <select class="form-select" name="position" id="employeeFilterPosition">
+                        <option value="">Filter by Position</option>
+                        <option value="Manager" {% if request.GET.position == 'Manager' %}selected{% endif %}>Manager</option>
+                        <option value="Developer" {% if request.GET.position == 'Developer' %}selected{% endif %}>Developer</option>
+                        <option value="Designer" {% if request.GET.position == 'cleaner' %}selected{% endif %}>Cleaner</option>
+                    </select>
+                </div>
+
+                <!-- Clear button -->
+                <button class="btn btn-secondary" type="submit">Search</button>
+            </form>
+
+            <!-- Card View for Mobile -->
+            <div class="row d-none d-md-flex">
+                <div class="card shadow-lg p-4 mb-5 bg-white rounded">
                     <div class="card-body">
-                        <h5 class="card-title">{{ employee.full_name }}</h5>
-                        <p class="card-text">
-                            <strong>Email:</strong> {{ employee.email }}<br>
-                            <strong>Phone:</strong> {{ employee.phone }}<br>
-                            <strong>Position:</strong> {{ employee.position }}<br>
-                            <strong>Salary:</strong> ${{ employee.salary|floatformat:2 }}<br>
-                            <strong>Gender:</strong> {{ employee.gender }}<br>
-                            <strong>Emergency Contact:</strong> {{ employee.emergency_contact }}<br>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                {% if employee.upload_id %}
-                                    <a href="{{ employee.upload_id.url }}" target="_blank" class="btn btn-outline-info btn-sm shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="View ID">View ID</a>
-                                {% else %}
-                                    <span class="text-muted">No document</span>
-                                {% endif %}
-                                {% if employee.face_image %}
-                                    <img src="{{ employee.face_image.url }}" alt="Face Image" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                                {% else %}
-                                    <span class="text-muted">No image</span>
-                                {% endif %}
-                            </div>
-                            <div>
-                                <!-- Edit Button -->
-                                <a href="{% url 'edit_employee' employee.id %}" class="btn btn-warning btn-sm shadow-sm me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Employee">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-
-                                <!-- Delete Button (Modal for confirmation) -->
-                                <button type="button" class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employee.id }}" data-bs-placement="top" title="Delete Employee">
-                                    <i class="bi bi-trash-fill"></i> Delete
-                                </button>
-                            </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover table-bordered border-light rounded-3 table-sm" id="employeeTable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Position</th>
+                                        <th>Salary</th>
+                                        <th>Gender</th>
+                                        <th>Emergency Contact</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employee in employees %}
+                                    <tr>
+                                        <td>{{ employee.id }}.</td>
+                                        <td>{{ employee.full_name }}</td>
+                                        <td>{{ employee.email }}</td>
+                                        <td>{{ employee.phone }}</td>
+                                        <td>{{ employee.position }}</td>
+                                        <td>${{ employee.salary|floatformat:2 }}</td>
+                                        <td>{{ employee.gender }}</td>
+                                        <td>{{ employee.emergency_contact }}</td>
+                                        <td class="d-flex flex-column flex-sm-row justify-content-start">
+                                            <a href="{% url 'edit_employee' employee.id %}" class="btn btn-warning btn-sm shadow-sm me-2 mb-2 mb-sm-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Employee">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                            <button type="button" class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employee.id }}" data-bs-placement="top" title="Delete Employee">
+                                                <i class="bi bi-trash-fill"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">No employees found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-        {% empty %}
-            <div class="col-12">
-                <p class="text-center text-muted">No employees found.</p>
+
+            <!-- Mobile Card View -->
+            <div class="row d-block d-md-none">
+                {% for employee in employees %}
+                <div class="col-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ employee.full_name }}</h5>
+                            <p class="card-text">
+                                <strong>Email:</strong> {{ employee.email }}<br>
+                                <strong>Phone:</strong> {{ employee.phone }}<br>
+                                <strong>Position:</strong> {{ employee.position }}<br>
+                                <strong>Salary:</strong> ${{ employee.salary|floatformat:2 }}<br>
+                                <strong>Gender:</strong> {{ employee.gender }}<br>
+                                <strong>Emergency Contact:</strong> {{ employee.emergency_contact }}<br>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if employee.upload_id %}
+                                    <a href="{{ employee.upload_id.url }}" target="_blank" class="btn btn-outline-info btn-sm shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="View ID">View ID</a>
+                                    {% else %}
+                                    <span class="text-muted">No document</span>
+                                    {% endif %}
+                                    {% if employee.face_image %}
+                                    <img src="{{ employee.face_image.url }}" alt="Face Image" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                    <span class="text-muted">No image</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <a href="{% url 'edit_employee' employee.id %}" class="btn btn-warning btn-sm shadow-sm me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Employee">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employee.id }}" data-bs-placement="top" title="Delete Employee">
+                                        <i class="bi bi-trash-fill"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-center text-muted">No employees found.</p>
+                </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     </div>
-
 </div>
-
-
 {% endblock %}

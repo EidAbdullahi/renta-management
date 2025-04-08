@@ -1,126 +1,238 @@
 {% extends "users/base.html" %}
 
+{% block title %}Dashboard - Rental Management{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <h4 class="text-primary fw-bold">🏠 Tenant List</h4>
-        
-        <div>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar vh-100 shadow-sm">
+      <div class="position-sticky pt-4">
+        <h5 class="text-center text-primary fw-bold mb-4">Dashboard Menu</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item mb-2">
+            <a class="nav-link active text-primary" href="{% url 'dashboard' %}">
+              <i class="bi bi-house-door me-2"></i> Overview
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="#">
+              <i class="bi bi-building me-2"></i> Properties
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="{% url 'tenant_list' %}">
+              <i class="bi bi-person me-2"></i> Tenants
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="#">
+              <i class="bi bi-wallet me-2"></i> Financials
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="#">
+              <i class="bi bi-tools me-2"></i> Maintenance
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="#">
+              <i class="bi bi-chat-dots me-2"></i> Communication
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="col-md-10 ms-sm-auto px-md-5 py-4">
+      <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+          <h4 class="text-primary fw-bold">🏠 Tenant List</h4>
+          
+          <div>
             <button class="btn btn-secondary btn-sm shadow-sm" onclick="printTable()">
-                <i class="fas fa-print"></i> Print
+              <i class="fas fa-print"></i> Print
             </button>
             <a href="{% url 'add_tenant' %}" class="btn btn-success btn-sm shadow-sm">
-                <i class="fas fa-user-plus"></i> Add Tenant
+              <i class="fas fa-user-plus"></i> Add Tenant
             </a>
+          </div>
         </div>
-    </div>
 
-    <!-- Search Bar -->
-    <input type="text" id="tenantSearch" class="form-control form-control-sm mb-3" placeholder="🔍 Search tenants..." onkeyup="filterTable()">
+        <!-- Search Bar -->
+        <input type="text" id="tenantSearch" class="form-control form-control-sm mb-3" placeholder="🔍 Search tenants..." onkeyup="filterTable()">
 
-    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-        <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+          <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
             <thead class="table-dark">
-                <tr>
-                    <th>No</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Property</th>
-                    <th>Move-in</th>
-                    <th>Rent</th>
-                    <th>ID</th>
-                    <th>Payments</th>
-                    <th>Actions</th>
-                </tr>
+              <tr>
+                <th>No</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Property</th>
+                <th>Move-in</th>
+                <th>Rent</th>
+                <th>ID</th>
+                <th>Payments</th>
+                <th>Actions</th>
+              </tr>
             </thead>
             <tbody>
-                {% for tenant in tenants %}
-                <tr>
-                    <td class="fw-semibold">{{ tenant.id}}</td>
-                    <td class="fw-semibold">{{ tenant.name }}</td>
-                    <td>{{ tenant.email }}</td>
-                    <td>{{ tenant.phone }}</td>
-                    <td>{{ tenant.property_address }}</td>
-                    <td>{{ tenant.move_in_date }}</td>
-                    <td><span class="fw-bold text-success">${{ tenant.rent_amount }}</span></td>
-                    <td>
-                        {% if tenant.id_document %}
-                            <a href="{{ tenant.id_document.url }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
-                                <i class="fas fa-file-alt"></i>
-                            </a>
-                        {% else %}
-                            <span class="text-muted">No ID</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                       <a href="{% url 'add_payment_tenant' tenant.id %}">Add Payment</a>
-                    </td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a href="{% url 'edit_tenant' tenant.id %}" class="btn btn-warning btn-sm text-dark shadow-sm">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{% url 'delete_tenant' tenant.id %}" method="POST" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm shadow-sm" onclick="return confirm('Are you sure?');">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9" class="text-muted text-center fw-semibold py-3">No tenants found.</td>
-                </tr>
-                {% endfor %}
+              {% for tenant in tenants %}
+              <tr>
+                <td class="fw-semibold">{{ tenant.id}}</td>
+                <td class="fw-semibold">{{ tenant.name }}</td>
+                <td>{{ tenant.email }}</td>
+                <td>{{ tenant.phone }}</td>
+                <td>{{ tenant.property_address }}</td>
+                <td>{{ tenant.move_in_date }}</td>
+                <td><span class="fw-bold text-success">${{ tenant.rent_amount }}</span></td>
+                <td>
+                  {% if tenant.id_document %}
+                  <a href="{{ tenant.id_document.url }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
+                    <i class="fas fa-file-alt"></i>
+                  </a>
+                  {% else %}
+                  <span class="text-muted">No ID</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'add_payment_tenant' tenant.id %}">Add Payment</a>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'edit_tenant' tenant.id %}" class="btn btn-warning btn-sm text-dark shadow-sm">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="{% url 'delete_tenant' tenant.id %}" method="POST" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm shadow-sm" onclick="return confirm('Are you sure?');">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="9" class="text-muted text-center fw-semibold py-3">No tenants found.</td>
+              </tr>
+              {% endfor %}
             </tbody>
-        </table>
-    </div>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
 <!-- JavaScript for Live Search Filtering -->
 <script>
 function filterTable() {
-    let input = document.getElementById("tenantSearch").value.toLowerCase();
-    let table = document.getElementById("tenantTable");
-    let rows = table.getElementsByTagName("tr");
+  let input = document.getElementById("tenantSearch").value.toLowerCase();
+  let table = document.getElementById("tenantTable");
+  let rows = table.getElementsByTagName("tr");
 
-    for (let i = 1; i < rows.length; i++) {
-        let cells = rows[i].getElementsByTagName("td");
-        let rowText = "";
-        for (let cell of cells) {
-            rowText += cell.textContent.toLowerCase() + " ";
-        }
-        rows[i].style.display = rowText.includes(input) ? "" : "none";
+  for (let i = 1; i < rows.length; i++) {
+    let cells = rows[i].getElementsByTagName("td");
+    let rowText = "";
+    for (let cell of cells) {
+      rowText += cell.textContent.toLowerCase() + " ";
     }
+    rows[i].style.display = rowText.includes(input) ? "" : "none";
+  }
 }
 
 // Function to Print the Table
 function printTable() {
-    let printContent = document.getElementById("tenantTable").outerHTML;
-    let originalContent = document.body.innerHTML;
+  let printContent = document.getElementById("tenantTable").outerHTML;
+  let originalContent = document.body.innerHTML;
 
-    document.body.innerHTML = `
-        <html>
-        <head>
-            <title>Print Tenant List</title>
-            <style>
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid black; padding: 8px; text-align: center; }
-                th { background-color: #333; color: white; }
-            </style>
-        </head>
-        <body>${printContent}</body>
-        </html>
-    `;
-    
-    window.print();
-    document.body.innerHTML = originalContent;
+  document.body.innerHTML = `
+      <html>
+      <head>
+          <title>Print Tenant List</title>
+          <style>
+              table { width: 100%; border-collapse: collapse; }
+              th, td { border: 1px solid black; padding: 8px; text-align: center; }
+              th { background-color: #333; color: white; }
+          </style>
+      </head>
+      <body>${printContent}</body>
+      </html>
+  `;
+  
+  window.print();
+  document.body.innerHTML = originalContent;
 }
 </script>
 
 <!-- FontAwesome for Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 {% endblock %}
+
+<!-- Custom CSS -->
+<style>
+  .sidebar {
+    background-color: #f8f9fa;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 20px;
+  }
+
+  .sidebar .nav-link {
+    color: #495057;
+    font-size: 16px;
+    padding: 10px 15px;
+  }
+
+  .sidebar .nav-link:hover,
+  .sidebar .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .sidebar .nav-link i {
+    font-size: 20px;
+  }
+
+  /* Table Styles */
+  .table th, .table td {
+    padding: 10px;
+  }
+
+  .table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .btn-outline-dark {
+    color: #333;
+    border-color: #333;
+  }
+
+  .btn-outline-dark:hover {
+    background-color: #333;
+    color: white;
+  }
+
+  .btn-light {
+    background-color: #f8f9fa;
+    color: #333;
+  }
+
+  .btn-light:hover {
+    background-color: #e2e6ea;
+    color: #333;
+  }
+
+  /* Responsive Layout */
+  @media (max-width: 768px) {
+    .col-md-10 {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  }
+</style>
