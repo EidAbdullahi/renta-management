@@ -81,25 +81,25 @@
     <div class="container mt-5">
         <div class="card p-4">
             <h2 class="mb-4 text-center text-primary">Expense List</h2>
-            <p class="total-expenses">Total Expenses: <strong>KES {{ total_expenses }}</strong></p>
+            <p class="total-expenses">Total Expenses for {{ month|default:"All Months" }}: <strong>KES {{ total_expenses }}</strong></p>
 
             <!-- Filter Section -->
             <div class="filter-container mb-4">
                 <input type="text" id="expenseSearch" class="form-control w-50 search-bar" placeholder="🔍 Search Expenses..." onkeyup="filterTable()">
                 <select id="monthFilter" class="form-control month-filter" onchange="filterByMonth()">
                     <option value="">Select Month</option>
-                    <option value="01">January</option>
-                    <option value="02">February</option>
-                    <option value="03">March</option>
-                    <option value="04">April</option>
-                    <option value="05">May</option>
-                    <option value="06">June</option>
-                    <option value="07">July</option>
-                    <option value="08">August</option>
-                    <option value="09">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
+                    <option value="01" {% if month == "01" %}selected{% endif %}>January</option>
+                    <option value="02" {% if month == "02" %}selected{% endif %}>February</option>
+                    <option value="03" {% if month == "03" %}selected{% endif %}>March</option>
+                    <option value="04" {% if month == "04" %}selected{% endif %}>April</option>
+                    <option value="05" {% if month == "05" %}selected{% endif %}>May</option>
+                    <option value="06" {% if month == "06" %}selected{% endif %}>June</option>
+                    <option value="07" {% if month == "07" %}selected{% endif %}>July</option>
+                    <option value="08" {% if month == "08" %}selected{% endif %}>August</option>
+                    <option value="09" {% if month == "09" %}selected{% endif %}>September</option>
+                    <option value="10" {% if month == "10" %}selected{% endif %}>October</option>
+                    <option value="11" {% if month == "11" %}selected{% endif %}>November</option>
+                    <option value="12" {% if month == "12" %}selected{% endif %}>December</option>
                 </select>
                 <div>
                     <a href="{% url 'add_expense' %}" class="btn btn-primary mb-3">+ Add New Expense</a>
@@ -135,7 +135,7 @@
             </div>
         </div>
     </div>
-
+     
     <script>
         // Filter the table by the search term
         function filterTable() {
@@ -172,6 +172,9 @@
                     rows[i].style.display = "none";
                 }
             }
+
+            // Optionally, send a request to update the total expenses
+            window.location.href = `?month=${month}`;
         }
 
         // Print functionality

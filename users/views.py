@@ -34,6 +34,7 @@ import calendar
 import csv
 
 
+
 from django.shortcuts import render
 from .models import Employee  # Make sure this is imported
 from django.shortcuts import render, get_object_or_404, redirect
@@ -410,10 +411,25 @@ def add_expense(request):
 
     return render(request, 'tenant/add_expense.html', {'form': form})
 
+
+
 def expense_list(request):
-    expenses = Expense.objects.all()
+    # Get the selected month or default to the current month
+    month = request.GET.get('month', None)
+    
+    # Filter expenses by month if provided
+    if month:
+        expenses = Expense.objects.filter(expense_date__month=month)
+    else:
+        expenses = Expense.objects.all()
+    
+    # Calculate total expenses for the filtered data
     total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
-    return render(request, 'tenant/expense_list.html', {
+    
+    context = {
         'expenses': expenses,
-        'total_expenses': total_expenses
-    })
+        'total_expenses': total_expenses,
+        'month': month,
+    }
+    
+    return render(request, 'tenant/expense_list.html', context)
