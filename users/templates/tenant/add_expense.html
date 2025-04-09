@@ -1,19 +1,62 @@
-<!-- add_expense.html -->
+{% extends "users/base.html" %}
 {% load static %}
+{% block content %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Add Expense</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f1f4f9;
+        }
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            background: #fff;
+        }
+        .form-control, .btn {
+            border-radius: 0.5rem;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #333;
+        }
+        h2 {
+            font-weight: 700;
+            color: #0d6efd;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Add Expense</h2>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Save Expense</button>
-        </form>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card p-4 p-md-5">
+            <h2 class="mb-4 text-center"><i class="fas fa-money-bill-wave me-2"></i>Add Expense</h2>
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Save Expense
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 </body>
 </html>
+{% endblock %}
