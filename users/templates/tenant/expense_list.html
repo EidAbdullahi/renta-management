@@ -1,0 +1,42 @@
+<!-- expense_list.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense List</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Expense List</h2>
+        <p><strong>Total Expenses:</strong> KES {{ total_expenses }}</p>
+        
+        <a href="{% url 'add_expense' %}" class="btn btn-primary mb-3">Add New Expense</a>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Expense Type</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.get_expense_type_display }}</td>
+                        <td>KES {{ expense.amount }}</td>
+                        <td>{{ expense.expense_date }}</td>
+                        <td>{{ expense.description }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No expenses recorded yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -2,6 +2,7 @@ from django.db import models
 # users/models.py
 from django.db import models
 from django.utils import timezone
+from django.db.models import Sum
 
 # class MaintenanceRequest(models.Model):
 #     tenant = models.ForeignKey('Tenant', on_delete=models.CASCADE)
@@ -54,21 +55,42 @@ class Tenant(models.Model):
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
     id_document = models.FileField(upload_to='tenant_documents/', blank=True, null=True)
 
+
+    def calculate_monthly_balance(self):
+        current_month = timezone.now().month
+        # Get total payments made in the current month
+        total_paid = Payment.objects.filter(
+            tenant=self,
+            payment_date__month=current_month
+        ).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+        balance = self.rent_amount - total_paid
+        return balance
+
+    def overdue_months(self):
+        overdue_payments = []
+        for payment in Payment.objects.filter(tenant=self):
+            if payment.status == 'Pending' and payment.payment_date.month < timezone.now().month:
+                overdue_payments.append(payment.payment_date.month)
+        return overdue_payments
+
     def __str__(self):
         return self.name
 
-class Payment(models.Model):
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)  # ✅ Fixed here
-    payment_date = models.DateField()
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    receipt = models.FileField(upload_to="receipts/", blank=True, null=True)  # Add receipt upload field
 
+    
+class Payment(models.Model):
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    payment_date = models.DateField(default=timezone.now)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    receipt = models.FileField(upload_to="receipts/", blank=True, null=True)
+    
     PAYMENT_METHODS = [
         ('M-Pesa', 'M-Pesa'),
         ('Bank', 'Bank Transfer'),
         ('Cash', 'Cash'),
     ]
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
+    
     STATUS_CHOICES = [
         ('Paid', 'Paid'),
         ('Pending', 'Pending'),
@@ -76,9 +98,49 @@ class Payment(models.Model):
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
+    def save(self, *args, **kwargs):
+        # Automatically calculate status based on payment date and amount
+        if self.payment_date.month == timezone.now().month:
+            if self.amount_paid < self.tenant.rent_amount:
+                self.status = 'Overdue'
+            else:
+                self.status = 'Paid'
+        super().save(*args, **kwargs)
+
+
+    def update_payment_status(self):
+        current_month = timezone.now().month
+        if self.payment_date.month == current_month:
+            if self.amount_paid < self.tenant.rent_amount:
+                self.status = 'Overdue'
+                self.save()
+            else:
+                self.status = 'Paid'
+                self.save()
+    
+
     def __str__(self):
         return f"{self.tenant.name} - {self.amount_paid} ({self.status})"
     
+
+
+
+class Expense(models.Model):
+    EXPENSE_TYPES = [
+        ('Maintenance', 'Maintenance'),
+        ('Salaries', 'Salaries'),
+        ('Utilities', 'Utilities'),
+        ('Repairs', 'Repairs'),
+        ('Other', 'Other'),
+    ]
+
+    expense_type = models.CharField(max_length=50, choices=EXPENSE_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    expense_date = models.DateField(default=timezone.now)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.expense_type} - KES {self.amount} on {self.expense_date}"
 
 # class Property(models.Model):
 #     name = models.CharField(max_length=255)

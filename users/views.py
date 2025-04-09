@@ -5,6 +5,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Tenant, Payment
+from .models import Expense
+from .forms import ExpenseForm
+# forms.py
+from django import forms
 from .forms import TenantForm, PaymentForm
 from django.conf import settings
 from django.http import HttpResponse
@@ -21,6 +25,14 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from .forms import EmployeeForm
 from .models import Employee
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django.db.models import Q
+import calendar
+import csv
+
 
 from django.shortcuts import render
 from .models import Employee  # Make sure this is imported
@@ -59,8 +71,7 @@ def edit_employee(request, id):
         form = EmployeeForm(instance=employee)
 
     return render(request, 'employee/edit_employee.html', {'form': form, 'employee': employee})
-# forms.py
-from django import forms
+
 
 class EmployeeSearchForm(forms.Form):
     search = forms.CharField(required=False, label='Search by Name')
@@ -149,6 +160,82 @@ def add_payment(request, tenant_id):
 
 
 
+
+def payment_summary(request):
+    month = request.GET.get('month')
+    export = request.GET.get('export')
+
+    if month:
+        selected_month = int(month)
+    else:
+        selected_month = timezone.now().month
+
+    payments = Payment.objects.filter(payment_date__month=selected_month)
+    total_collected = payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+
+    paid_tenants = payments.filter(status='Paid')
+    unpaid_tenants = Tenant.objects.exclude(
+        id__in=paid_tenants.values_list('tenant_id', flat=True)
+    )
+
+    paid_count = paid_tenants.count()
+    unpaid_count = unpaid_tenants.count()
+
+    # CSV Export logic
+    if export == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="payments_{selected_month}.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Tenant', 'Amount', 'Date', 'Status'])
+        for p in payments:
+            writer.writerow([p.tenant.name, p.amount_paid, p.payment_date, p.status])
+        return response
+
+    month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    context = {
+    'month_choices': month_choices,
+    'month_name': calendar.month_name[selected_month],  # ✅ This line
+    
+      }
+
+    context = {
+        'payments': payments,
+        'paid_tenants': paid_tenants,
+        'unpaid_tenants': unpaid_tenants,
+        'selected_month': selected_month,
+        'month_choices': month_choices,
+        # 'month_name': month_name[selected_month],
+        'total_collected': total_collected,
+        'paid_count': paid_count,
+        'unpaid_count': unpaid_count,
+    }
+    return render(request, 'tenant/payment_summary.html', context)
+
+def export_payments_csv(request):
+    month = int(request.GET.get('month', timezone.now().month))
+    payments = Payment.objects.filter(payment_date__month=month)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="payments_{month}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Tenant', 'Amount Paid', 'Date', 'Method', 'Status'])
+
+    for payment in payments:
+        writer.writerow([
+            payment.tenant.name,
+            payment.amount_paid,
+            payment.payment_date,
+            payment.payment_method,
+            payment.status
+        ])
+    return response
+
+@receiver(post_save, sender=Payment)
+def update_payment_status(sender, instance, **kwargs):
+    # Check if it's a new payment or an updated one
+    instance.update_payment_status()
 
 # ✅ Add New Tenant
 @login_required
@@ -252,3 +339,81 @@ def dashboard(request):
     }
 
     return render(request, 'users/dashboard.html', context)
+
+
+
+def generate_financial_report(month=None):
+    if not month:
+        month = timezone.now().month
+    
+    # Calculate Total Income
+    total_income = Payment.objects.filter(payment_date__month=month).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+    
+    # Calculate Total Expenses
+    total_expenses = Expense.objects.filter(expense_date__month=month).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # Calculate Net Profit
+    net_profit = total_income - total_expenses
+    
+    # Summary Information
+    report_summary = {
+        'total_income': total_income,
+        'total_expenses': total_expenses,
+        'net_profit': net_profit,
+        'month': timezone.now().strftime('%B'),
+    }
+
+    return report_summary
+
+def financial_report(request):
+    # Get the selected month from GET parameter or use current month
+    month = request.GET.get('month')
+    if month:
+        selected_month = int(month)
+    else:
+        selected_month = timezone.now().month
+    
+    # Generate the financial report
+    report_summary = generate_financial_report(month=selected_month)
+    
+    context = {
+        'report_summary': report_summary,
+        'selected_month': selected_month,
+    }
+    return render(request, 'tenant/financial_report.html', context)
+
+def export_financial_report(request):
+    month = request.GET.get('month')
+    if not month:
+        month = timezone.now().month
+
+    report_summary = generate_financial_report(month=month)
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="financial_report_{month}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Month', 'Total Income', 'Total Expenses', 'Net Profit'])
+    writer.writerow([report_summary['month'], report_summary['total_income'], report_summary['total_expenses'], report_summary['net_profit']])
+
+    return response
+
+
+def add_expense(request):
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('expense_list')  # Redirect to a page showing all expenses
+    else:
+        form = ExpenseForm()
+
+    return render(request, 'tenant/add_expense.html', {'form': form})
+
+def expense_list(request):
+    expenses = Expense.objects.all()
+    total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+    return render(request, 'tenant/expense_list.html', {
+        'expenses': expenses,
+        'total_expenses': total_expenses
+    })

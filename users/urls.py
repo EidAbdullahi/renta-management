@@ -15,6 +15,8 @@ urlpatterns = [
     path('payments/tenant/<int:tenant_id>/', tenant_payments, name='tenant_payments'),  # View payments for a specific tenant
     # Redirect root to login
     path('', lambda request: redirect('login'), name='home'),
+    path('payment-summary/', views.payment_summary, name='payment_summary'),
+    path('export-csv/', views.export_payments_csv, name='export_payments_csv'),
 
     # Authentication
     path('login/', LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
@@ -44,7 +46,19 @@ urlpatterns = [
     path('edit_employee/<int:id>/', views.edit_employee, name='edit_employee'),
     path('delete_employee/<int:id>/', views.delete_employee, name='delete_employee'),
     path('employee_list/', views.employee_list, name='employee_list'),
+
+
+
+
+    # URL for the financial report summary page
+    path('financial-report/', views.financial_report, name='financial_report'),
     
+    # URL for exporting the financial report to CSV
+    path('export-financial-report/', views.export_financial_report, name='export_financial_report'),
+    
+
+    path('add-expense/', views.add_expense, name='add_expense'),
+    path('expense-list/', views.expense_list, name='expense_list'),
 ]
 
 # Serve media files in development

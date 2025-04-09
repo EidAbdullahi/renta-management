@@ -1,0 +1,178 @@
+{% extends "users/base.html" %}
+{% block title %}Dashboard - Rental Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar vh-100 shadow-sm">
+        <div class="position-sticky pt-4">
+          <h5 class="text-center text-primary fw-bold mb-4">Dashboard Menu</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <a class="nav-link active text-primary" href="{% url 'dashboard' %}">
+                <i class="bi bi-house-door me-2"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link" href="{% url 'tenant_list' %}">
+                <i class="bi bi-person me-2"></i> Rent history
+              </a>
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link" href="{% url 'expense_list' %}">
+                <i class="bi bi-wallet me-2"></i> Expenses
+              </a>
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link" href="{% url 'payment_list' %}">
+                <i class="bi bi-tools me-2"></i> Financial analysis
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+  
+      <!-- Main Content -->
+      <main class="col-md-10 ms-sm-auto px-md-5 py-4">
+        <div class="container mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h4 class="text-primary fw-bold">🏠 Financial report</h4>
+            <div>
+              <button class="btn btn-secondary btn-sm shadow-sm" onclick="printTable()">
+                <i class="fas fa-print"></i> Print
+              </button>
+              
+            </div>
+          </div>
+  
+          <!-- Search Bar -->
+          <input type="text" id="tenantSearch" class="form-control form-control-sm mb-3" placeholder="🔍 Search months..." onkeyup="filterTable()">
+  
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
+              <thead class="table-dark">
+                <tr>
+                  <th>Total Income in Rent</th>
+                  <th>Total Expense</th>
+                  <th>Net Income</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="fw-semibold">KES {{ report_summary.total_income }}</td>
+                  <td class="fw-semibold">KES {{ report_summary.total_expenses }}</td>
+                  <td>KES {{ report_summary.net_profit }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  {% endblock %}
+
+  <!-- JavaScript for Live Search Filtering -->
+  <script>
+    function filterTable() {
+      let input = document.getElementById("tenantSearch").value.toLowerCase();
+      let table = document.getElementById("tenantTable");
+      let rows = table.getElementsByTagName("tr");
+  
+      for (let i = 1; i < rows.length; i++) {
+        let cells = rows[i].getElementsByTagName("td");
+        let rowText = "";
+        for (let cell of cells) {
+          rowText += cell.textContent.toLowerCase() + " ";
+        }
+        rows[i].style.display = rowText.includes(input) ? "" : "none";
+      }
+    }
+  
+    function printTable() {
+      let printContent = document.getElementById("tenantTable").outerHTML;
+      let originalContent = document.body.innerHTML;
+  
+      document.body.innerHTML = `
+        <html>
+        <head>
+          <title>Print Tenant List</title>
+          <style>
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid black; padding: 8px; text-align: center; }
+            th { background-color: #333; color: white; }
+          </style>
+        </head>
+        <body>${printContent}</body>
+        </html>
+      `;
+      window.print();
+      document.body.innerHTML = originalContent;
+    }
+  </script>
+  
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <style>
+    .sidebar {
+      background-color: #f8f9fa;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      padding-top: 20px;
+    }
+  
+    .sidebar .nav-link {
+      color: #495057;
+      font-size: 16px;
+      padding: 10px 15px;
+    }
+  
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color: #007bff;
+      color: #fff;
+    }
+  
+    .sidebar .nav-link i {
+      font-size: 20px;
+    }
+  
+    .table th, .table td {
+      padding: 10px;
+    }
+  
+    .table-responsive {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+  
+    .btn-outline-dark {
+      color: #333;
+      border-color: #333;
+    }
+  
+    .btn-outline-dark:hover {
+      background-color: #333;
+      color: white;
+    }
+  
+    .btn-light {
+      background-color: #f8f9fa;
+      color: #333;
+    }
+  
+    .btn-light:hover {
+      background-color: #e2e6ea;
+      color: #333;
+    }
+  
+    @media (max-width: 768px) {
+      .col-md-10 {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+    }
+  </style>
+  

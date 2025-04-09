@@ -4,6 +4,7 @@ from django import forms
 from .models import Payment, Tenant
 from django import forms
 from .models import Employee
+from .models import Expense
 
 # users/forms.py
 from django import forms
@@ -55,3 +56,9 @@ class TenantForm(forms.ModelForm):
     # Ensure correct file input handling
     # photo = forms.ImageField(required=False)
     id_document = forms.FileField(required=False)
+
+
+class ExpenseForm(forms.ModelForm):
+    class Meta:
+        model = Expense
+        fields = ['expense_type', 'amount', 'expense_date', 'description']
