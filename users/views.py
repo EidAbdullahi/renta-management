@@ -162,43 +162,44 @@ def add_payment(request, tenant_id):
 
 
 
+# from django.shortcuts import render
+# from django.utils import timezone
+# from django.db.models import Sum
+# from django.http import HttpResponse
+# import csv, calendar
+# from .models import Payment, Tenant  # Adjust import paths as needed
+
 def payment_summary(request):
     month = request.GET.get('month')
     export = request.GET.get('export')
 
-    if month:
-        selected_month = int(month)
-    else:
-        selected_month = timezone.now().month
+    selected_month = int(month) if month else timezone.now().month
 
+    # Fetch all payments for the selected month
     payments = Payment.objects.filter(payment_date__month=selected_month)
+
+    # Calculate total collected payments
     total_collected = payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
 
+    # Separate paid and unpaid tenants
     paid_tenants = payments.filter(status='Paid')
-    unpaid_tenants = Tenant.objects.exclude(
-        id__in=paid_tenants.values_list('tenant_id', flat=True)
-    )
+    unpaid_tenants = Tenant.objects.exclude(id__in=paid_tenants.values_list('tenant_id', flat=True))
 
     paid_count = paid_tenants.count()
     unpaid_count = unpaid_tenants.count()
 
-    # CSV Export logic
+    # CSV Export
     if export == 'csv':
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="payments_{selected_month}.csv"'
+        response['Content-Disposition'] = f'attachment; filename="payments_{calendar.month_name[selected_month]}.csv"'
         writer = csv.writer(response)
-        writer.writerow(['Tenant', 'Amount', 'Date', 'Status'])
+        writer.writerow(['Tenant', 'Amount Paid', 'Payment Date', 'Status'])
         for p in payments:
             writer.writerow([p.tenant.name, p.amount_paid, p.payment_date, p.status])
         return response
 
+    # Month choices for dropdown
     month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]
-
-    context = {
-    'month_choices': month_choices,
-    'month_name': calendar.month_name[selected_month],  # ✅ This line
-    
-      }
 
     context = {
         'payments': payments,
@@ -206,12 +207,14 @@ def payment_summary(request):
         'unpaid_tenants': unpaid_tenants,
         'selected_month': selected_month,
         'month_choices': month_choices,
-        # 'month_name': month_name[selected_month],
+        'month_name': calendar.month_name[selected_month],
         'total_collected': total_collected,
         'paid_count': paid_count,
         'unpaid_count': unpaid_count,
     }
+
     return render(request, 'tenant/payment_summary.html', context)
+
 
 def export_payments_csv(request):
     month = int(request.GET.get('month', timezone.now().month))
