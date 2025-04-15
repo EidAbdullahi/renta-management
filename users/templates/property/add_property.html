@@ -1,0 +1,12 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container">
+  <h2 class="mb-4 text-primary">➕ Add New Property</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'property_list' %}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}

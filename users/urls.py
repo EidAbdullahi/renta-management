@@ -59,6 +59,10 @@ urlpatterns = [
 
     path('add-expense/', views.add_expense, name='add_expense'),
     path('expense-list/', views.expense_list, name='expense_list'),
+
+
+    path('properties/', views.property_list, name='property_list'),
+    path('properties/add/', views.add_property, name='add_property'),
 ]
 
 # Serve media files in development

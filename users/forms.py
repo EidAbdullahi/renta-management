@@ -5,13 +5,20 @@ from .models import Payment, Tenant
 from django import forms
 from .models import Employee
 from .models import Expense
-
+from django import forms
+from .models import Expense
 # users/forms.py
 from django import forms
 from .models import Employee
 
 from django import forms
 from .models import Employee
+from .models import Property
+
+class PropertyForm(forms.ModelForm):
+    class Meta:
+        model = Property
+        fields = ['name', 'address', 'number_of_units']
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
@@ -48,14 +55,35 @@ class PaymentForm(forms.ModelForm):
             'receipt': forms.ClearableFileInput(attrs={'class': 'form-control'})  # Add this
         }
 
+
+
+
+
 class TenantForm(forms.ModelForm):
+    property = forms.ModelChoiceField(
+        queryset=Property.objects.all(),
+        empty_label="Select Property",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = Tenant
-        fields = '__all__'  # Or list fields explicitly
+        fields = ['name', 'email', 'phone', 'property', 'move_in_date', 'rent_amount', 'id_document', 'unit_number']
+        widgets = {
+            'move_in_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
-    # Ensure correct file input handling
-    # photo = forms.ImageField(required=False)
-    id_document = forms.FileField(required=False)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Optional: only show properties with available units
+        self.fields['property'].queryset = Property.objects.all()
+
+
+
+class ExpenseForm(forms.ModelForm):
+    class Meta:
+        model = Expense
+        fields = ['expense_type', 'amount', 'expense_date', 'description']
 
 
 class ExpenseForm(forms.ModelForm):

@@ -15,23 +15,21 @@
               <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
           </li>
-  
           <li class="nav-item mb-2">
             <a class="nav-link" href="{% url 'tenant_list' %}">
-              <i class="bi bi-person me-2"></i> Tenants information
+              <i class="bi bi-person me-2"></i> Tenants Information
             </a>
           </li>
           <li class="nav-item mb-2">
             <a class="nav-link" href="{% url 'payment_summary' %}">
-              <i class="bi bi-wallet me-2"></i> payments summary
+              <i class="bi bi-wallet me-2"></i> Payments Summary
             </a>
           </li>
           <li class="nav-item mb-2">
             <a class="nav-link" href="{% url 'payment_list' %}">
-              <i class="bi bi-tools me-2"></i> payment history
+              <i class="bi bi-tools me-2"></i> Payment History
             </a>
           </li>
-          
         </ul>
       </div>
     </nav>
@@ -41,9 +39,8 @@
       <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
           <h4 class="text-primary fw-bold">🏠 Tenant List</h4>
-          
           <div>
-            <button class="btn btn-secondary btn-sm shadow-sm" onclick="printTable()">
+            <button class="btn btn-outline-dark btn-sm shadow-sm" onclick="printTable()">
               <i class="fas fa-print"></i> Print
             </button>
             <a href="{% url 'add_tenant' %}" class="btn btn-success btn-sm shadow-sm">
@@ -55,32 +52,34 @@
         <!-- Search Bar -->
         <input type="text" id="tenantSearch" class="form-control form-control-sm mb-3" placeholder="🔍 Search tenants..." onkeyup="filterTable()">
 
-        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <!-- Table -->
+        <div class="table-responsive">
           <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
             <thead class="table-dark">
               <tr>
-                <th>No</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Property</th>
-                <th>Move-in</th>
-                <th>Rent</th>
-                <th>ID</th>
-                <th>Payments</th>
-                <th>Actions</th>
+                <th class="text-nowrap">No</th>
+                <th class="text-nowrap">Name</th>
+                <th class="text-nowrap d-none d-sm-table-cell">Email</th>
+                <th class="text-nowrap d-none d-md-table-cell">Phone</th>
+                <th class="text-nowrap d-none d-md-table-cell">Property</th>
+                <th class="text-nowrap d-none d-lg-table-cell">Move-in</th>
+                <th class="text-nowrap d-none d-lg-table-cell">Unit</th>
+                <th class="text-nowrap d-none d-lg-table-cell">ID Document</th>
+                <th class="text-nowrap">Payments</th>
+                <th class="text-nowrap">Actions</th>
               </tr>
             </thead>
+            
             <tbody>
               {% for tenant in tenants %}
               <tr>
-                <td class="fw-semibold">{{ tenant.id}}</td>
+                <td class="fw-semibold">{{ tenant.id }}</td>
                 <td class="fw-semibold">{{ tenant.name }}</td>
                 <td>{{ tenant.email }}</td>
                 <td>{{ tenant.phone }}</td>
-                <td>{{ tenant.property_address }}</td>
+                <td>{{ tenant.property }}</td>
                 <td>{{ tenant.move_in_date }}</td>
-                <td><span class="fw-bold text-success">${{ tenant.rent_amount }}</span></td>
+                <td class="fw-semibold">{{ tenant.unit_number }}</td>
                 <td>
                   {% if tenant.id_document %}
                   <a href="{{ tenant.id_document.url }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
@@ -91,7 +90,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  <a href="{% url 'add_payment_tenant' tenant.id %}">Add Payment</a>
+                  <a href="{% url 'add_payment_tenant' tenant.id %}" class="btn btn-primary btn-sm shadow-sm">Add Payment</a>
                 </td>
                 <td>
                   <div class="btn-group" role="group">
@@ -109,7 +108,7 @@
               </tr>
               {% empty %}
               <tr>
-                <td colspan="9" class="text-muted text-center fw-semibold py-3">No tenants found.</td>
+                <td colspan="10" class="text-muted text-center fw-semibold py-3">No tenants found.</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -192,7 +191,22 @@ function printTable() {
 
   /* Table Styles */
   .table th, .table td {
-    padding: 10px;
+    padding: 12px 15px;
+    text-align: center;
+  }
+
+  .table thead th {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .table tbody tr:hover {
+    background-color: #e6f7ff;
+    cursor: pointer;
   }
 
   .table-responsive {
@@ -226,7 +240,26 @@ function printTable() {
       padding-left: 15px;
       padding-right: 15px;
     }
+
+    .sidebar {
+      display: none;
+    }
+
+    .table-responsive {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .d-flex {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .table td, .table th {
+      white-space: nowrap;
+    }
+
+    .table {
+      font-size: 14px;
+    }
   }
 </style>
-
-

@@ -1,0 +1,39 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container">
+  <h2 class="text-primary mb-4">🏘 Property List</h2>
+
+  <a href="{% url 'add_property' %}" class="btn btn-success mb-3">➕ Add New Property</a>
+
+  <table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Property Name</th>
+        <th>Address</th>
+        <th>Total Units</th>
+        <th>Occupied</th>
+        <th>Available</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for property in properties %}
+      <tr>
+        <td>{{ property.name }}</td>
+        <td>{{ property.address }}</td>
+        <td>{{ property.number_of_units }}</td>
+        <td>{{ property.occupied_units }}</td>
+        <td>
+          <span class="{% if property.available_units == 0 %}text-danger{% else %}text-success{% endif %}">
+            {{ property.available_units }}
+          </span>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5">No properties added yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -19,6 +19,7 @@
           <table class="table table-hover table-bordered text-center align-middle">
               <thead class="bg-dark text-white">
                   <tr>
+                     <th>No</th>
                       <th>Tenant</th>
                       <th>Property Address</th>
                       <th>Payment Date</th>
@@ -31,6 +32,7 @@
               <tbody>
                   {% for payment in payments %}
                   <tr>
+                    <td>{{ payment.tenant.id }}</td>
                       <td>{{ payment.tenant.name }}</td>
                       <td>{{ payment.tenant.property_address }}</td>
                       <td>{{ payment.payment_date }}</td>

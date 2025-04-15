@@ -7,6 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import Tenant, Payment
 from .models import Expense
 from .forms import ExpenseForm
+from django.utils.timezone import now
 # forms.py
 from django import forms
 from .forms import TenantForm, PaymentForm
@@ -16,6 +17,7 @@ from django.db.models import Max
 from django.shortcuts import render
 from .models import Tenant, Property, Payment
 from users.models import Payment, Tenant, Property
+from .forms import PropertyForm
 from django.db.models import Sum
 from django.contrib import messages  # Import the messages module
 from django.shortcuts import redirect
@@ -51,6 +53,30 @@ from .models import Employee  # Import the Employee model
 from django.shortcuts import render
 from django.db.models import Q
 from .models import Employee  # Assuming you have an Employee model
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Expense
+from .forms import ExpenseForm
+from django.shortcuts import get_object_or_404, redirect
+from .models import Expense
+
+def delete_expense(request, pk):
+    expense = get_object_or_404(Expense, pk=pk)
+    expense.delete()
+    return redirect('expense_list')  # Redirect to the expense list after deletion
+
+
+def edit_expense(request, pk):
+    expense = get_object_or_404(Expense, pk=pk)
+    
+    if request.method == "POST":
+        form = ExpenseForm(request.POST, instance=expense)
+        if form.is_valid():
+            form.save()
+            return redirect('expense_list')  # Redirect to the expense list after editing
+    else:
+        form = ExpenseForm(instance=expense)
+    
+    return render(request, 'expenses/edit_expense.html', {'form': form, 'expense': expense})
 
 
 # Employeees views.
@@ -161,7 +187,6 @@ def add_payment(request, tenant_id):
 
 
 
-
 # from django.shortcuts import render
 # from django.utils import timezone
 # from django.db.models import Sum
@@ -169,48 +194,65 @@ def add_payment(request, tenant_id):
 # import csv, calendar
 # from .models import Payment, Tenant  # Adjust import paths as needed
 
+from datetime import datetime
+from django.db.models import Sum
+from django.shortcuts import render
+from .models import Tenant, Payment
+import calendar
+
 def payment_summary(request):
-    month = request.GET.get('month')
-    export = request.GET.get('export')
+    # Get selected month and year from GET request
+    today = datetime.today()
+    selected_month = int(request.GET.get('month', today.month))
+    selected_year = int(request.GET.get('year', today.year))
+    month_name = calendar.month_name[selected_month]
 
-    selected_month = int(month) if month else timezone.now().month
+    # Get all tenants
+    all_tenants = Tenant.objects.all()
 
-    # Fetch all payments for the selected month
-    payments = Payment.objects.filter(payment_date__month=selected_month)
+    # Get paid tenants for selected month/year
+    paid_payments = Payment.objects.filter(
+        payment_date__year=selected_year,
+        payment_date__month=selected_month,
+        status='Paid'
+    )
 
-    # Calculate total collected payments
-    total_collected = payments.aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+    paid_tenants = paid_payments.select_related('tenant')
+    paid_tenant_ids = paid_tenants.values_list('tenant_id', flat=True)
 
-    # Separate paid and unpaid tenants
-    paid_tenants = payments.filter(status='Paid')
-    unpaid_tenants = Tenant.objects.exclude(id__in=paid_tenants.values_list('tenant_id', flat=True))
+    # Unpaid tenants: all not in the list of paid IDs
+    unpaid_tenants = all_tenants.exclude(id__in=paid_tenant_ids)
 
-    paid_count = paid_tenants.count()
-    unpaid_count = unpaid_tenants.count()
+    # Total rent expected: sum of rent from all tenants
+    expected_total = all_tenants.aggregate(total=Sum('rent_amount'))['total'] or 0
 
-    # CSV Export
-    if export == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="payments_{calendar.month_name[selected_month]}.csv"'
-        writer = csv.writer(response)
-        writer.writerow(['Tenant', 'Amount Paid', 'Payment Date', 'Status'])
-        for p in payments:
-            writer.writerow([p.tenant.name, p.amount_paid, p.payment_date, p.status])
-        return response
+    # Total collected
+    total_collected = paid_payments.aggregate(total=Sum('amount_paid'))['total'] or 0
 
-    # Month choices for dropdown
-    month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    # Monthly trend (for bar chart - latest 6 months)
+    from django.db.models.functions import TruncMonth
+    recent_payments = Payment.objects.filter(status='Paid')
+    recent_months = recent_payments.annotate(month=TruncMonth('payment_date')).values('month').annotate(total=Sum('amount_paid')).order_by('-month')[:6]
+
+    monthly_labels = [p['month'].strftime('%b') for p in reversed(recent_months)]
+    monthly_data = [p['total'] for p in reversed(recent_months)]
 
     context = {
-        'payments': payments,
+        'month_choices': [(i, calendar.month_name[i]) for i in range(1, 13)],
+        'year_choices': list(range(today.year - 2, today.year + 2)),
+        'selected_month': selected_month,
+        'selected_year': selected_year,
+        'month_name': month_name,
+
         'paid_tenants': paid_tenants,
         'unpaid_tenants': unpaid_tenants,
-        'selected_month': selected_month,
-        'month_choices': month_choices,
-        'month_name': calendar.month_name[selected_month],
+        'paid_count': paid_tenants.count(),
+        'unpaid_count': unpaid_tenants.count(),
         'total_collected': total_collected,
-        'paid_count': paid_count,
-        'unpaid_count': unpaid_count,
+        'expected_total': expected_total,
+
+        'monthly_labels': monthly_labels,
+        'monthly_data': monthly_data,
     }
 
     return render(request, 'tenant/payment_summary.html', context)
@@ -340,6 +382,7 @@ def dashboard(request):
         'total_paid': total_paid,
         'recent_payments': recent_payments,
         'total_payment_list': total_payment_list,
+        'now': now()
     }
 
     return render(request, 'users/dashboard.html', context)
@@ -436,3 +479,20 @@ def expense_list(request):
     }
     
     return render(request, 'tenant/expense_list.html', context)
+
+
+
+
+def property_list(request):
+    properties = Property.objects.all()
+    return render(request, 'property/propert_list.html', {'properties': properties})
+
+def add_property(request):
+    if request.method == 'POST':
+        form = PropertyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('property_list')
+    else:
+        form = PropertyForm()
+    return render(request, 'property/add_property.html', {'form': form})

@@ -10,37 +10,116 @@
       <div class="position-sticky pt-4">
         <h5 class="text-center text-primary fw-bold mb-4">Dashboard Menu</h5>
         <ul class="nav flex-column">
+          <!-- Dashboard -->
           <li class="nav-item mb-2">
             <a class="nav-link active text-primary" href="{% url 'dashboard' %}">
-              <i class="bi bi-house-door me-2"></i> Overview
+              <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
           </li>
+        
+          <!-- Properties -->
           <li class="nav-item mb-2">
-            <a class="nav-link" href="#">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu" role="button" aria-expanded="false" aria-controls="propertyMenu">
               <i class="bi bi-building me-2"></i> Properties
             </a>
+            <div class="collapse" id="propertyMenu">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'add_property' %}">
+                    <i class="bi bi-plus-square me-1"></i> Add Property
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'property_list' %}">
+                    <i class="bi bi-card-list me-1"></i> Property List
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
+        
+          <!-- Tenants -->
           <li class="nav-item mb-2">
-            <a class="nav-link" href="{% url 'tenant_list' %}">
-              <i class="bi bi-person me-2"></i> Tenants
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu" role="button" aria-expanded="false" aria-controls="tenantMenu">
+              <i class="bi bi-person-lines-fill me-2"></i> Tenants
             </a>
+            <div class="collapse" id="tenantMenu">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'add_tenant' %}">
+                    <i class="bi bi-person-plus me-1"></i> Add Tenant
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'tenant_list' %}">
+                    <i class="bi bi-person-badge me-1"></i> View All Tenants
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
+        
+          <!-- Payments -->
           <li class="nav-item mb-2">
-            <a class="nav-link" href="{% url 'financial_report' %}">
-              <i class="bi bi-wallet me-2"></i> Financials
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu" role="button" aria-expanded="false" aria-controls="paymentMenu">
+              <i class="bi bi-credit-card me-2"></i> Payments
             </a>
+            <div class="collapse" id="paymentMenu">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'payment_list' %}">
+                    <i class="bi bi-clock-history me-1"></i> Payment History
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'payment_summary' %}">
+                    <i class="bi bi-graph-up-arrow me-1"></i> Payment Summary
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="bi bi-receipt-cutoff me-1"></i> Payment Receipts
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
+        
+          <!-- Expenses -->
           <li class="nav-item mb-2">
-            <a class="nav-link" href="{% url 'expense_list' %}">
-              <i class="bi bi-tools me-2"></i> Maintenance
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#expenseMenu" role="button" aria-expanded="false" aria-controls="expenseMenu">
+              <i class="bi bi-cash-stack me-2"></i> Expenses
             </a>
+            <div class="collapse" id="expenseMenu">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'add_expense' %}">
+                    <i class="bi bi-plus-square me-1"></i> Add Expense
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'expense_list' %}">
+                    <i class="bi bi-card-list me-1"></i> View Expense List
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'financial_report' %}">
+                    <i class="bi bi-card-list me-1"></i> View Financial Report
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
+        
+          <!-- Communication -->
           <li class="nav-item mb-2">
             <a class="nav-link" href="#">
               <i class="bi bi-chat-dots me-2"></i> Communication
             </a>
           </li>
         </ul>
+        
+        
       </div>
     </nav>
 
@@ -103,12 +182,81 @@
             </div>
           </div>
         </div>
+
+
+        <div class="col-md-4 col-sm-6">
+          <div class="card shadow-sm border-0 bg-primary text-white">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title mb-1">Total Tenants</h5>
+                <h3 class="fw-bold">{{ total_tenants }}</h3>
+                <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
+                <i class="bi bi-people-fill fs-2"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="card shadow-sm border-0 bg-primary text-white">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title mb-1">Total Tenants</h5>
+                <h3 class="fw-bold">{{ total_tenants }}</h3>
+                <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
+                <i class="bi bi-people-fill fs-2"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="card shadow-sm border-0 bg-primary text-white">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title mb-1">Total Tenants</h5>
+                <h3 class="fw-bold">{{ total_tenants }}</h3>
+                <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
+                <i class="bi bi-people-fill fs-2"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      <script>
+          const ctx = document.getElementById('paymentsChart').getContext('2d');
+          const paymentsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Paid', 'Unpaid'],
+              datasets: [{
+                data: [{{ paid_count }}, {{ unpaid_count }}],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'bottom'
+                },
+                title: {
+                  display: false
+                }
+              }
+            }
+          });
+        </script>
+        
         
 
       </div>
 
       
     </main>
+    <footer class="text-center text-muted py-3 mt-4 border-top small">
+      &copy; {{ now|date:"Y" }} Rental Property Management System. All rights reserved.
+    </footer>
+    
+    
   </div>
 </div>
 {% endblock %}

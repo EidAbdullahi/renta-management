@@ -25,10 +25,23 @@ from django.db.models import Sum
 class Property(models.Model):
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    number_of_units = models.DecimalField(max_digits=6, decimal_places=2,null=True, blank=True)  # Number of units
+    number_of_units = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def occupied_units(self):
+
+      return self.tenants.count()  # No filter
+
+    @property
+    def available_units(self):
+      if self.number_of_units is not None:
+        return self.number_of_units - self.occupied_units
+      return 0
+
+
 
 class Employee(models.Model):
     full_name = models.CharField(max_length=150)
@@ -54,6 +67,7 @@ class Tenant(models.Model):
     move_in_date = models.DateField()
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
     id_document = models.FileField(upload_to='tenant_documents/', blank=True, null=True)
+    unit_number = models.CharField(max_length=50, blank=True, null=True)
 
 
     def calculate_monthly_balance(self):
@@ -78,19 +92,22 @@ class Tenant(models.Model):
 
 
     
+from django.db import models
+from django.utils import timezone
+
 class Payment(models.Model):
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    tenant = models.ForeignKey('Tenant', on_delete=models.CASCADE)
     payment_date = models.DateField(default=timezone.now)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     receipt = models.FileField(upload_to="receipts/", blank=True, null=True)
-    
+
     PAYMENT_METHODS = [
         ('M-Pesa', 'M-Pesa'),
         ('Bank', 'Bank Transfer'),
         ('Cash', 'Cash'),
     ]
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
-    
+
     STATUS_CHOICES = [
         ('Paid', 'Paid'),
         ('Pending', 'Pending'),
@@ -98,31 +115,20 @@ class Payment(models.Model):
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
-    def save(self, *args, **kwargs):
-        # Automatically calculate status based on payment date and amount
+    def update_payment_status(self):
+        """Update payment status based on amount and current month."""
         if self.payment_date.month == timezone.now().month:
             if self.amount_paid < self.tenant.rent_amount:
                 self.status = 'Overdue'
             else:
                 self.status = 'Paid'
+
+    def save(self, *args, **kwargs):
+        self.update_payment_status()  # Always update before saving
         super().save(*args, **kwargs)
-
-
-    def update_payment_status(self):
-        current_month = timezone.now().month
-        if self.payment_date.month == current_month:
-            if self.amount_paid < self.tenant.rent_amount:
-                self.status = 'Overdue'
-                self.save()
-            else:
-                self.status = 'Paid'
-                self.save()
-    
 
     def __str__(self):
         return f"{self.tenant.name} - {self.amount_paid} ({self.status})"
-    
-
 
 
 class Expense(models.Model):

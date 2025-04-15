@@ -1,59 +1,92 @@
 {% extends "users/base.html" %}
-<div class="container mt-4" style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+{% load widget_tweaks %}
 
-{% block content %}
-    <h2>Add Tenant</h2>
-    <form method="POST" enctype="multipart/form-data" class="container mt-4">
-        {% csrf_token %}
-        
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="id_name" class="form-label">Full Name</label>
-                <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value }}">
-            </div>
+<style>
+    /* Custom Styling */
+    .form-container {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+        font-weight: bold;
+        color: #4c4c4c;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+    .container {
+        max-width: 1000px;
+        margin-top: 50px;
+    }
+</style>
+
+<div class="container form-container mt-5">
+    {% block content %}
+        <h2 class="mb-4" style="color: #007bff;">Add Tenant</h2>
+        <form method="POST" enctype="multipart/form-data" class="mt-4">
+            {% csrf_token %}
             
-            <div class="col-md-6 mb-3">
-                <label for="id_email" class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" id="id_email" value="{{ form.email.value }}">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="id_name" class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value }}">
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <label for="id_email" class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" id="id_email" value="{{ form.email.value }}">
+                </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="id_phone" class="form-label">Phone</label>
-                <input type="text" name="phone" class="form-control" id="id_phone" value="{{ form.phone.value }}">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="id_phone" class="form-label">Phone</label>
+                    <input type="text" name="phone" class="form-control" id="id_phone" value="{{ form.phone.value }}">
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <label for="id_property" class="form-label">Property</label>
+                    {{ form.property|add_class:"form-control" }}
+                </div>
             </div>
-            
-            <div class="col-md-6 mb-3">
-                <label for="id_property_address" class="form-label">Property Address</label>
-                <input type="text" name="property_address" class="form-control" id="id_property_address" value="{{ form.property_address.value }}">
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="id_move_in_date" class="form-label">Move-in Date</label>
-                <input type="date" name="move_in_date" class="form-control" id="id_move_in_date" value="{{ form.move_in_date.value }}">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="id_move_in_date" class="form-label">Move-in Date</label>
+                    <input type="date" name="move_in_date" class="form-control" id="id_move_in_date" value="{{ form.move_in_date.value }}">
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <label for="id_rent_amount" class="form-label">Rent Amount</label>
+                    <input type="number" name="rent_amount" class="form-control" id="id_rent_amount" value="{{ form.rent_amount.value }}">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label for="id_unit_number" class="form-label">Unit Number</label>
+                    <input type="text" name="unit_number" class="form-control" id="id_unit_number" value="{{ form.unit_number.value }}">
+                </div>
             </div>
-            
-            <div class="col-md-6 mb-3">
-                <label for="id_rent_amount" class="form-label">Rent Amount</label>
-                <input type="number" name="rent_amount" class="form-control" id="id_rent_amount" value="{{ form.rent_amount.value }}">
-            </div>
-        </div>
 
-        <!-- ID Document Upload (Photo Removed) -->
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="id_id_document" class="form-label">ID Document</label>
-                <input type="file" name="id_document" class="form-control" id="id_id_document">
+            <!-- ID Document Upload -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="id_id_document" class="form-label">ID Document</label>
+                    <input type="file" name="id_document" class="form-control" id="id_id_document">
+                </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12 mb-3">
-                <button type="submit" class="btn btn-primary">Save</button>
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                </div>
             </div>
-        </div>
-    </form>
-{% endblock %}
+        </form>
+    {% endblock %}
+</div>
