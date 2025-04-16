@@ -8,7 +8,8 @@
     <!-- Sidebar -->
     <nav class="col-md-2 d-none d-md-block bg-light sidebar vh-100 shadow-sm">
       <div class="position-sticky pt-4">
-        <h5 class="text-center text-primary fw-bold mb-4">Dashboard Menu</h5>
+        <!-- Collapsible Navbar for Mobile Devices -->
+        <h5 class="text-center text-primary fw-bold mb-4 d-block d-md-none">Dashboard Menu</h5>
         <ul class="nav flex-column">
           <!-- Dashboard -->
           <li class="nav-item mb-2">
@@ -16,7 +17,7 @@
               <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
           </li>
-        
+
           <!-- Properties -->
           <li class="nav-item mb-2">
             <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu" role="button" aria-expanded="false" aria-controls="propertyMenu">
@@ -37,7 +38,7 @@
               </ul>
             </div>
           </li>
-        
+
           <!-- Tenants -->
           <li class="nav-item mb-2">
             <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu" role="button" aria-expanded="false" aria-controls="tenantMenu">
@@ -58,7 +59,7 @@
               </ul>
             </div>
           </li>
-        
+
           <!-- Payments -->
           <li class="nav-item mb-2">
             <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu" role="button" aria-expanded="false" aria-controls="paymentMenu">
@@ -84,7 +85,7 @@
               </ul>
             </div>
           </li>
-        
+
           <!-- Expenses -->
           <li class="nav-item mb-2">
             <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#expenseMenu" role="button" aria-expanded="false" aria-controls="expenseMenu">
@@ -110,7 +111,7 @@
               </ul>
             </div>
           </li>
-        
+
           <!-- Communication -->
           <li class="nav-item mb-2">
             <a class="nav-link" href="#">
@@ -118,8 +119,6 @@
             </a>
           </li>
         </ul>
-        
-        
       </div>
     </nav>
 
@@ -130,140 +129,108 @@
         <!-- Logout Button -->
         <div>
           <form action="{% url 'logout' %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger logout-btn">Logout</button>
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger logout-btn">Logout</button>
           </form>
         </div>
       </div>
-      
+
       <!-- Stat Cards -->
       <div class="row g-3">
         <!-- Total Tenants -->
         <div class="col-md-4 col-sm-6">
-          <div class="card shadow-sm border-0 bg-primary text-white">
+          <div class="card shadow-lg border-0 bg-primary text-white hover-shadow">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
                 <h5 class="card-title mb-1">Total Tenants</h5>
                 <h3 class="fw-bold">{{ total_tenants }}</h3>
                 <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
-                <i class="bi bi-people-fill fs-2"></i>
               </div>
+              <i class="bi bi-people-fill fs-2"></i>
             </div>
           </div>
         </div>
 
-
         <!-- Registered Employees -->
         <div class="col-md-4 col-sm-6">
-            <div class="card shadow-sm border-0 bg-info text-white">
+          <div class="card shadow-lg border-0 bg-info text-white hover-shadow">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
                 <h5 class="card-title mb-1">Employees</h5>
                 <h3 class="fw-bold">{{ total_employees }}</h3>
                 <a href="{% url 'employee_list' %}" class="btn btn-light btn-sm">View All</a>
-                <i class="bi bi-person-badge-fill fs-2"></i>
               </div>
+              <i class="bi bi-person-badge-fill fs-2"></i>
             </div>
           </div>
         </div>
-          
-        
 
-        <!-- Recent Payments -->
+        <!-- Financial Reports -->
         <div class="col-md-4 col-sm-6">
-          <div class="card shadow-sm border-0 bg-warning text-dark">
+          <div class="card shadow-lg border-0 bg-warning text-dark hover-shadow">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
                 <h5 class="card-title mb-1">Financial Reports</h5>
                 <h3 class="fw-bold">{{ total_payment_list }}</h3>
                 <a href="{% url 'financial_report' %}" class="btn btn-outline-dark btn-sm">View All</a>
-                <i class="bi bi-cash-stack fs-2"></i>
               </div>
+              <i class="bi bi-cash-stack fs-2"></i>
             </div>
           </div>
         </div>
-
-
-        <div class="col-md-4 col-sm-6">
-          <div class="card shadow-sm border-0 bg-primary text-white">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="card-title mb-1">Total Tenants</h5>
-                <h3 class="fw-bold">{{ total_tenants }}</h3>
-                <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
-                <i class="bi bi-people-fill fs-2"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="card shadow-sm border-0 bg-primary text-white">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="card-title mb-1">Total Tenants</h5>
-                <h3 class="fw-bold">{{ total_tenants }}</h3>
-                <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
-                <i class="bi bi-people-fill fs-2"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="card shadow-sm border-0 bg-primary text-white">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="card-title mb-1">Total Tenants</h5>
-                <h3 class="fw-bold">{{ total_tenants }}</h3>
-                <a href="{% url 'tenant_list' %}" class="btn btn-light text-primary btn-sm">View</a>
-                <i class="bi bi-people-fill fs-2"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      <script>
-          const ctx = document.getElementById('paymentsChart').getContext('2d');
-          const paymentsChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              labels: ['Paid', 'Unpaid'],
-              datasets: [{
-                data: [{{ paid_count }}, {{ unpaid_count }}],
-                backgroundColor: ['#28a745', '#dc3545'],
-                borderWidth: 1
-              }]
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'bottom'
-                },
-                title: {
-                  display: false
-                }
-              }
-            }
-          });
-        </script>
-        
-        
-
       </div>
 
-      
+      <!-- Chart -->
+      <div class="row">
+        <div class="col-md-6 col-sm-12">
+          <canvas id="paymentsChart" width="400" height="400"></canvas>
+        </div>
+      </div>
     </main>
-    <footer class="text-center text-muted py-3 mt-4 border-top small">
-      &copy; {{ now|date:"Y" }} Rental Property Management System. All rights reserved.
-    </footer>
-    
-    
   </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('paymentsChart').getContext('2d');
+    if (ctx) {
+      const paymentsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Paid', 'Unpaid'],
+          datasets: [{
+            data: [{{ paid_count }}, {{ unpaid_count }}],
+            backgroundColor: ['#28a745', '#dc3545'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: false
+            }
+          }
+        });
+    } else {
+      console.error('Canvas element not found!');
+    }
+  });
+</script>
+{% endblock %}
+
+{% block styles %}
 <style>
   .logout-btn {
     margin-top: 10px;
+    border-radius: 25px;
+    padding: 8px 20px;
   }
 
   /* Add responsiveness to ensure proper display on smaller screens */
@@ -272,10 +239,9 @@
       margin-top: 20px;
     }
 
-    /* Adjust the card size on smaller screens */
     .card {
-      border-radius: 8px;
-      margin-bottom: 10px;
+      border-radius: 12px;
+      margin-bottom: 15px;
     }
 
     .card-body {
@@ -285,104 +251,10 @@
     .card-body h3 {
       font-size: 1.5rem;
     }
-  }
 
-  /* Sidebar styles */
-  .sidebar {
-    background-color: #f8f9fa;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar .nav-link {
-    color: #495057;
-    font-size: 16px;
-    padding: 10px 15px;
-  }
-
-  .sidebar .nav-link:hover, .sidebar .nav-link.active {
-    background-color: #007bff;
-    color: #fff;
-  }
-
-  .sidebar .nav-link i {
-    font-size: 20px;
-  }
-
-  /* Dashboard Card Styles */
-  .card {
-    border-radius: 8px;
-    padding: 10px 15px;
-    margin-bottom: 20px;
-  }
-
-  .card .card-body h5 {
-    font-weight: bold;
-  }
-
-  .card .card-body h3 {
-    font-size: 1.75rem;
-    font-weight: bold;
-  }
-
-  .card .btn {
-    border-radius: 25px;
-  }
-
-  /* Style for stat cards */
-  .card.bg-primary {
-    background-color: #007bff !important;
-  }
-
-  .card.bg-info {
-    background-color: #17a2b8 !important;
-  }
-
-  .card.bg-warning {
-    background-color: #ffc107 !important;
-  }
-
-  /* Customizing icons */
-  .card i {
-    font-size: 2.5rem;
-    opacity: 0.8;
-  }
-
-  /* Button styles */
-  .btn-outline-dark {
-    color: #333;
-    border-color: #333;
-  }
-
-  .btn-outline-dark:hover {
-    background-color: #333;
-    color: white;
-  }
-
-  .btn-light {
-    background-color: #f8f9fa;
-    color: #333;
-  }
-
-  .btn-light:hover {
-    background-color: #e2e6ea;
-    color: #333;
-  }
-
-  /* Layout Adjustments */
-  @media (max-width: 768px) {
-    .col-md-4 {
-      margin-bottom: 20px;
+    .sidebar {
+      display: none;
     }
-
-    .col-md-10 {
-      padding-left: 15px;
-      padding-right: 15px;
-    }
-  }
-
-  /* Logout button styling */
-  .logout-btn {
-    border-radius: 25px;
-    padding: 8px 20px;
   }
 </style>
+{% endblock %}

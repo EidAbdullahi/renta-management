@@ -40,10 +40,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
           <h4 class="text-primary fw-bold">🏠 Tenant List</h4>
           <div>
-            <button class="btn btn-outline-dark btn-sm shadow-sm" onclick="printTable()">
+            <button class="btn btn-outline-primary btn-sm shadow-sm" onclick="printTable()">
               <i class="fas fa-print"></i> Print
             </button>
-            <a href="{% url 'add_tenant' %}" class="btn btn-success btn-sm shadow-sm">
+            <a href="{% url 'add_tenant' %}" class="btn btn-primary btn-sm shadow-sm">
               <i class="fas fa-user-plus"></i> Add Tenant
             </a>
           </div>
@@ -55,7 +55,7 @@
         <!-- Table -->
         <div class="table-responsive">
           <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
-            <thead class="table-dark">
+            <thead class="table-primary">
               <tr>
                 <th class="text-nowrap">No</th>
                 <th class="text-nowrap">Name</th>
@@ -148,7 +148,7 @@ function printTable() {
           <style>
               table { width: 100%; border-collapse: collapse; }
               th, td { border: 1px solid black; padding: 8px; text-align: center; }
-              th { background-color: #333; color: white; }
+              th { background-color: #007bff; color: white; }
           </style>
       </head>
       <body>${printContent}</body>
@@ -167,6 +167,7 @@ function printTable() {
 
 <!-- Custom CSS -->
 <style>
+  /* Sidebar */
   .sidebar {
     background-color: #f8f9fa;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
@@ -214,24 +215,14 @@ function printTable() {
     overflow-y: auto;
   }
 
-  .btn-outline-dark {
-    color: #333;
-    border-color: #333;
+  .btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
   }
 
-  .btn-outline-dark:hover {
-    background-color: #333;
+  .btn-outline-primary:hover {
+    background-color: #007bff;
     color: white;
-  }
-
-  .btn-light {
-    background-color: #f8f9fa;
-    color: #333;
-  }
-
-  .btn-light:hover {
-    background-color: #e2e6ea;
-    color: #333;
   }
 
   /* Responsive Layout */
