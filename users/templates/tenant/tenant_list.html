@@ -64,12 +64,12 @@
                 <th class="text-nowrap d-none d-md-table-cell">Property</th>
                 <th class="text-nowrap d-none d-lg-table-cell">Move-in</th>
                 <th class="text-nowrap d-none d-lg-table-cell">Unit</th>
+                <th class="text-nowrap d-none d-lg-table-cell">Amount</th>
                 <th class="text-nowrap d-none d-lg-table-cell">ID Document</th>
                 <th class="text-nowrap">Payments</th>
                 <th class="text-nowrap">Actions</th>
               </tr>
             </thead>
-            
             <tbody>
               {% for tenant in tenants %}
               <tr>
@@ -80,6 +80,7 @@
                 <td>{{ tenant.property }}</td>
                 <td>{{ tenant.move_in_date }}</td>
                 <td class="fw-semibold">{{ tenant.unit_number }}</td>
+                <td class="fw-semibold">{{ tenant.rent_amount }}</td>
                 <td>
                   {% if tenant.id_document %}
                   <a href="{{ tenant.id_document.url }}" target="_blank" class="btn btn-info btn-sm shadow-sm">

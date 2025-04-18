@@ -1,0 +1,15 @@
+{% extends "users/base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center text-danger mb-4">Delete Payment for {{ payment.tenant.name }}</h2>
+
+    <p class="text-center text-muted">Are you sure you want to delete the payment made by {{ payment.tenant.name }} on {{ payment.payment_date }} for KES {{ payment.amount_paid }}?</p>
+
+    <form method="POST" class="text-center">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'payment_list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

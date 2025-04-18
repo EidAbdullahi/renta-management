@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <!-- Paid Tenants Section (Hidden by Default) -->
+    <!-- Accordion for Paid/Unpaid -->
     <div class="accordion" id="paymentAccordion">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingPaid">
@@ -77,7 +77,7 @@
                                 <th>Amount Paid</th>
                                 <th>Payment Date</th>
                                 <th>Phone</th>
-                                <th>Email</th>
+                                <th>Unit Number</th>
                                 <th>Receipt</th>
                             </tr>
                         </thead>
@@ -88,7 +88,7 @@
                                     <td>KES {{ p.amount_paid }}</td>
                                     <td>{{ p.payment_date }}</td>
                                     <td>{{ p.tenant.phone }}</td>
-                                    <td>{{ p.tenant.email }}</td>
+                                    <td>{{ p.tenant.unit_number }}</td>
                                     <td>
                                         {% if p.receipt %}
                                             <a href="{{ p.receipt.url }}" target="_blank" class="btn btn-outline-info btn-sm">
@@ -110,7 +110,7 @@
             </div>
         </div>
 
-        <!-- Unpaid Tenants Section (Hidden by Default) -->
+        <!-- Unpaid Tenants Section -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingUnpaid">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUnpaid" aria-expanded="false" aria-controls="collapseUnpaid">
@@ -122,7 +122,7 @@
                     <ul class="list-group">
                         {% for t in unpaid_tenants %}
                             <li class="list-group-item text-danger">
-                                {{ t.name }} - 📞 {{ t.phone }} | 📧 {{ t.email }}
+                                {{ t.name }} - 📞 {{ t.phone }} | 📧 {{ t.email }} | {{ t.unit_number }}
                             </li>
                         {% empty %}
                             <li class="list-group-item text-success">Everyone has paid. 🎉</li>
@@ -132,59 +132,82 @@
             </div>
         </div>
     </div>
+
+    <!-- Charts -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h5 class="text-center">Payment Status</h5>
+            <canvas id="paymentPieChart" height="200"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h5 class="text-center">Monthly Collection</h5>
+            <canvas id="monthlyBarChart" height="200"></canvas>
+        </div>
+    </div>
 </div>
+{% endblock %}
 
-<!-- Chart Scripts -->
+{% block extra_js %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    // Initialize DataTables for paid tenants
-    $(document).ready(function() {
+    $(document).ready(function () {
+        // DataTable
         $('#paidTenantsTable').DataTable({
-            "paging": true,
-            "searching": true,
-            "ordering": true,
-            "info": true
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true
         });
-    });
 
-    // Add chart script for visualizing payment data
-    const pieCtx = document.getElementById('paymentPieChart').getContext('2d');
-    new Chart(pieCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Paid', 'Unpaid'],
-            datasets: [{
-                label: 'Tenant Payments',
-                data: [{{ paid_count }}, {{ unpaid_count }}],
-                backgroundColor: ['#28a745', '#dc3545'],
-            }]
-        },
-        options: { responsive: true }
-    });
+        // Chart - Pie
+        const pieCtx = document.getElementById('paymentPieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Paid', 'Unpaid'],
+                datasets: [{
+                    label: 'Tenant Payments',
+                    data: [{{ paid_count }}, {{ unpaid_count }}],
+                    backgroundColor: ['#28a745', '#dc3545']
+                }]
+            },
+            options: { responsive: true }
+        });
 
-    const barCtx = document.getElementById('monthlyBarChart').getContext('2d');
-    new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: {{ monthly_labels|safe }},
-            datasets: [{
-                label: 'KES Collected',
-                data: {{ monthly_data|safe }},
-                backgroundColor: '#0d6efd',
-                borderRadius: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: value => 'KES ' + value
+        // Chart - Bar
+        const barCtx = document.getElementById('monthlyBarChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_labels|safe }},
+                datasets: [{
+                    label: 'KES Collected',
+                    data: {{ monthly_data|safe }},
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => 'KES ' + value
+                        }
                     }
                 }
             }
-        }
+        });
     });
 </script>
 {% endblock %}

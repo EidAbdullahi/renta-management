@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from .views import payment_list, tenant_payments
 from .views import (
     dashboard, tenant_list, add_tenant, edit_tenant, delete_tenant, 
-    add_payment, payment_list, update_rent_status
+    add_payment, payment_list, update_rent_status, edit_payment
 )
 
 urlpatterns = [
@@ -63,6 +63,10 @@ urlpatterns = [
 
     path('properties/', views.property_list, name='property_list'),
     path('properties/add/', views.add_property, name='add_property'),
+    
+    path('payments/edit/<int:payment_id>/', views.edit_payment, name='edit_payment'),
+    path('payments/delete/<int:payment_id>/', views.delete_payment, name='delete_payment'),
+
 ]
 
 # Serve media files in development

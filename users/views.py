@@ -59,6 +59,39 @@ from .forms import ExpenseForm
 from django.shortcuts import get_object_or_404, redirect
 from .models import Expense
 
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Payment
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Payment
+from .forms import PaymentForm  # Create a form for editing payments
+
+# View for editing a payment
+def edit_payment(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    # If the request method is POST, we are processing the form submission
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()  # Save the updated payment record
+            return redirect('payment_list')  # Redirect to the list page after saving
+    else:
+        # If the request method is GET, just display the form with existing payment data
+        form = PaymentForm(instance=payment)
+
+    return render(request, 'tenant/edit_payment.html', {'form': form, 'payment': payment})
+
+# View for deleting a payment
+def delete_payment(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    if request.method == 'POST':  # Only delete on POST request to avoid accidental deletions
+        payment.delete()  # Delete the payment record
+        return redirect('payment_list')  # Redirect to the payment list page after deletion
+
+    return render(request, 'tenant/confirm_delete.html', {'payment': payment})
+
 def delete_expense(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
     expense.delete()
