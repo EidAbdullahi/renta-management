@@ -66,6 +66,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Payment
 from .forms import PaymentForm  # Create a form for editing payments
 
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.utils import timezone
+import csv
+
+# Assuming the generate_financial_report function is defined elsewhere
+from .utils import generate_financial_report
 # View for editing a payment
 def edit_payment(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
@@ -220,30 +227,22 @@ def add_payment(request, tenant_id):
 
 
 
-# from django.shortcuts import render
-# from django.utils import timezone
-# from django.db.models import Sum
-# from django.http import HttpResponse
-# import csv, calendar
-# from .models import Payment, Tenant  # Adjust import paths as needed
-
+import csv
 from datetime import datetime
 from django.db.models import Sum
 from django.shortcuts import render
+from django.http import HttpResponse
 from .models import Tenant, Payment
 import calendar
 
 def payment_summary(request):
-    # Get selected month and year from GET request
     today = datetime.today()
     selected_month = int(request.GET.get('month', today.month))
     selected_year = int(request.GET.get('year', today.year))
     month_name = calendar.month_name[selected_month]
 
-    # Get all tenants
     all_tenants = Tenant.objects.all()
 
-    # Get paid tenants for selected month/year
     paid_payments = Payment.objects.filter(
         payment_date__year=selected_year,
         payment_date__month=selected_month,
@@ -252,24 +251,58 @@ def payment_summary(request):
 
     paid_tenants = paid_payments.select_related('tenant')
     paid_tenant_ids = paid_tenants.values_list('tenant_id', flat=True)
-
-    # Unpaid tenants: all not in the list of paid IDs
     unpaid_tenants = all_tenants.exclude(id__in=paid_tenant_ids)
 
-    # Total rent expected: sum of rent from all tenants
     expected_total = all_tenants.aggregate(total=Sum('rent_amount'))['total'] or 0
-
-    # Total collected
     total_collected = paid_payments.aggregate(total=Sum('amount_paid'))['total'] or 0
 
-    # Monthly trend (for bar chart - latest 6 months)
     from django.db.models.functions import TruncMonth
     recent_payments = Payment.objects.filter(status='Paid')
-    recent_months = recent_payments.annotate(month=TruncMonth('payment_date')).values('month').annotate(total=Sum('amount_paid')).order_by('-month')[:6]
+    recent_months = recent_payments.annotate(month=TruncMonth('payment_date')) \
+        .values('month').annotate(total=Sum('amount_paid')).order_by('-month')[:6]
 
     monthly_labels = [p['month'].strftime('%b') for p in reversed(recent_months)]
     monthly_data = [p['total'] for p in reversed(recent_months)]
 
+    # ✅ Excel export with both paid and unpaid tenants
+    if request.GET.get('export') == 'excel':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="payment_summary_{selected_month}_{selected_year}.csv"'
+
+        writer = csv.writer(response)
+
+        # --- Paid Section ---
+        writer.writerow(['Paid Tenants'])
+        writer.writerow(['Tenant Name', 'Phone', 'Unit Number', 'Amount Paid', 'Payment Date', 'Payment Method', 'Status'])
+
+        for payment in paid_tenants:
+            writer.writerow([
+                payment.tenant.name,
+                payment.tenant.phone,
+                payment.tenant.unit_number,
+                payment.amount_paid,
+                payment.payment_date,
+                payment.payment_method,
+                payment.status
+            ])
+
+        writer.writerow([])  # Empty row for separation
+
+        # --- Unpaid Section ---
+        writer.writerow(['Unpaid Tenants'])
+        writer.writerow(['Tenant Name', 'Phone', 'Unit Number', 'Email'])
+
+        for tenant in unpaid_tenants:
+            writer.writerow([
+                tenant.name,
+                tenant.phone,
+                tenant.unit_number,
+                tenant.email
+            ])
+
+        return response
+
+    # Normal page render
     context = {
         'month_choices': [(i, calendar.month_name[i]) for i in range(1, 13)],
         'year_choices': list(range(today.year - 2, today.year + 2)),
@@ -289,6 +322,7 @@ def payment_summary(request):
     }
 
     return render(request, 'tenant/payment_summary.html', context)
+
 
 
 def export_payments_csv(request):
@@ -398,6 +432,8 @@ def login_view(request):
 
 
 
+from .models import Property  # Make sure to import your Property model
+
 def dashboard(request):
     total_tenants = Tenant.objects.count()
     total_employees = Employee.objects.count()  # Add employee count
@@ -408,6 +444,12 @@ def dashboard(request):
     # Fetch last 5 recent payments
     recent_payments = Payment.objects.order_by('-payment_date')[:5]
 
+    # Calculate total occupied and available units
+    properties = Property.objects.all()
+    total_occupied_units = sum([p.occupied_units for p in properties])
+    total_available_units = sum([p.available_units for p in properties])
+
+    # Add to context
     context = {
         'total_tenants': total_tenants,
         'total_employees': total_employees,  # Add to context
@@ -415,10 +457,13 @@ def dashboard(request):
         'total_paid': total_paid,
         'recent_payments': recent_payments,
         'total_payment_list': total_payment_list,
+        'total_occupied_units': total_occupied_units,  # Add occupied units to context
+        'total_available_units': total_available_units,  # Add available units to context
         'now': now()
     }
 
     return render(request, 'users/dashboard.html', context)
+
 
 
 
@@ -445,6 +490,8 @@ def generate_financial_report(month=None):
 
     return report_summary
 
+
+
 def financial_report(request):
     # Get the selected month from GET parameter or use current month
     month = request.GET.get('month')
@@ -453,7 +500,7 @@ def financial_report(request):
     else:
         selected_month = timezone.now().month
     
-    # Generate the financial report
+    # Generate the financial report for the selected month
     report_summary = generate_financial_report(month=selected_month)
     
     context = {
@@ -463,12 +510,14 @@ def financial_report(request):
     return render(request, 'tenant/financial_report.html', context)
 
 def export_financial_report(request):
+    # Get the selected month from GET parameter or use current month
     month = request.GET.get('month')
     if not month:
         month = timezone.now().month
 
     report_summary = generate_financial_report(month=month)
     
+    # Prepare the CSV response
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="financial_report_{month}.csv"'
 
@@ -477,6 +526,7 @@ def export_financial_report(request):
     writer.writerow([report_summary['month'], report_summary['total_income'], report_summary['total_expenses'], report_summary['net_profit']])
 
     return response
+
 
 
 def add_expense(request):

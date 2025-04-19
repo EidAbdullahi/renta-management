@@ -73,7 +73,7 @@
             <tbody>
               {% for tenant in tenants %}
               <tr>
-                <td class="fw-semibold">{{ tenant.id }}</td>
+                <td class="fw-semibold">{{ forloop.counter }}</td>
                 <td class="fw-semibold">{{ tenant.name }}</td>
                 <td>{{ tenant.email }}</td>
                 <td>{{ tenant.phone }}</td>

@@ -18,3 +18,13 @@ def get_paid_tenants_for_month(year, month):
         payment_date__month=month,
         status='Paid'
     ).select_related('tenant')
+# users/utils.py
+
+def generate_financial_report(month):
+    # Function logic here
+    return {
+        'month': month,
+        'total_income': 10000,  # Example data
+        'total_expenses': 5000,  # Example data
+        'net_profit': 5000,  # Example data
+    }
