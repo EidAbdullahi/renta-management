@@ -1,156 +1,208 @@
-{% load static %}  
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apartment Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apartment Login</title>
 
-    <!-- Bootstrap 5 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    
-    <style>
-        /* Background Video Styling */
-        .video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: -1;
-        }
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-        .video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-        /* Glassmorphism Login Box */
-        .login-container {
-            max-width: 400px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+    .video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
 
-        /* Welcome Text */
-        .welcome-text {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #FFD700;
-            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7);
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    .video-container::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+    }
 
-        /* Login Inputs */
-        .form-control {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-        }
-        
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.8);
-        }
+    .video-container video {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
 
-        .btn-primary {
-            background: #FFD700;
-            border: none;
-            color: black;
-            font-weight: bold;
-        }
+    .login-container {
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      padding: 40px 30px;
+      color: #fff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: fadeIn 1s ease-in-out;
+    }
 
-        .btn-primary:hover {
-            background: #ffcc00;
-        }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
 
-        /* Video Controls */
-        .video-controls {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: white;
-        }
+    .form-control {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+    }
 
-        @media (max-width: 768px) {
-            .welcome-text {
-                font-size: 2rem;
-            }
+    .form-control::placeholder {
+      color: #eee;
+    }
 
-            .login-container {
-                width: 90%;
-                padding: 20px;
-            }
-        }
-    </style>
+    .form-control:focus {
+      box-shadow: none;
+      border-color: #FFD700;
+    }
+
+    .btn-primary {
+      background-color: #FFD700;
+      border: none;
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background-color: #ffcc00;
+    }
+
+    .welcome-text {
+      font-size: 2.8rem;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .video-controls {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      cursor: pointer;
+      color: white;
+    }
+
+    @media (max-width: 576px) {
+      .login-container {
+        width: 90%;
+        padding: 25px 20px;
+      }
+
+      .welcome-text {
+        font-size: 2rem;
+      }
+    }
+
+    .text-small {
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #FFD700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <!-- Welcome Text -->
-    <h1 class="welcome-text">🏢 Welcome to <span style="color: #FFD700;">BBS MALL</span> 🏢</h1>
-    
-    <!-- Background Video -->
-    <div class="video-container">
-        <video id="bg-video" autoplay loop muted playsinline>
-            <source src="{% static 'Catch a Glimpse of The BBS😊.mp4' %}" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </div>
 
-    <!-- Login Box -->
-    <div class="login-container">
-        <h2 class="mb-3">Login</h2>
+  <!-- Background Video -->
+  <div class="video-container">
+    <video id="bg-video" autoplay muted loop playsinline>
+      <source src="{% static 'Catch a Glimpse of The BBS😊.mp4' %}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
 
-        {% if form.errors %}
-            <div class="alert alert-danger">
-                <strong>Incorrect username or password. Please try again.</strong>
-            </div>
-        {% endif %}
+  <!-- Welcome Message -->
+  <h1 class="welcome-text">🏢 Welcome to <span style="color: #FFD700;">BBS MALL</span> 🏢</h1>
 
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <input type="text" class="form-control" name="username" placeholder="Username" required>
-            </div>
-            <div class="mb-3">
-                <input type="password" class="form-control" name="password" placeholder="Password" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
-    </div>
+  <!-- Login Form -->
+  <div class="login-container">
+    <h2 class="mb-4">Login</h2>
 
-    <!-- Video Controls -->
-    <div class="video-controls" id="toggle-video">
-        ⏸️
-    </div>
+    {% if form.errors %}
+      <div class="alert alert-danger py-2">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        Incorrect username or password.
+      </div>
+    {% endif %}
 
-    <script>
-        const video = document.getElementById("bg-video");
-        const toggleVideo = document.getElementById("toggle-video");
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-transparent text-white"><i class="bi bi-person-fill"></i></span>
+        <input type="text" name="username" class="form-control" placeholder="Username" required>
+      </div>
 
-        toggleVideo.addEventListener("click", function() {
-            if (video.paused) {
-                video.play();
-                toggleVideo.innerHTML = "⏸️"; 
-            } else {
-                video.pause();
-                toggleVideo.innerHTML = "▶️"; 
-            }
-        });
-    </script>
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-transparent text-white"><i class="bi bi-lock-fill"></i></span>
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+      </div>
+
+      <div class="mb-3 text-start">
+        <input type="checkbox" id="remember" class="form-check-input me-1">
+        <label for="remember" class="form-check-label text-small">Remember Me</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+
+      <div class="mt-3 text-small">
+        <a href="#">Forgot Password?</a><br>
+        Don't have an account? <a href="{% url 'register' %}">Sign up</a>
+      </div>
+    </form>
+  </div>
+ 
+  <!-- Video Controls -->
+  <div class="video-controls" id="toggle-video">
+    ⏸️
+  </div>
+
+  <script>
+    const video = document.getElementById("bg-video");
+    const toggle = document.getElementById("toggle-video");
+
+    toggle.addEventListener("click", () => {
+      if (video.paused) {
+        video.play();
+        toggle.textContent = "⏸️";
+      } else {
+        video.pause();
+        toggle.textContent = "▶️";
+      }
+    });
+  </script>
+
 </body>
 </html>

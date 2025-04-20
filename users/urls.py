@@ -14,11 +14,13 @@ urlpatterns = [
     path('payments/', payment_list, name='payment_list'),  # View all payments
     path('payments/tenant/<int:tenant_id>/', tenant_payments, name='tenant_payments'),  # View payments for a specific tenant
     # Redirect root to login
-    path('', lambda request: redirect('login'), name='home'),
+   
     path('payment-summary/', views.payment_summary, name='payment_summary'),
     path('export-csv/', views.export_payments_csv, name='export_payments_csv'),
 
     # Authentication
+    path('register/', views.register, name='register'),
+    path('profile/', views.profile, name='profile'),
     path('login/', LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
 
@@ -47,9 +49,6 @@ urlpatterns = [
     path('delete_employee/<int:id>/', views.delete_employee, name='delete_employee'),
     path('employee_list/', views.employee_list, name='employee_list'),
 
-
-
-
     # URL for the financial report summary page
     path('financial-report/', views.financial_report, name='financial_report'),
     
@@ -60,12 +59,16 @@ urlpatterns = [
     path('add-expense/', views.add_expense, name='add_expense'),
     path('expense-list/', views.expense_list, name='expense_list'),
 
-
     path('properties/', views.property_list, name='property_list'),
     path('properties/add/', views.add_property, name='add_property'),
-    
+    path('properties/edit/<int:pk>/', views.edit_property, name='edit_property'),
+    path('properties/delete/<int:pk>/', views.delete_property, name='delete_property'),
+
     path('payments/edit/<int:payment_id>/', views.edit_payment, name='edit_payment'),
     path('payments/delete/<int:payment_id>/', views.delete_payment, name='delete_payment'),
+    path('add-vacancy/', views.add_vacancy, name='add_vacancy'),
+    path('', views.vacancy_list, name='vacancy_list'),
+    path('vacancies/<slug:slug>/', views.vacancy_detail, name='vacancy_detail'),
 
 ]
 

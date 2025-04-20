@@ -34,6 +34,7 @@ from django.utils import timezone
 from django.db.models import Q
 import calendar
 import csv
+from .forms import ProfileUpdateForm
 
 
 
@@ -70,26 +71,109 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 import csv
-
+from django.shortcuts import render
+from .models import VacantRoom
+from .forms import VacantRoomForm, VacancySearchForm
 # Assuming the generate_financial_report function is defined elsewhere
 from .utils import generate_financial_report
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from .forms import CustomUserRegisterForm
+
+
+# views.py
+# views.py
+@login_required
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '🎉 Account created successfully! You can now log in.')
+            return redirect('login')
+    else:
+        form = CustomUserRegisterForm()
+    return render(request, 'users/register.html', {'form': form})
+
+
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if p_form.is_valid():
+            p_form.save()
+            messages.success(request, '✅ Your profile has been updated.')
+            return redirect('profile')
+    else:
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    return render(request, 'users/profile.html', {'p_form': p_form})
+
+
+def is_superuser(user):
+    return user.is_superuser
+
+@login_required
+# @user_passes_test(is_superuser)
+def add_vacancy(request):
+    if request.method == 'POST':
+        form = VacantRoomForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('vacancy_list')
+    else:
+        form = VacantRoomForm()
+    return render(request, 'users/add_vacancy.html', {'form': form})
+
+
+def vacancy_list(request):
+    form = VacancySearchForm(request.GET)
+    rooms = VacantRoom.objects.filter(is_available=True)
+
+    if form.is_valid():
+        query = form.cleaned_data.get('query')
+        room_type = form.cleaned_data.get('room_type')
+        min_price = form.cleaned_data.get('min_price')
+        max_price = form.cleaned_data.get('max_price')
+
+        if query:
+            rooms = rooms.filter(Q(title__icontains=query) | Q(location__icontains=query))
+        if room_type:
+            rooms = rooms.filter(room_type=room_type)
+        if min_price is not None:
+            rooms = rooms.filter(amount__gte=min_price)
+        if max_price is not None:
+            rooms = rooms.filter(amount__lte=max_price)
+
+    return render(request, 'users/vacancy_list.html', {'rooms': rooms, 'form': form})
+
+def vacancy_detail(request, slug):
+    room = get_object_or_404(VacantRoom, slug=slug)
+    return render(request, 'users/vacancy_details.html', {'room': room})
+
+
 # View for editing a payment
+@login_required
 def edit_payment(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
 
-    # If the request method is POST, we are processing the form submission
     if request.method == 'POST':
-        form = PaymentForm(request.POST, instance=payment)
+        form = PaymentForm(request.POST, request.FILES, instance=payment)
         if form.is_valid():
-            form.save()  # Save the updated payment record
-            return redirect('payment_list')  # Redirect to the list page after saving
+            payment = form.save(commit=False)
+            payment.tenant = payment.tenant  # Reassign same tenant
+            payment.save()
+            return redirect('payment_list')
+        else:
+            print("Form Errors:", form.errors)
     else:
-        # If the request method is GET, just display the form with existing payment data
         form = PaymentForm(instance=payment)
 
     return render(request, 'tenant/edit_payment.html', {'form': form, 'payment': payment})
 
+
 # View for deleting a payment
+@login_required
 def delete_payment(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
 
@@ -120,6 +204,7 @@ def edit_expense(request, pk):
 
 
 # Employeees views.
+@login_required
 def delete_employee(request, id):
     employee = get_object_or_404(Employee, id=id)
     if request.method == 'POST':
@@ -127,6 +212,7 @@ def delete_employee(request, id):
         return redirect('employee_list')  # Redirect to employee list after deletion
     return render(request, 'users/confirm_delete.html', {'employee': employee})
 
+@login_required
 def edit_employee(request, id):
     employee = get_object_or_404(Employee, id=id)
     if request.method == 'POST':
@@ -139,7 +225,7 @@ def edit_employee(request, id):
 
     return render(request, 'employee/edit_employee.html', {'form': form, 'employee': employee})
 
-
+@login_required
 class EmployeeSearchForm(forms.Form):
     search = forms.CharField(required=False, label='Search by Name')
     position = forms.ChoiceField(
@@ -151,8 +237,9 @@ class EmployeeSearchForm(forms.Form):
         label='Position'
     )
 
+@login_required
 def employee_list(request):
-    employees = Employee.objects.all()  # Fetch all employees from the database
+    employees = Employee.objects.filter(user=request.user)  # Fetch all employees from the database
     form = EmployeeSearchForm(request.GET)  # Get form data from the request
 
     if form.is_valid():
@@ -169,13 +256,15 @@ def employee_list(request):
 
 
 
-
+@login_required
 def register_employee(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('employee_list')
+        employee = form.save(commit=False)
+        employee.user = request.user
+            # Now save the employee with the user
+        employee.save()
+        return redirect('employee_list')
     else:
         form = EmployeeForm()
 
@@ -205,8 +294,7 @@ def tenant_payments(request, tenant_id):
     payments = Payment.objects.filter(tenant=tenant)
     return render(request, 'tenant/tenant_payments.html', {'payments': payments, 'tenant': tenant})
 
-# ✅ Add Payment for Tenant (Handles Receipt Upload)
-@login_required
+
 
 
 
@@ -216,7 +304,8 @@ def add_payment(request, tenant_id):
     if request.method == 'POST':
         form = PaymentForm(request.POST, request.FILES)
         if form.is_valid():
-            payment = form.save(commit=False)
+            payment = form.save(commit=False)  # Don't save yet
+            payment.user = request.user  # Set the logged-in user
             payment.tenant = tenant
             payment.save()
             messages.success(request, "✅ Payment added successfully!")  # ✅ Success message
@@ -234,14 +323,14 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Tenant, Payment
 import calendar
-
+@login_required
 def payment_summary(request):
     today = datetime.today()
     selected_month = int(request.GET.get('month', today.month))
     selected_year = int(request.GET.get('year', today.year))
     month_name = calendar.month_name[selected_month]
 
-    all_tenants = Tenant.objects.all()
+    all_tenants = Tenant.objects.filter(user=request.user)
 
     paid_payments = Payment.objects.filter(
         payment_date__year=selected_year,
@@ -324,7 +413,7 @@ def payment_summary(request):
     return render(request, 'tenant/payment_summary.html', context)
 
 
-
+@login_required
 def export_payments_csv(request):
     month = int(request.GET.get('month', timezone.now().month))
     payments = Payment.objects.filter(payment_date__month=month)
@@ -345,6 +434,7 @@ def export_payments_csv(request):
         ])
     return response
 
+@login_required
 @receiver(post_save, sender=Payment)
 def update_payment_status(sender, instance, **kwargs):
     # Check if it's a new payment or an updated one
@@ -355,9 +445,12 @@ def update_payment_status(sender, instance, **kwargs):
 def add_tenant(request):
     if request.method == "POST":
         form = TenantForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('tenant_list')
+        if form.is_valid(): tenant = form.save(commit=False)
+        tenant.user = request.user  # ✅ Link the current logged-in user
+        tenant.save()
+        return redirect('tenant_list')
+
+            
     else:
         form = TenantForm()
     return render(request, 'tenant/add_tenant.html', {'form': form})
@@ -365,7 +458,7 @@ def add_tenant(request):
 # ✅ List All Tenants
 @login_required
 def tenant_list(request):
-    tenants = Tenant.objects.all()
+    tenants = Tenant.objects.filter(user=request.user)
     return render(request, 'tenant/tenant_list.html', {'tenants': tenants})
 
 # ✅ Edit Tenant Details
@@ -388,7 +481,7 @@ def delete_tenant(request, tenant_id):
     if request.method == 'POST':
         tenant.delete()
         return redirect('tenant_list')
-    return render(request, 'tenant/delete_tenant.html', {'tenant': tenant})
+    return render(request, 'formtenant/delete_tenant.html', {'tenant': tenant})
 
 # ✅ Update Tenant Rent Payment Status
 @login_required
@@ -433,40 +526,44 @@ def login_view(request):
 
 
 from .models import Property  # Make sure to import your Property model
-
+@login_required
 def dashboard(request):
-    total_tenants = Tenant.objects.count()
-    total_employees = Employee.objects.count()  # Add employee count
-    pending_payments = Payment.objects.filter(status="Pending").count()
-    total_paid = Payment.objects.aggregate(total=Sum('amount_paid'))['total'] or 0
-    total_payment_list = Payment.objects.count()  # Example, count all payments
+    # Get the current user
+    current_user = request.user
 
-    # Fetch last 5 recent payments
-    recent_payments = Payment.objects.order_by('-payment_date')[:5]
+    # Get all tenants for the current user
+    total_tenants = Tenant.objects.filter(user=current_user).count()
+    total_employees = Employee.objects.filter(user=current_user).count()  # Add employee count
+    pending_payments = Payment.objects.filter(user=current_user, status="Pending").count()
+    total_paid = Payment.objects.filter(user=current_user).aggregate(total=Sum('amount_paid'))['total'] or 0
+    total_payment_list = Payment.objects.filter(user=current_user).count()  # Example, count all payments
 
-    # Calculate total occupied and available units
-    properties = Property.objects.all()
+    # Fetch last 5 recent payments for the current user
+    recent_payments = Payment.objects.filter(user=current_user).order_by('-payment_date')[:5]
+
+    # Calculate total occupied and available units for the current user
+    properties = Property.objects.filter(user=current_user)
     total_occupied_units = sum([p.occupied_units for p in properties])
     total_available_units = sum([p.available_units for p in properties])
 
-    # Add to context
+    # Prepare the data to display for the current user
     context = {
         'total_tenants': total_tenants,
-        'total_employees': total_employees,  # Add to context
+        'total_employees': total_employees,
         'pending_payments': pending_payments,
         'total_paid': total_paid,
         'recent_payments': recent_payments,
         'total_payment_list': total_payment_list,
-        'total_occupied_units': total_occupied_units,  # Add occupied units to context
-        'total_available_units': total_available_units,  # Add available units to context
-        'now': now()
+        'total_occupied_units': total_occupied_units,
+        'total_available_units': total_available_units,
+        'now': datetime.now(),
+        'user': current_user,  # Include user information
     }
 
     return render(request, 'users/dashboard.html', context)
 
 
-
-
+@login_required
 def generate_financial_report(month=None):
     if not month:
         month = timezone.now().month
@@ -491,7 +588,7 @@ def generate_financial_report(month=None):
     return report_summary
 
 
-
+@login_required
 def financial_report(request):
     # Get the selected month from GET parameter or use current month
     month = request.GET.get('month')
@@ -509,6 +606,7 @@ def financial_report(request):
     }
     return render(request, 'tenant/financial_report.html', context)
 
+@login_required
 def export_financial_report(request):
     # Get the selected month from GET parameter or use current month
     month = request.GET.get('month')
@@ -528,12 +626,14 @@ def export_financial_report(request):
     return response
 
 
-
+@login_required
 def add_expense(request):
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
-            form.save()
+            expense = form.save(commit=False)  # Don't save yet
+            expense.user = request.user  # Set the logged-in user
+            expense.save()  # Now save the expense
             return redirect('expense_list')  # Redirect to a page showing all expenses
     else:
         form = ExpenseForm()
@@ -541,7 +641,7 @@ def add_expense(request):
     return render(request, 'tenant/add_expense.html', {'form': form})
 
 
-
+@login_required
 def expense_list(request):
     # Get the selected month or default to the current month
     month = request.GET.get('month', None)
@@ -550,8 +650,7 @@ def expense_list(request):
     if month:
         expenses = Expense.objects.filter(expense_date__month=month)
     else:
-        expenses = Expense.objects.all()
-    
+        expenses = Expense.objects.filter(user=request.user)
     # Calculate total expenses for the filtered data
     total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
     
@@ -565,17 +664,43 @@ def expense_list(request):
 
 
 
-
+@login_required
 def property_list(request):
-    properties = Property.objects.all()
+    properties = Property.objects.filter(user=request.user)
     return render(request, 'property/propert_list.html', {'properties': properties})
 
+
+@login_required
 def add_property(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST)
         if form.is_valid():
-            form.save()
+            property = form.save(commit=False)
+            property.user = request.user  # ✅ Assign the current user
+            property.save()
             return redirect('property_list')
     else:
         form = PropertyForm()
     return render(request, 'property/add_property.html', {'form': form})
+
+
+# views.py
+@login_required
+def edit_property(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, instance=property_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('property_list')  # Make sure this is your correct URL name
+    else:
+        form = PropertyForm(instance=property_obj)
+
+    return render(request, 'property/edit_property.html', {'form': form, 'property': property_obj})
+
+@login_required
+def delete_property(request, pk):
+    property = get_object_or_404(Property, pk=pk)
+    property.delete()
+    return redirect('property_list')

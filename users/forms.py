@@ -10,11 +10,32 @@ from .models import Expense
 # users/forms.py
 from django import forms
 from .models import Employee
+from .models import VacantRoom
+from .models import Profile
 
 from django import forms
 from .models import Employee
 from .models import Property
 
+
+# forms.py
+
+from django import forms
+
+
+class VacantRoomForm(forms.ModelForm):
+    class Meta:
+        model = VacantRoom
+        fields = '__all__'
+
+class VacancySearchForm(forms.Form):
+    query = forms.CharField(required=False, label='Search by title or location')
+    room_type = forms.ChoiceField(
+        choices=[('', 'All Types')] + list(VacantRoom.ROOM_TYPE_CHOICES),
+        required=False
+    )
+    min_price = forms.DecimalField(required=False, label='Min Price')
+    max_price = forms.DecimalField(required=False, label='Max Price')
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
@@ -90,3 +111,30 @@ class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
         fields = ['expense_type', 'amount', 'expense_date', 'description']
+
+
+
+
+
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+class CustomUserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+
+
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['phone', 'image']

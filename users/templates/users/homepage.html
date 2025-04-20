@@ -3,5 +3,192 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <h1>Welcome to Rental Management</h1>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BBS Mall – Vacancies & Login</title>
+
+  <!-- Bootstrap 5 & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .video-container::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .video-container video {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .login-container {
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      color: #fff;
+      margin: 80px auto 30px;
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+    }
+
+    .form-control::placeholder {
+      color: #eee;
+    }
+
+    .btn-primary {
+      background-color: #FFD700;
+      border: none;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .welcome-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #FFD700;
+      text-align: center;
+      margin-top: 30px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    }
+
+    .room-section {
+      padding: 40px 20px;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .card img {
+      height: 200px;
+      object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+      .welcome-text {
+        font-size: 1.8rem;
+      }
+
+      .login-container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Video -->
+  <div class="video-container">
+    <video autoplay muted loop playsinline id="bg-video">
+      <source src="{% static 'Catch a Glimpse of The BBS😊.mp4' %}" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Welcome Message -->
+  <div class="text-center welcome-text">🏢 Welcome to <span style="color: #FFD700;">BBS MALL</span> 🏢</div>
+
+  <!-- Login Form -->
+  <div class="login-container">
+    <h4 class="text-center mb-3">Login</h4>
+    {% if form.errors %}
+      <div class="alert alert-danger py-2">
+        <i class="bi bi-exclamation-triangle-fill"></i> Incorrect username or password.
+      </div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-transparent text-white"><i class="bi bi-person-fill"></i></span>
+        <input type="text" name="username" class="form-control" placeholder="Username" required>
+      </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-transparent text-white"><i class="bi bi-lock-fill"></i></span>
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+  </div>
+
+  <!-- Room Listings -->
+  <div class="room-section">
+    <div class="container">
+      <h3 class="text-center mb-4">Available Rooms</h3>
+      <div class="row g-4">
+        {% for room in rooms %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm h-100">
+            <div id="carousel{{ room.id }}" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                {% for image in room.images.all %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ image.image.url }}" class="d-block w-100" alt="Room image">
+                </div>
+                {% endfor %}
+              </div>
+              {% if room.images.count > 1 %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ room.id }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ room.id }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+              </button>
+              {% endif %}
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ room.title }}</h5>
+              <p class="card-text">{{ room.description|truncatewords:20 }}</p>
+              <ul class="list-unstyled">
+                <li><strong>Location:</strong> {{ room.location }}</li>
+                <li><strong>Price:</strong> KSh {{ room.price }}</li>
+              </ul>
+              <a href="https://wa.me/{{ room.whatsapp_number }}" target="_blank" class="btn btn-success w-100">
+                <i class="bi bi-whatsapp"></i> Contact via WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+          <p class="text-muted">No room listings available at the moment.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
 {% endblock %}

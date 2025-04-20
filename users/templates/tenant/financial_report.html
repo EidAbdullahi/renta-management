@@ -5,34 +5,45 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar (Mobile friendly, collapsible) -->
-        <nav id="sidebar" class="col-md-2 d-none d-md-block bg-light sidebar vh-100 shadow-sm">
-            <div class="position-sticky pt-4">
-                <h5 class="text-center text-primary fw-bold mb-4">Dashboard Menu</h5>
-                <ul class="nav flex-column">
-                    <li class="nav-item mb-2">
-                        <a class="nav-link active text-primary" href="{% url 'dashboard' %}">
-                            <i class="bi bi-house-door me-2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a class="nav-link" href="{% url 'tenant_list' %}">
-                            <i class="bi bi-person me-2"></i> Rent history
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a class="nav-link" href="{% url 'expense_list' %}">
-                            <i class="bi bi-wallet me-2"></i> Expenses
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a class="nav-link" href="{% url 'payment_list' %}">
-                            <i class="bi bi-tools me-2"></i> Financial analysis
-                        </a>
-                    </li>
-                </ul>
+      
+      <!-- Sidebar for large screens -->
+    <nav id="sidebarMenu" class="col-md-2 bg-light sidebar shadow-sm vh-100 d-none d-md-block position-fixed">
+      <div class="pt-4">
+        <ul class="nav flex-column">
+          <li class="nav-item"><a class="nav-link active text-primary fw-bold" href="{% url 'dashboard' %}"><i class="bi bi-house-door me-2"></i>Dashboard</a></li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu"><i class="bi bi-building me-2"></i>Properties</a>
+            <div class="collapse" id="propertyMenu">
+              <ul class="nav flex-column ms-3">
+                <li><a class="nav-link" href="{% url 'add_property' %}">Add</a></li>
+                <li><a class="nav-link" href="{% url 'property_list' %}">List</a></li>
+              </ul>
             </div>
-        </nav>
-
+          </li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu"><i class="bi bi-person-lines-fill me-2"></i>Tenants</a>
+            <div class="collapse" id="tenantMenu">
+              <ul class="nav flex-column ms-3">
+                <li><a class="nav-link" href="{% url 'add_tenant' %}">Add</a></li>
+                <li><a class="nav-link" href="{% url 'tenant_list' %}">List</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu"><i class="bi bi-credit-card me-2"></i>Financials</a>
+            <div class="collapse" id="paymentMenu">
+              <ul class="nav flex-column ms-3">
+                <li><a class="nav-link" href="{% url 'payment_list' %}"> Payment History</a></li>
+                <li><a class="nav-link" href="{% url 'payment_summary' %}">Payment Summary</a></li>
+                <li><a class="nav-link" href="{% url 'expense_list' %}"> Expenses</a></li>
+                <li><a class="nav-link" href="{% url 'financial_report' %}">Financial report</a></li>
+              </ul>
+            </div>
+          </li>
+         
+        </ul>
+      </div>
+    </nav>
         <!-- Mobile Menu Toggle Button -->
         <div class="col-12 d-md-none text-end mb-3">
             <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
@@ -43,6 +54,11 @@
         <!-- Main Content -->
         <main class="col-md-10 ms-sm-auto px-md-5 py-4">
             <div class="container mt-4">
+              <div class="mb-3">
+                <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm">
+                    <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+                </a>
+            </div>
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
                     <h4 class="text-primary fw-bold">🏠 Financial Report</h4>
                     <div>
