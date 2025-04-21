@@ -138,3 +138,18 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['phone', 'image']
+
+
+
+
+
+class EmployeeSearchForm(forms.Form):
+    search = forms.CharField(required=False, label='Search by Name')
+    position = forms.ChoiceField(
+        required=False,
+        choices=[('', 'Filter by Position'), 
+                 ('Manager', 'Manager'), 
+                 ('Developer', 'Developer'), 
+                 ('Designer', 'cleaner')],
+        label='Position'
+    )

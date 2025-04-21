@@ -38,6 +38,8 @@ from .forms import ProfileUpdateForm
 
 
 
+
+
 from django.shortcuts import render
 from .models import Employee  # Make sure this is imported
 from django.shortcuts import render, get_object_or_404, redirect
@@ -79,6 +81,7 @@ from .utils import generate_financial_report
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .forms import CustomUserRegisterForm
+from .forms import EmployeeSearchForm
 
 
 # views.py
@@ -225,35 +228,33 @@ def edit_employee(request, id):
 
     return render(request, 'employee/edit_employee.html', {'form': form, 'employee': employee})
 
-@login_required
-class EmployeeSearchForm(forms.Form):
-    search = forms.CharField(required=False, label='Search by Name')
-    position = forms.ChoiceField(
-        required=False,
-        choices=[('', 'Filter by Position'), 
-                 ('Manager', 'Manager'), 
-                 ('Developer', 'Developer'), 
-                 ('Designer', 'cleaner')],
-        label='Position'
-    )
+
+
 
 @login_required
+
+
 def employee_list(request):
-    employees = Employee.objects.filter(user=request.user)  # Fetch all employees from the database
-    form = EmployeeSearchForm(request.GET)  # Get form data from the request
-
+    # Filter employees by the logged-in user
+    employees = Employee.objects.filter(user=request.user)  # Only show employees related to the logged-in user
+    
+    # Initialize the search form with GET data
+    form = EmployeeSearchForm(request.GET)
+    
+    # Check if the form is valid
     if form.is_valid():
         search_term = form.cleaned_data.get('search')
         position_filter = form.cleaned_data.get('position')
         
+        # Apply search filters
         if search_term:
             employees = employees.filter(full_name__icontains=search_term)  # Case-insensitive search
         
         if position_filter:
             employees = employees.filter(position=position_filter)  # Filter by position
     
-    return render(request, 'employee/employee_list.html', {'employees': employees})
-
+    # Render the template with the filtered employee list and form
+    return render(request, 'employee/employee_list.html', {'employees': employees, 'form': form})
 
 
 @login_required
@@ -563,29 +564,6 @@ def dashboard(request):
     return render(request, 'users/dashboard.html', context)
 
 
-@login_required
-def generate_financial_report(month=None):
-    if not month:
-        month = timezone.now().month
-    
-    # Calculate Total Income
-    total_income = Payment.objects.filter(payment_date__month=month).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
-    
-    # Calculate Total Expenses
-    total_expenses = Expense.objects.filter(expense_date__month=month).aggregate(Sum('amount'))['amount__sum'] or 0
-    
-    # Calculate Net Profit
-    net_profit = total_income - total_expenses
-    
-    # Summary Information
-    report_summary = {
-        'total_income': total_income,
-        'total_expenses': total_expenses,
-        'net_profit': net_profit,
-        'month': timezone.now().strftime('%B'),
-    }
-
-    return report_summary
 
 
 @login_required

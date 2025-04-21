@@ -5,7 +5,7 @@
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar for large screens -->
-     <nav id="sidebarMenu" class="col-md-2 col-lg-2 d-none d-md-block bg-light sidebar position-fixed vh-100 shadow-sm">
+     <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar position-fixed vh-100 shadow-sm">
       <div class="pt-4">
         <ul class="nav flex-column">
           <li class="nav-item">
@@ -54,10 +54,9 @@
         </ul>
       </div>
     </nav>
-  <div>
 
     <!-- Main Content Area -->
-    <div><main class="col-md-10 offset-md-2 col-12 px-4 py-4">
+    <main class="col-md-9 ms-sm-auto col-12 px-4 py-4">
       <!-- Top Bar -->
       <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
         <div class="d-md-none">
@@ -74,7 +73,7 @@
 
       <!-- Cards -->
       <div class="row g-3">
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
           <div class="card bg-primary text-white shadow-sm h-100">
             <div class="card-body">
               <h6>Total Tenants</h6>
@@ -83,7 +82,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
           <div class="card bg-info text-white shadow-sm h-100">
             <div class="card-body">
               <h6>Employees</h6>
@@ -92,7 +91,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
           <div class="card bg-success text-white shadow-sm h-100">
             <div class="card-body">
               <h6>Occupied Units</h6>
@@ -101,7 +100,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
           <div class="card bg-secondary text-white shadow-sm h-100">
             <div class="card-body">
               <h6>Available Units</h6>
@@ -110,7 +109,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-4">
+        <div class="col-12 col-sm-6 col-lg-3">
           <div class="card bg-warning text-dark shadow-sm h-100">
             <div class="card-body">
               <h6>Financial Reports</h6>
@@ -132,8 +131,6 @@
         </div>
       </div>
     </main>
-    </div>
-
   </div>
 </div>
 
@@ -163,18 +160,52 @@
   const ctx = document.getElementById('paymentsChart');
   if (ctx) {
     new Chart(ctx, {
-      type: 'bar',
+      type: 'line', // Change from 'bar' to 'line'
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr'], // Months as labels
         datasets: [{
           label: 'Payments',
-          data: [500, 1000, 750, 1250],
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          data: [500, 1000, 750, 1250], // Payment data for each month
+          borderColor: 'rgba(54, 162, 235, 1)', // Line color
+          backgroundColor: 'rgba(54, 162, 235, 0.2)', // Background color under the line
+          tension: 0.4, // Smoothing the line curve
+          fill: true, // Fill under the line for better visibility
+          pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Points color
+          pointRadius: 5, // Size of the points
         }]
+      },
+      options: {
+        responsive: true, // Ensures the graph resizes with the screen
+        maintainAspectRatio: false, // Allow the graph to adjust freely within the container
+        scales: {
+          x: {
+            grid: {
+              display: false // Hides gridlines for the x-axis
+            }
+          },
+          y: {
+            beginAtZero: true, // Starts the y-axis from 0
+            ticks: {
+              callback: function(value) {
+                return '$' + value; // Format y-axis labels with a dollar sign
+              }
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                return '$' + tooltipItem.raw; // Format tooltips with a dollar sign
+              }
+            }
+          }
+        }
       }
     });
   }
 </script>
+
 {% endblock %}
 
 {% block styles %}
@@ -201,6 +232,7 @@
   .sidebar {
     min-height: 100vh;
     background-color: #f8f9fa;
+    overflow-y: auto;
   }
 
   .offcanvas-body .nav-link {

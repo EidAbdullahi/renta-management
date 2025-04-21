@@ -68,6 +68,7 @@ class Property(models.Model):
 
 
 class Employee(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employee')
     full_name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
