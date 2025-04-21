@@ -20,11 +20,30 @@ def get_paid_tenants_for_month(year, month):
     ).select_related('tenant')
 # users/utils.py
 
-def generate_financial_report(month):
-    # Function logic here
+from django.utils.timezone import now
+from django.db.models import Sum
+from .models import Payment, Expense
+
+def generate_financial_report(month=None):
+    if month is None:
+        month = now().month
+    year = now().year
+
+    total_income = Payment.objects.filter(
+        payment_date__month=month,
+        payment_date__year=year
+    ).aggregate(total=Sum('amount_paid'))['total'] or 0
+
+    total_expenses = Expense.objects.filter(
+        expense_date__month=month,
+        expense_date__year=year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    net_profit = total_income - total_expenses
+
     return {
-        'month': month,
-        'total_income': 10000,  # Example data
-        'total_expenses': 5000,  # Example data
-        'net_profit': 5000,  # Example data
+        'total_income': total_income,
+        'total_expenses': total_expenses,
+        'net_profit': net_profit
     }
+

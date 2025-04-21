@@ -232,8 +232,6 @@ def edit_employee(request, id):
 
 
 @login_required
-
-
 def employee_list(request):
     # Filter employees by the logged-in user
     employees = Employee.objects.filter(user=request.user)  # Only show employees related to the logged-in user
@@ -571,16 +569,23 @@ def financial_report(request):
     # Get the selected month from GET parameter or use current month
     month = request.GET.get('month')
     if month:
-        selected_month = int(month)
+        try:
+            selected_month = int(month)
+        except ValueError:
+            selected_month = timezone.now().month
     else:
         selected_month = timezone.now().month
-    
-    # Generate the financial report for the selected month
+
+    # Now pass the correct month to the report function
     report_summary = generate_financial_report(month=selected_month)
-    
+
+    import calendar
+    month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
     context = {
         'report_summary': report_summary,
         'selected_month': selected_month,
+        'month_choices': month_choices,
     }
     return render(request, 'tenant/financial_report.html', context)
 
