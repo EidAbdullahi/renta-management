@@ -1,212 +1,152 @@
 {% extends "users/base.html" %}
-
 {% load static %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
+<div class="container mt-5">
+    <div class="mb-3">
+        <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+        </a>
+    </div>
+    <div class="card p-4">
+        <h2 class="mb-4 text-center text-primary">Expense List</h2>
+        <p class="total-expenses">Total Expenses for {{ month|default:"All Months" }}:
+            <strong>KES {{ total_expenses }}</strong></p>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense List</title>
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            border-radius: 1rem;
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05);
-        }
-
-        .table th,
-        .table td {
-            vertical-align: middle;
-        }
-
-        .table thead {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f1f1f1;
-        }
-
-        .btn {
-            border-radius: 0.5rem;
-        }
-
-        h2 {
-            font-weight: 600;
-        }
-
-        .total-expenses {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .no-record {
-            color: gray;
-        }
-
-        .mb-4 {
-            margin-bottom: 2rem;
-        }
-
-        .search-bar {
-            margin-bottom: 1rem;
-        }
-
-        .filter-btn {
-            margin-top: 1rem;
-        }
-
-        .filter-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .month-filter {
-            width: 200px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container mt-5">
-        <div class="mb-3">
-            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm">
-                <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
-            </a>
+        <!-- Filter Section -->
+        <div class="filter-container mb-4">
+            <input type="text" id="expenseSearch" class="form-control w-50 search-bar" placeholder="🔍 Search Expenses..." onkeyup="filterTable()">
+            <select id="monthFilter" class="form-control month-filter" onchange="filterByMonth()">
+                <option value="">Select Month</option>
+                {% for m in months %}
+                    <option value="{{ m.0 }}" {% if month == m.0 %}selected{% endif %}>
+                        {{ m.1 }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div>
+                <a href="{% url 'add_expense' %}" class="btn btn-primary mb-3">+ Add New Expense</a>
+                <button class="btn btn-secondary mb-3" onclick="printTable()">📄 Print</button>
+            </div>
         </div>
-        <div class="card p-4">
-            <h2 class="mb-4 text-center text-primary">Expense List</h2>
-            <p class="total-expenses">Total Expenses for {{ month|default:"All Months" }}: <strong>KES {{ total_expenses }}</strong></p>
 
-            <!-- Filter Section -->
-            <div class="filter-container mb-4">
-                <input type="text" id="expenseSearch" class="form-control w-50 search-bar" placeholder="🔍 Search Expenses..." onkeyup="filterTable()">
-                <select id="monthFilter" class="form-control month-filter" onchange="filterByMonth()">
-                    <option value="">Select Month</option>
-                    <option value="01" {% if month == "01" %}selected{% endif %}>January</option>
-                    <option value="02" {% if month == "02" %}selected{% endif %}>February</option>
-                    <option value="03" {% if month == "03" %}selected{% endif %}>March</option>
-                    <option value="04" {% if month == "04" %}selected{% endif %}>April</option>
-                    <option value="05" {% if month == "05" %}selected{% endif %}>May</option>
-                    <option value="06" {% if month == "06" %}selected{% endif %}>June</option>
-                    <option value="07" {% if month == "07" %}selected{% endif %}>July</option>
-                    <option value="08" {% if month == "08" %}selected{% endif %}>August</option>
-                    <option value="09" {% if month == "09" %}selected{% endif %}>September</option>
-                    <option value="10" {% if month == "10" %}selected{% endif %}>October</option>
-                    <option value="11" {% if month == "11" %}selected{% endif %}>November</option>
-                    <option value="12" {% if month == "12" %}selected{% endif %}>December</option>
-                </select>
-                <div>
-                    <a href="{% url 'add_expense' %}" class="btn btn-primary mb-3">+ Add New Expense</a>
-                    <button class="btn btn-secondary mb-3" onclick="printTable()">📄 Print</button>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped" id="expenseTable">
-                    <thead>
-                        <tr>
-                            <th>Expense Type</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Description</th>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="expenseTable">
+                <thead>
+                    <tr>
+                        <th>Expense Type</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                        <tr data-date="{{ expense.expense_date|date:"Y-m-d" }}">
+                            <td>{{ expense.get_expense_type_display }}</td>
+                            <td>KES {{ expense.amount }}</td>
+                            <td>{{ expense.expense_date }}</td>
+                            <td>{{ expense.description }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for expense in expenses %}
-                            <tr data-date="{{ expense.expense_date|date:"Y-m-d" }}">
-                                <td>{{ expense.get_expense_type_display }}</td>
-                                <td>KES {{ expense.amount }}</td>
-                                <td>{{ expense.expense_date }}</td>
-                                <td>{{ expense.description }}</td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center no-record">No expenses recorded yet.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No expenses recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-     
-    <script>
-        // Filter the table by the search term
-        function filterTable() {
-            let input = document.getElementById("expenseSearch").value.toLowerCase();
-            let table = document.getElementById("expenseTable");
-            let rows = table.getElementsByTagName("tr");
+</div>
 
-            for (let i = 1; i < rows.length; i++) {
-                let cells = rows[i].getElementsByTagName("td");
-                let rowText = "";
-                for (let cell of cells) {
-                    rowText += cell.textContent.toLowerCase() + " ";
-                }
-                rows[i].style.display = rowText.includes(input) ? "" : "none";
+<style>
+    .card {
+        border-radius: 1rem;
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05);
+    }
+
+    .table thead {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f1f1f1;
+    }
+
+    .btn {
+        border-radius: 0.5rem;
+    }
+
+    h2 {
+        font-weight: 600;
+    }
+
+    .total-expenses {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .filter-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .month-filter {
+        width: 200px;
+    }
+
+    .search-bar {
+        width: 100%;
+        max-width: 400px;
+    }
+</style>
+
+<script>
+    function filterTable() {
+        let input = document.getElementById("expenseSearch").value.toLowerCase();
+        let table = document.getElementById("expenseTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let rowText = "";
+            for (let cell of cells) {
+                rowText += cell.textContent.toLowerCase() + " ";
             }
+            rows[i].style.display = rowText.includes(input) ? "" : "none";
         }
+    }
 
-        // Filter the table by month
-        function filterByMonth() {
-            let month = document.getElementById("monthFilter").value;
-            let table = document.getElementById("expenseTable");
-            let rows = table.getElementsByTagName("tr");
+    function filterByMonth() {
+        let month = document.getElementById("monthFilter").value;
+        window.location.href = `?month=${month}`;
+    }
 
-            for (let i = 1; i < rows.length; i++) {
-                let expenseDate = rows[i].getAttribute("data-date");
-
-                // Extract the month (assuming data-date is in YYYY-MM-DD format)
-                let rowMonth = expenseDate.split('-')[1]; // Extract the month part from the date (YYYY-MM-DD)
-
-                // Show only rows that match the selected month
-                if (month === "" || rowMonth === month) {
-                    rows[i].style.display = "";
-                } else {
-                    rows[i].style.display = "none";
-                }
-            }
-
-            // Optionally, send a request to update the total expenses
-            window.location.href = `?month=${month}`;
-        }
-
-        // Print functionality
-        function printTable() {
-            let printContent = document.getElementById("expenseTable").outerHTML;
-            let originalContent = document.body.innerHTML;
-
-            document.body.innerHTML = `
-                <html>
-                <head>
-                    <title>Print Expense List</title>
-                    <style>
-                        table { width: 100%; border-collapse: collapse; }
-                        th, td { border: 1px solid black; padding: 8px; text-align: center; }
-                        th { background-color: #007bff; color: white; }
-                    </style>
-                </head>
-                <body>${printContent}</body>
-                </html>
-            `;
-            
-            window.print();
-            document.body.innerHTML = originalContent;
-        }
-    </script>
-
-</body>
-
-</html>
+    function printTable() {
+        let printContent = document.getElementById("expenseTable").outerHTML;
+        let newWin = window.open("");
+        newWin.document.write(`
+            <html>
+            <head>
+                <title>Print Expense List</title>
+                <style>
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: center; }
+                    th { background-color: #007bff; color: white; }
+                </style>
+            </head>
+            <body>
+                <h2 style="text-align:center;">Expense List</h2>
+                ${printContent}
+            </body>
+            </html>
+        `);
+        newWin.print();
+        newWin.close();
+    }
+</script>
 {% endblock %}

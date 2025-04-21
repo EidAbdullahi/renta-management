@@ -625,26 +625,43 @@ def add_expense(request):
 
 
 @login_required
+
+
+
 def expense_list(request):
-    # Get the selected month or default to the current month
+    # Get the selected month from GET parameters or default to None (all months)
     month = request.GET.get('month', None)
     
-    # Filter expenses by month if provided
+    # If a month is selected, filter by that month; otherwise, show all expenses for the current user
     if month:
-        expenses = Expense.objects.filter(expense_date__month=month)
+        expenses = Expense.objects.filter(expense_date__month=month, user=request.user)  # Filter by month and user
     else:
-        expenses = Expense.objects.filter(user=request.user)
-    # Calculate total expenses for the filtered data
+        expenses = Expense.objects.filter(user=request.user)  # Show all expenses for the user if no month is selected
+
+    # Calculate the total expenses for the filtered data
     total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
     
     context = {
         'expenses': expenses,
         'total_expenses': total_expenses,
         'month': month,
+        'months': [
+            ("01", "January"),
+            ("02", "February"),
+            ("03", "March"),
+            ("04", "April"),
+            ("05", "May"),
+            ("06", "June"),
+            ("07", "July"),
+            ("08", "August"),
+            ("09", "September"),
+            ("10", "October"),
+            ("11", "November"),
+            ("12", "December"),
+        ],
     }
     
     return render(request, 'tenant/expense_list.html', context)
-
 
 
 @login_required
