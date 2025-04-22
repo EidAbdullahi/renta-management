@@ -8,6 +8,7 @@ from .models import Tenant, Payment
 from .models import Expense
 from .forms import ExpenseForm
 from django.utils.timezone import now
+from freelancers.models import Freelancer
 # forms.py
 from django import forms
 from .forms import TenantForm, PaymentForm
@@ -82,6 +83,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .forms import CustomUserRegisterForm
 from .forms import EmployeeSearchForm
+from django.core.paginator import Paginator
+import csv
+from datetime import datetime
+from django.db.models import Sum
+from django.shortcuts import render
+from django.http import HttpResponse
+from .models import Tenant, Payment
+import calendar
 
 
 # views.py
@@ -129,15 +138,19 @@ def add_vacancy(request):
     return render(request, 'users/add_vacancy.html', {'form': form})
 
 
+
 def vacancy_list(request):
     form = VacancySearchForm(request.GET)
     rooms = VacantRoom.objects.filter(is_available=True)
+    freelancers = Freelancer.objects.all()
 
+    # Filtering based on search form
     if form.is_valid():
         query = form.cleaned_data.get('query')
         room_type = form.cleaned_data.get('room_type')
         min_price = form.cleaned_data.get('min_price')
         max_price = form.cleaned_data.get('max_price')
+        location = form.cleaned_data.get('location')
 
         if query:
             rooms = rooms.filter(Q(title__icontains=query) | Q(location__icontains=query))
@@ -147,8 +160,25 @@ def vacancy_list(request):
             rooms = rooms.filter(amount__gte=min_price)
         if max_price is not None:
             rooms = rooms.filter(amount__lte=max_price)
+        if location:
+            rooms = rooms.filter(Q(location__icontains=location))  # Filter based on location
+           
+    # Pagination (after filtering)
+    paginator = Paginator(rooms, 6)
+    page = request.GET.get('page')
+    rooms = paginator.get_page(page)
 
-    return render(request, 'users/vacancy_list.html', {'rooms': rooms, 'form': form})
+    # Latest and Popular rooms (assuming views added later)
+    latest_rooms = VacantRoom.objects.order_by('-created_at')[:6]
+    popular_rooms = VacantRoom.objects.order_by('-created_at')[:6]  # Replace with '-views' when views field is added
+
+    return render(request, 'users/vacancy_list.html', {
+        'rooms': rooms,
+        'form': form,
+        'latest_rooms': latest_rooms,
+        'popular_rooms': popular_rooms,
+        'freelancers': freelancers, 
+    })
 
 def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
@@ -315,13 +345,15 @@ def add_payment(request, tenant_id):
 
 
 
-import csv
-from datetime import datetime
-from django.db.models import Sum
-from django.shortcuts import render
-from django.http import HttpResponse
-from .models import Tenant, Payment
+
+from datetime import datetime, date
 import calendar
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.http import HttpResponse
+import csv
+from .models import Tenant, Payment
+
 @login_required
 def payment_summary(request):
     today = datetime.today()
@@ -329,7 +361,11 @@ def payment_summary(request):
     selected_year = int(request.GET.get('year', today.year))
     month_name = calendar.month_name[selected_month]
 
-    all_tenants = Tenant.objects.filter(user=request.user)
+    # ✅ Filter tenants registered on or before the selected month/year
+    last_day = calendar.monthrange(selected_year, selected_month)[1]
+    cutoff_date = date(selected_year, selected_month, last_day)
+
+    all_tenants = Tenant.objects.filter(user=request.user, move_in_date__lte=cutoff_date)
 
     paid_payments = Payment.objects.filter(
         payment_date__year=selected_year,
@@ -410,6 +446,7 @@ def payment_summary(request):
     }
 
     return render(request, 'tenant/payment_summary.html', context)
+
 
 
 @login_required
@@ -524,7 +561,7 @@ def login_view(request):
 
 
 
-from .models import Property  # Make sure to import your Property model
+
 @login_required
 def dashboard(request):
     # Get the current user
@@ -577,7 +614,9 @@ def financial_report(request):
         selected_month = timezone.now().month
 
     # Now pass the correct month to the report function
-    report_summary = generate_financial_report(month=selected_month)
+    # In your view or wherever you call the function
+    report_summary = generate_financial_report(request, month=selected_month)
+
 
     import calendar
     month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]

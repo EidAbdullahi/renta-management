@@ -5,7 +5,7 @@
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar for large screens -->
-     <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar position-fixed vh-100 shadow-sm">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar position-fixed vh-100 shadow-sm">
       <div class="pt-4">
         <ul class="nav flex-column">
           <li class="nav-item">
@@ -14,7 +14,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu"><i class="bi bi-building me-2"></i>Properties</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu"><i class="bi bi-building me-2"></i> Properties</a>
             <div class="collapse" id="propertyMenu">
               <ul class="nav flex-column ms-3">
                 <li><a class="nav-link" href="{% url 'add_property' %}">Add</a></li>
@@ -23,7 +23,7 @@
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu"><i class="bi bi-person-lines-fill me-2"></i>Tenants</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu"><i class="bi bi-person-lines-fill me-2"></i> Tenants</a>
             <div class="collapse" id="tenantMenu">
               <ul class="nav flex-column ms-3">
                 <li><a class="nav-link" href="{% url 'add_tenant' %}">Add</a></li>
@@ -32,7 +32,7 @@
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu"><i class="bi bi-credit-card me-2"></i>Financials</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu"><i class="bi bi-credit-card me-2"></i> Financials</a>
             <div class="collapse" id="paymentMenu">
               <ul class="nav flex-column ms-3">
                 <li><a class="nav-link" href="{% url 'payment_list' %}">Payment History</a></li>
@@ -43,7 +43,7 @@
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#vacancyMenu"><i class="bi bi-cash-stack me-2"></i>Vacancies</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#vacancyMenu"><i class="bi bi-cash-stack me-2"></i> Vacancies</a>
             <div class="collapse" id="vacancyMenu">
               <ul class="nav flex-column ms-3">
                 <li><a class="nav-link" href="{% url 'add_vacancy' %}">Add Vacancy</a></li>
@@ -65,10 +65,16 @@
           </button>
         </div>
         <h2 class="h4 text-primary fw-bold">Dashboard Overview</h2>
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button class="btn btn-danger btn-sm">Logout</button>
-        </form>
+        <div class="d-flex gap-2 align-items-center">
+          <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+            <img src="{{ user.profile.image.url }}" alt="Profile" class="rounded-circle" width="26" height="26">
+            <span>Profile</span>
+          </a>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm">Logout</button>
+          </form>
+        </div>
       </div>
 
       <!-- Cards -->
@@ -142,7 +148,7 @@
   </div>
   <div class="offcanvas-body">
     <ul class="nav flex-column">
-      <li><a class="nav-link active text-primary fw-bold" href="{% url 'dashboard' %}"><i class="bi bi-house-door me-2"></i>Dashboard</a></li>
+      <li><a class="nav-link active text-primary fw-bold" href="{% url 'dashboard' %}"><i class="bi bi-house-door me-2"></i> Dashboard</a></li>
       <li><a class="nav-link" href="{% url 'property_list' %}">Properties</a></li>
       <li><a class="nav-link" href="{% url 'tenant_list' %}">Tenants</a></li>
       <li><a class="nav-link" href="{% url 'payment_list' %}">Payments</a></li>
@@ -160,43 +166,32 @@
   const ctx = document.getElementById('paymentsChart');
   if (ctx) {
     new Chart(ctx, {
-      type: 'line', // Change from 'bar' to 'line'
+      type: 'line', // Smooth curve chart
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr'], // Months as labels
+        labels: ['Jan', 'Feb', 'Mar', 'Apr'], // Dynamic labels
         datasets: [{
           label: 'Payments',
-          data: [500, 1000, 750, 1250], // Payment data for each month
-          borderColor: 'rgba(54, 162, 235, 1)', // Line color
-          backgroundColor: 'rgba(54, 162, 235, 0.2)', // Background color under the line
-          tension: 0.4, // Smoothing the line curve
-          fill: true, // Fill under the line for better visibility
-          pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Points color
-          pointRadius: 5, // Size of the points
+          data: [500, 1000, 750, 1250], // Sample dynamic data
+          borderColor: 'rgba(54, 162, 235, 1)', 
+          backgroundColor: 'rgba(54, 162, 235, 0.2)', 
+          tension: 0.4, 
+          fill: true,
+          pointBackgroundColor: 'rgba(54, 162, 235, 1)', 
+          pointRadius: 5, 
         }]
       },
       options: {
-        responsive: true, // Ensures the graph resizes with the screen
-        maintainAspectRatio: false, // Allow the graph to adjust freely within the container
+        responsive: true, 
+        maintainAspectRatio: false, 
         scales: {
-          x: {
-            grid: {
-              display: false // Hides gridlines for the x-axis
-            }
-          },
-          y: {
-            beginAtZero: true, // Starts the y-axis from 0
-            ticks: {
-              callback: function(value) {
-                return '$' + value; // Format y-axis labels with a dollar sign
-              }
-            }
-          }
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value; } } }
         },
         plugins: {
           tooltip: {
             callbacks: {
               label: function(tooltipItem) {
-                return '$' + tooltipItem.raw; // Format tooltips with a dollar sign
+                return '$' + tooltipItem.raw;
               }
             }
           }
@@ -205,7 +200,6 @@
     });
   }
 </script>
-
 {% endblock %}
 
 {% block styles %}

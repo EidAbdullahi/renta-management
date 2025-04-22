@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',  # Add this
     'widget_tweaks',
+    'freelancers',
+
 ]
 
 MIDDLEWARE = [

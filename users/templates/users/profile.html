@@ -1,21 +1,89 @@
 {% extends 'users/base.html' %}
 {% load static %}
 {% block content %}
+<style>
+  .profile-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .profile-heading {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-form .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+  }
+
+  .profile-form label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #495057;
+  }
+
+  .profile-form .text-danger {
+    font-size: 0.875rem;
+  }
+
+  .btn-update {
+    background-color: #007bff;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    color: #fff;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .btn-update:hover {
+    background-color: #0056b3;
+  }
+
+  @media (max-width: 576px) {
+    .profile-container {
+      padding: 1.5rem 1rem;
+    }
+  }
+</style>
+
 <div class="container mt-5">
   <div class="row justify-content-center">
-    <div class="col-md-6 text-center">
-      <h3>👤 My Profile</h3>
-      <img src="{{ user.profile.image.url }}" class="rounded-circle mb-3" width="120" height="120" alt="Profile Image">
-      
-      <form method="POST" enctype="multipart/form-data">
+    <div class="col-md-6 profile-container text-center">
+      <h3 class="profile-heading">👤 My Profile</h3>
+      <p class="mb-1 fw-bold text-primary">{{ user.username }}</p>
+      <p class="text-muted small">{{ user.email }}</p>
+      <img src="{{ user.profile.image.url }}" alt="Profile Image" class="profile-img">
+
+      <form method="POST" enctype="multipart/form-data" class="profile-form text-start mt-4">
         {% csrf_token %}
         {% for field in p_form %}
-          <div class="mb-3 text-start">
-            {{ field.label_tag }} {{ field }}
-            <small class="text-danger">{{ field.errors|striptags }}</small>
+          <div class="mb-3">
+            {{ field.label_tag }} 
+            {{ field }}
+            {% if field.errors %}
+              <div class="text-danger">{{ field.errors|striptags }}</div>
+            {% endif %}
           </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+        <button type="submit" class="btn-update mt-3">💾 Update Profile</button>
       </form>
     </div>
   </div>

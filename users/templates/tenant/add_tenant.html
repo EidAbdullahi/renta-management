@@ -1,171 +1,123 @@
 {% extends "users/base.html" %}
 {% load widget_tweaks %}
 
-<style>
-    /* Custom Styling */
-    .form-container {
-        background-color: #ffffff;
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Heading Styling */
-    .form-container h2 {
-        color: #007bff;
-        font-weight: 600;
-        font-size: 2rem;
-        margin-bottom: 30px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #4c4c4c;
-    }
-
-    /* Input Styling */
-    .form-control {
-        border-radius: 10px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-
-    /* Buttons */
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-        padding: 12px;
-        border-radius: 25px;
-        transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-        transform: scale(1.05);
-    }
-
-    .btn-primary:focus {
-        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-    }
-
-    /* Responsive Container */
-    .container {
-        max-width: 900px;
-        margin-top: 50px;
-    }
-
-    /* Row and Column Spacing */
-    .row {
-        margin-bottom: 15px;
-    }
-
-    .col-md-6 {
-        padding: 10px;
-    }
-
-    /* File Input */
-    input[type="file"] {
-        padding: 10px;
-        border-radius: 10px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Media Queries for Mobile */
-    @media (max-width: 768px) {
-        .container {
-            padding: 20px;
-        }
-
-        .form-container {
-            padding: 30px;
-        }
-
-        .form-control {
-            font-size: 0.9rem;
-        }
-
-        .btn-primary {
-            font-size: 1rem;
-            padding: 10px;
-        }
-
-        .form-container h2 {
-            font-size: 1.75rem;
-        }
-    }
-</style>
-
-<div class="container form-container mt-5">
+<div class="container mt-5">
     {% block content %}
-        <h2 class="text-center mb-4">Add Tenant</h2>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <!-- Full Name & Email Fields -->
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label for="id_name" class="form-label">Full Name</label>
-                    <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value }}">
-                </div>
-                
-                <div class="col-md-6 mb-4">
-                    <label for="id_email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" id="id_email" value="{{ form.email.value }}">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 text-primary fw-bold">
+                        <i class="bi bi-person-plus-fill"></i> Add Tenant
+                    </h2>
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Full Name & Email -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_name" class="form-label fw-semibold">Full Name</label>
+                                <input type="text" name="name" class="form-control form-control-lg rounded-3" id="id_name" value="{{ form.name.value|default:'' }}" required>
+                                <div class="invalid-feedback">Please provide a full name.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_email" class="form-label fw-semibold">Email</label>
+                                <input type="email" name="email" class="form-control form-control-lg rounded-3" id="id_email" value="{{ form.email.value|default:'' }}" required>
+                                <div class="invalid-feedback">Please provide a valid email address.</div>
+                            </div>
+                        </div>
+
+                        <!-- Phone & Property -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_phone" class="form-label fw-semibold">Phone</label>
+                                <input type="text" name="phone" class="form-control form-control-lg rounded-3" id="id_phone" value="{{ form.phone.value|default:'' }}" required>
+                                <div class="invalid-feedback">Please provide a phone number.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_property" class="form-label fw-semibold">Property</label>
+                                {{ form.property|add_class:"form-control form-control-lg rounded-3" }}
+                            </div>
+                        </div>
+
+                        <!-- Move-in Date & Rent -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_move_in_date" class="form-label fw-semibold">Move-in Date</label>
+                                <input type="date" name="move_in_date" class="form-control form-control-lg rounded-3" id="id_move_in_date" value="{{ form.move_in_date.value|default:'' }}" required>
+                                <div class="invalid-feedback">Please select a move-in date.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_rent_amount" class="form-label fw-semibold">Rent Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">KES</span>
+                                    <input type="number" name="rent_amount" class="form-control form-control-lg rounded-end-3" id="id_rent_amount" value="{{ form.rent_amount.value|default:'' }}" required>
+                                </div>
+                                <div class="invalid-feedback">Please enter a rent amount.</div>
+                            </div>
+                        </div>
+
+                        <!-- Unit Number & ID Upload -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_unit_number" class="form-label fw-semibold">Unit Number</label>
+                                <input type="text" name="unit_number" class="form-control form-control-lg rounded-3" id="id_unit_number" value="{{ form.unit_number.value|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_id_document" class="form-label fw-semibold">ID Document</label>
+                                <input type="file" name="id_document" class="form-control form-control-lg rounded-3" id="id_id_document">
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
+                                <i class="bi bi-save-fill me-2"></i> Save Tenant
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Phone & Property Fields -->
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label for="id_phone" class="form-label">Phone</label>
-                    <input type="text" name="phone" class="form-control" id="id_phone" value="{{ form.phone.value }}">
-                </div>
-                
-                <div class="col-md-6 mb-4">
-                    <label for="id_property" class="form-label">Property</label>
-                    {{ form.property|add_class:"form-control" }}
-                </div>
-            </div>
-
-            <!-- Move-in Date & Rent Amount Fields -->
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label for="id_move_in_date" class="form-label">Move-in Date</label>
-                    <input type="date" name="move_in_date" class="form-control" id="id_move_in_date" value="{{ form.move_in_date.value }}">
-                </div>
-                
-                <div class="col-md-6 mb-4">
-                    <label for="id_rent_amount" class="form-label">Rent Amount</label>
-                    <input type="number" name="rent_amount" class="form-control" id="id_rent_amount" value="{{ form.rent_amount.value }}">
-                </div>
-            </div>
-
-            <!-- Unit Number -->
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label for="id_unit_number" class="form-label">Unit Number</label>
-                    <input type="text" name="unit_number" class="form-control" id="id_unit_number" value="{{ form.unit_number.value }}">
-                </div>
-                <div class="col-md-6 mb-4">
-                    <label for="id_id_document" class="form-label">ID Document</label>
-                    <input type="file" name="id_document" class="form-control" id="id_id_document">
-                </div>
-            </div>
-
-            <!-- ID Document Upload -->
-           
-
-            <!-- Submit Button -->
-            <div class="row">
-                <div class="col-12 mb-3">
-                    <button type="submit" class="btn btn-primary w-100">Save</button>
-                </div>
-            </div>
-        </form>
+        </div>
+    </div>
     {% endblock %}
 </div>
+
+{% block styles %}
+<style>
+  .invalid-feedback {
+    font-size: 0.875rem;
+    color: #e74a3b;
+  }
+
+  /* Responsive Design: Ensure form fits on smaller screens */
+  @media (max-width: 768px) {
+    .card-body {
+      padding: 3rem;
+    }
+    .col-md-6 {
+      margin-bottom: 1rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Bootstrap 5 Validation
+  (function() {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+      .forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })();
+</script>
+{% endblock %}
