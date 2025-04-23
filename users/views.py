@@ -811,3 +811,4 @@ def delete_property(request, pk):
     property = get_object_or_404(Property, pk=pk)
     property.delete()
     return redirect('property_list')
+    

@@ -17,7 +17,14 @@ class Freelancer(models.Model):
     description = models.TextField()
     contact = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
+    video = models.FileField(upload_to='freelancers/videos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+
+class Comment(models.Model):
+    freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -82,6 +82,7 @@ TEMPLATES = [
         'DIRS': [
             BASE_DIR / 'templates',  # If you have a global templates folder
             BASE_DIR / 'users/templates',  # If your app has its own templates folder
+            BASE_DIR / 'freelancers/templates',  # This should include the path to the templates folder
         ],
         'APP_DIRS': True,
         'OPTIONS': {

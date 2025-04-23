@@ -71,6 +71,8 @@ urlpatterns = [
     path('add-vacancy/', views.add_vacancy, name='add_vacancy'),
     path('', views.vacancy_list, name='vacancy_list'),
     path('vacancies/<slug:slug>/', views.vacancy_detail, name='vacancy_detail'),
+    
+
 
     
 ]
