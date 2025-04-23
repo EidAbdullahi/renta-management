@@ -2,128 +2,196 @@
 {% block title %}Financial Report{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-        <h2 class="text-dark fw-bold mb-3 mb-md-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Financial Report</h2>
-        <form method="get" class="d-flex gap-2 flex-wrap">
-            <select name="month" class="form-select shadow-sm">
+<div class="container mt-5 px-3">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5 text-primary">📊 Financial Report</h1>
+        <p class="text-muted">Detailed performance overview for your properties</p>
+
+        <!-- Filter Form -->
+        <form method="get" class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 mt-3">
+            <select name="month" class="form-select w-auto shadow-sm rounded-pill px-4 py-2">
                 {% for value, name in month_choices %}
                     <option value="{{ value }}" {% if selected_month == value %}selected{% endif %}>{{ name }}</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn btn-primary shadow-sm">
-                <i class="bi bi-funnel-fill me-1"></i> Filter
+            <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                <i class="bi bi-filter"></i> Filter
             </button>
-            <button class="btn btn-outline-secondary shadow-sm" onclick="window.print(); return false;">
-                <i class="bi bi-printer-fill me-1"></i> Print
+            <button class="btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" onclick="window.print(); return false;">
+                <i class="bi bi-printer"></i> Print
             </button>
         </form>
     </div>
 
-    <!-- Summary Cards -->
+    <!-- Financial Summary Cards -->
     <div class="row g-4 mb-5">
+        {% comment %} Card Styles with gradient and shadows {% endcomment %}
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Income</h6>
-                    <h3 class="fw-bold text-success">KES {{ report_summary.total_income|floatformat:2 }}</h3>
-                    <i class="bi bi-cash-stack fs-2 text-success"></i>
+            <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #0d6efd, #3b82f6);">
+                <div class="card-body text-center text-light">
+                    <i class="bi bi-wallet2 display-4 mb-3"></i>
+                    <h5>Total Income</h5>
+                    <h3 class="fw-bold">KES {{ report_summary.total_income }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Expenses</h6>
-                    <h3 class="fw-bold text-danger">KES {{ report_summary.total_expenses|floatformat:2 }}</h3>
-                    <i class="bi bi-credit-card-2-back-fill fs-2 text-danger"></i>
+            <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #dc3545, #f87171);">
+                <div class="card-body text-center text-light">
+                    <i class="bi bi-cash-coin display-4 mb-3"></i>
+                    <h5>Total Expenses</h5>
+                    <h3 class="fw-bold">KES {{ report_summary.total_expenses }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Net Profit</h6>
-                    <h3 class="fw-bold text-primary">KES {{ report_summary.net_profit|floatformat:2 }}</h3>
-                    <i class="bi bi-graph-up-arrow fs-2 text-primary"></i>
+            <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, #198754, #22c55e);">
+                <div class="card-body text-center text-light">
+                    <i class="bi bi-bank display-4 mb-3"></i>
+                    <h5>Net Profit</h5>
+                    <h3 class="fw-bold">KES {{ report_summary.net_profit }}</h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tables -->
+    <!-- Chart Section -->
+    <div class="row mb-5">
+        <div class="col-md-6 mb-4">
+            <div class="bg-white p-3 rounded-4 shadow-sm">
+                <h5 class="text-primary mb-3 fw-semibold">Income vs Expense</h5>
+                <canvas id="pieChart" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="bg-white p-3 rounded-4 shadow-sm">
+                <h5 class="text-primary mb-3 fw-semibold">Monthly Performance</h5>
+                <canvas id="barChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Section -->
     <div class="row g-4">
         <!-- Payments Table -->
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex align-items-center">
-                    <i class="bi bi-wallet2 me-2"></i>
-                    <h5 class="mb-0">Payment History</h5>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h6 class="mb-0">💰 Payment History</h6>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Tenant</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Method</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for p in payments %}
-                                <tr>
-                                    <td>{{ p.tenant.name }}</td>
-                                    <td>{{ p.payment_date|date:"M d, Y" }}</td>
-                                    <td>KES {{ p.amount_paid|floatformat:2 }}</td>
-                                    <td>{{ p.payment_method }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr><td colspan="4" class="text-center text-muted">No payments this month.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-light">
+                            <tr><th>Tenant</th><th>Date</th><th>Amount</th><th>Method</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for p in payments %}
+                            <tr>
+                                <td>{{ p.tenant.name }}</td>
+                                <td>{{ p.payment_date }}</td>
+                                <td>KES {{ p.amount_paid }}</td>
+                                <td>{{ p.payment_method }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted">No payments this month.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <!-- Expenses Table -->
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-danger text-white d-flex align-items-center">
-                    <i class="bi bi-bag-dash-fill me-2"></i>
-                    <h5 class="mb-0">Expenses</h5>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-danger text-white rounded-top-4">
+                    <h6 class="mb-0">📉 Expense History</h6>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Description</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Type</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for e in expenses %}
-                                <tr>
-                                    <td>{{ e.description }}</td>
-                                    <td>{{ e.expense_date|date:"M d, Y" }}</td>
-                                    <td>KES {{ e.amount|floatformat:2 }}</td>
-                                    <td>{{ e.expense_type }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr><td colspan="4" class="text-center text-muted">No expenses this month.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-light">
+                            <tr><th>Description</th><th>Date</th><th>Amount</th><th>Type</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for e in expenses %}
+                            <tr>
+                                <td>{{ e.description }}</td>
+                                <td>{{ e.expense_date }}</td>
+                                <td>KES {{ e.amount }}</td>
+                                <td>{{ e.expense_type }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted">No expenses this month.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const pieCtx = document.getElementById('pieChart').getContext('2d');
+new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Income', 'Expense'],
+        datasets: [{
+            data: [{{ report_summary.total_income }}, {{ report_summary.total_expenses }}],
+            backgroundColor: ['#198754', '#dc3545'],
+            borderColor: ['#14532d', '#9e2a2f'],
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { font: { size: 14 } }
+            }
+        }
+    }
+});
+
+const barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ report_summary.chart_labels|safe }},
+        datasets: [
+            {
+                label: 'Income',
+                data: {{ report_summary.chart_income|safe }},
+                backgroundColor: '#0d6efd',
+                borderWidth: 2
+            },
+            {
+                label: 'Expense',
+                data: {{ report_summary.chart_expense|safe }},
+                backgroundColor: '#dc3545',
+                borderWidth: 2
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

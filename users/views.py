@@ -9,6 +9,7 @@ from .models import Expense
 from .forms import ExpenseForm
 from django.utils.timezone import now
 from freelancers.models import Freelancer
+import json
 # forms.py
 from django import forms
 from .forms import TenantForm, PaymentForm
@@ -616,52 +617,57 @@ import calendar
 
 @login_required
 def financial_report(request):
+    # Get month from query param or default to current
     month = request.GET.get('month')
-    if month:
-        try:
-            selected_month = int(month)
-        except ValueError:
-            selected_month = timezone.now().month
-    else:
+    try:
+        selected_month = int(month) if month else timezone.now().month
+    except ValueError:
         selected_month = timezone.now().month
 
-    current_year = timezone.now().year
+    year = timezone.now().year
 
-    # Filter payments and expenses for the selected month and current year
-    payments = Payment.objects.filter(
-        payment_date__month=selected_month,
-        payment_date__year=current_year
-    )
+    # Payments and Expenses in selected month
+    payments = Payment.objects.filter(payment_date__month=selected_month, payment_date__year=year)
+    expenses = Expense.objects.filter(expense_date__month=selected_month, expense_date__year=year)
 
-    expenses = Expense.objects.filter(
-        expense_date__month=selected_month,
-        expense_date__year=current_year
-    )
-
-    # Generate report summary
-    total_income = sum(p.amount_paid for p in payments)
-    total_expenses = sum(e.amount for e in expenses)
+    total_income = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
+    total_expenses = expenses.aggregate(total=Sum('amount'))['total'] or 0
     net_profit = total_income - total_expenses
 
-    report_summary = {
-        'total_income': total_income,
-        'total_expenses': total_expenses,
-        'net_profit': net_profit,
-    }
+    # Convert Decimal to float for JSON compatibility
+    total_income = float(total_income)
+    total_expenses = float(total_expenses)
+    net_profit = float(net_profit)
 
-    # For month dropdown
+    # Monthly chart data for bar chart
+    monthly_labels = [calendar.month_name[i] for i in range(1, 13)]
+    income_data = [
+        float(Payment.objects.filter(payment_date__month=i, payment_date__year=year).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0)
+        for i in range(1, 13)
+    ]
+    expense_data = [
+        float(Expense.objects.filter(expense_date__month=i, expense_date__year=year).aggregate(Sum('amount'))['amount__sum'] or 0)
+        for i in range(1, 13)
+    ]
+
     month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
     context = {
-        'report_summary': report_summary,
-        'payments': payments,
-        'expenses': expenses,
         'selected_month': selected_month,
         'month_choices': month_choices,
+        'payments': payments,
+        'expenses': expenses,
+        'report_summary': {
+            'total_income': total_income,
+            'total_expenses': total_expenses,
+            'net_profit': net_profit,
+            'chart_labels': json.dumps(monthly_labels),
+            'chart_income': json.dumps(income_data),
+            'chart_expense': json.dumps(expense_data),
+        }
     }
+
     return render(request, 'tenant/financial_report.html', context)
-
-
 @login_required
 def export_financial_report(request):
     # Get the selected month from GET parameter or use current month
@@ -776,8 +782,3 @@ def delete_property(request, pk):
     property = get_object_or_404(Property, pk=pk)
     property.delete()
     return redirect('property_list')
-
-
-
-
-
