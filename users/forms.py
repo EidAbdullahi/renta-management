@@ -16,7 +16,7 @@ from .models import Profile
 from django import forms
 from .models import Employee
 from .models import Property
-
+from .models import Partner
 
 # forms.py
 
@@ -27,6 +27,9 @@ class VacantRoomForm(forms.ModelForm):
     class Meta:
         model = VacantRoom
         fields = '__all__'
+        exclude = ['user']
+
+
 
 class VacancySearchForm(forms.Form):
     query = forms.CharField(required=False, label='Search by title or location')
@@ -101,16 +104,15 @@ class TenantForm(forms.ModelForm):
 
 
 
-class ExpenseForm(forms.ModelForm):
-    class Meta:
-        model = Expense
-        fields = ['expense_type', 'amount', 'expense_date', 'description']
-
 
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['expense_type', 'amount', 'expense_date', 'description']
+        fields = ['expense_type', 'amount', 'expense_date', 'description', 'receipt']
+
+
+
+
 
 
 
@@ -153,3 +155,9 @@ class EmployeeSearchForm(forms.Form):
                  ('Designer', 'cleaner')],
         label='Position'
     )
+
+
+class PartnerForm(forms.ModelForm):
+    class Meta:
+        model = Partner
+        fields = ['name', 'logo', 'website']

@@ -1,228 +1,129 @@
 {% extends "users/base.html" %}
-{% block title %}Dashboard - Rental Management{% endblock %}
+{% block title %}Financial Report{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar (Mobile friendly, collapsible) -->
-      
-      <!-- Sidebar for large screens -->
-    <nav id="sidebarMenu" class="col-md-2 bg-light sidebar shadow-sm vh-100 d-none d-md-block position-fixed">
-      <div class="pt-4">
-        <ul class="nav flex-column">
-          <li class="nav-item"><a class="nav-link active text-primary fw-bold" href="{% url 'dashboard' %}"><i class="bi bi-house-door me-2"></i>Dashboard</a></li>
-          <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu"><i class="bi bi-building me-2"></i>Properties</a>
-            <div class="collapse" id="propertyMenu">
-              <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'add_property' %}">Add</a></li>
-                <li><a class="nav-link" href="{% url 'property_list' %}">List</a></li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu"><i class="bi bi-person-lines-fill me-2"></i>Tenants</a>
-            <div class="collapse" id="tenantMenu">
-              <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'add_tenant' %}">Add</a></li>
-                <li><a class="nav-link" href="{% url 'tenant_list' %}">List</a></li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu"><i class="bi bi-credit-card me-2"></i>Financials</a>
-            <div class="collapse" id="paymentMenu">
-              <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'payment_list' %}"> Payment History</a></li>
-                <li><a class="nav-link" href="{% url 'payment_summary' %}">Payment Summary</a></li>
-                <li><a class="nav-link" href="{% url 'expense_list' %}"> Expenses</a></li>
-                <li><a class="nav-link" href="{% url 'financial_report' %}">Financial report</a></li>
-              </ul>
-            </div>
-          </li>
-         
-        </ul>
-      </div>
-    </nav>
-        <!-- Mobile Menu Toggle Button -->
-        <div class="col-12 d-md-none text-end mb-3">
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
-                <i class="bi bi-list"></i> Menu
+<div class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="text-dark fw-bold mb-3 mb-md-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Financial Report</h2>
+        <form method="get" class="d-flex gap-2 flex-wrap">
+            <select name="month" class="form-select shadow-sm">
+                {% for value, name in month_choices %}
+                    <option value="{{ value }}" {% if selected_month == value %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary shadow-sm">
+                <i class="bi bi-funnel-fill me-1"></i> Filter
             </button>
+            <button class="btn btn-outline-secondary shadow-sm" onclick="window.print(); return false;">
+                <i class="bi bi-printer-fill me-1"></i> Print
+            </button>
+        </form>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Income</h6>
+                    <h3 class="fw-bold text-success">KES {{ report_summary.total_income|floatformat:2 }}</h3>
+                    <i class="bi bi-cash-stack fs-2 text-success"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Expenses</h6>
+                    <h3 class="fw-bold text-danger">KES {{ report_summary.total_expenses|floatformat:2 }}</h3>
+                    <i class="bi bi-credit-card-2-back-fill fs-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Net Profit</h6>
+                    <h3 class="fw-bold text-primary">KES {{ report_summary.net_profit|floatformat:2 }}</h3>
+                    <i class="bi bi-graph-up-arrow fs-2 text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="row g-4">
+        <!-- Payments Table -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="bi bi-wallet2 me-2"></i>
+                    <h5 class="mb-0">Payment History</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tenant</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in payments %}
+                                <tr>
+                                    <td>{{ p.tenant.name }}</td>
+                                    <td>{{ p.payment_date|date:"M d, Y" }}</td>
+                                    <td>KES {{ p.amount_paid|floatformat:2 }}</td>
+                                    <td>{{ p.payment_method }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No payments this month.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Main Content -->
-        <main class="col-md-10 ms-sm-auto px-md-5 py-4">
-            <div class="container mt-4">
-              <div class="mb-3">
-                <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm">
-                    <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
-                </a>
-            </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                    <h4 class="text-primary fw-bold">🏠 Financial Report</h4>
-                    <div>
-                        <!-- Month Selector Form -->
-                        <form method="get" class="d-flex gap-2">
-                          <select name="month" class="form-select">
-                              {% for num, name in month_choices %}
-                                  <option value="{{ num }}" {% if selected_month == num %}selected{% endif %}>{{ name }}</option>
-                              {% endfor %}
-                          </select>
-                          <button type="submit" class="btn btn-primary">Filter</button>
-                      </form>
-                        <button class="btn btn-outline-primary btn-sm shadow-sm" onclick="printTable()">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                    </div>
+        <!-- Expenses Table -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-danger text-white d-flex align-items-center">
+                    <i class="bi bi-bag-dash-fill me-2"></i>
+                    <h5 class="mb-0">Expenses</h5>
                 </div>
-
-                <!-- Financial Summary Cards (Responsive) -->
-                <div class="row mb-4">
-                    <div class="col-12 col-md-4 mb-3 mb-md-0">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title text-primary">Total Income</h5>
-                                <p class="fs-3 fw-bold">KES {{ report_summary.total_income }}</p>
-                            </div>
-                        </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for e in expenses %}
+                                <tr>
+                                    <td>{{ e.description }}</td>
+                                    <td>{{ e.expense_date|date:"M d, Y" }}</td>
+                                    <td>KES {{ e.amount|floatformat:2 }}</td>
+                                    <td>{{ e.expense_type }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No expenses this month.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col-12 col-md-4 mb-3 mb-md-0">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title text-danger">Total Expense</h5>
-                                <p class="fs-3 fw-bold">KES {{ report_summary.total_expenses }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title text-success">Net Income</h5>
-                                <p class="fs-3 fw-bold">KES {{ report_summary.net_profit }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Financial Graphs (Responsive) -->
-                <div class="row mb-4">
-                    <div class="col-12 col-md-6 mb-3 mb-md-0">
-                        <canvas id="incomeChart"></canvas>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <canvas id="expenseChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Financial Report Table -->
-                <div class="table-responsive" style="max-height: 400px; overflow-x: auto;">
-                    <table class="table table-sm table-bordered table-striped table-hover text-center align-middle shadow-sm" id="tenantTable">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Total Income in Rent</th>
-                                <th>Total Expense</th>
-                                <th>Net Income</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="fw-semibold">KES {{ report_summary.total_income }}</td>
-                                <td class="fw-semibold">KES {{ report_summary.total_expenses }}</td>
-                                <td>KES {{ report_summary.net_profit }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 </div>
-
 {% endblock %}
-
-<!-- JavaScript for Live Search Filtering and Charts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-  // Print Table Function
-  function printTable() {
-    const printContent = document.getElementById("tenantTable").outerHTML;
-    const newWindow = window.open('', '', 'width=800,height=600');
-    newWindow.document.write(`
-      <html>
-      <head>
-        <title>Financial Report</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          th, td {
-            border: 1px solid #000;
-            padding: 10px;
-            text-align: center;
-          }
-          th {
-            background-color: #007bff;
-            color: #fff;
-          }
-          h2 {
-            text-align: center;
-            margin-bottom: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>🏠 Financial Report</h2>
-        ${printContent}
-      </body>
-      </html>
-    `);
-    newWindow.document.close();
-    newWindow.focus();
-    newWindow.print();
-    newWindow.close();
-  }
-
-  // Create the income chart
-  const incomeChart = new Chart(document.getElementById('incomeChart'), {
-    type: 'bar',
-    data: {
-      labels: ['Total Income'],
-      datasets: [{
-        label: 'Total Income in KES',
-        data: [{{ report_summary.total_income }}],
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-
-  // Create the expense chart
-  const expenseChart = new Chart(document.getElementById('expenseChart'), {
-    type: 'pie',
-    data: {
-      labels: ['Expenses'],
-      datasets: [{
-        label: 'Total Expenses in KES',
-        data: [{{ report_summary.total_expenses }}],
-        backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-        borderColor: ['rgba(255, 99, 132, 1)'],
-        borderWidth: 1
-      }]
-    }
-  });
-</script>

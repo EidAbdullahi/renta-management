@@ -168,7 +168,7 @@ class Expense(models.Model):
         ('Repairs', 'Repairs'),
         ('Other', 'Other'),
     ]
-
+    receipt = models.FileField(upload_to="receipts/", blank=True, null=True)
     expense_type = models.CharField(max_length=50, choices=EXPENSE_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     expense_date = models.DateField(default=timezone.now)
@@ -194,11 +194,12 @@ class Profile(models.Model):
         return f'{self.user.username} Profile'
     
 
-# class Property(models.Model):
-#     name = models.CharField(max_length=255)
-#     location = models.CharField(max_length=255)
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
-#     is_rented = models.BooleanField(default=False)
 
-#     def __str__(self):
-#         return self.name
+
+class Partner(models.Model):
+    name = models.CharField(max_length=100)
+    logo = models.ImageField(upload_to='partners_logos/')
+    website = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name

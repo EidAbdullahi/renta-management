@@ -91,6 +91,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Tenant, Payment
 import calendar
+from .models import Partner
+from .forms import PartnerForm
 
 
 # views.py
@@ -127,22 +129,26 @@ def is_superuser(user):
 
 @login_required
 # @user_passes_test(is_superuser)
+@login_required  # Ensure that only logged-in users can access this view
 def add_vacancy(request):
     if request.method == 'POST':
         form = VacantRoomForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            vacancy = form.save(commit=False)
+            vacancy.user = request.user  # Automatically set the logged-in user
+            vacancy.save()
             return redirect('vacancy_list')
     else:
         form = VacantRoomForm()
-    return render(request, 'users/add_vacancy.html', {'form': form})
 
+    return render(request, 'users/add_vacancy.html', {'form': form})
 
 
 def vacancy_list(request):
     form = VacancySearchForm(request.GET)
     rooms = VacantRoom.objects.filter(is_available=True)
     freelancers = Freelancer.objects.all()
+    partners = Partner.objects.all()
 
     # Filtering based on search form
     if form.is_valid():
@@ -178,11 +184,12 @@ def vacancy_list(request):
         'latest_rooms': latest_rooms,
         'popular_rooms': popular_rooms,
         'freelancers': freelancers, 
+        'partners': partners, 
     })
 
 def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
-    return render(request, 'users/vacancy_details.html', {'room': room})
+    return render(request, 'users/vacancy_details.html', {'room': room},{'partners': partners})
 
 
 # View for editing a payment
@@ -233,7 +240,7 @@ def edit_expense(request, pk):
     else:
         form = ExpenseForm(instance=expense)
     
-    return render(request, 'expenses/edit_expense.html', {'form': form, 'expense': expense})
+    return render(request, 'tenant/edit_expense.html', {'form': form, 'expense': expense})
 
 
 # Employeees views.
@@ -601,9 +608,14 @@ def dashboard(request):
 
 
 
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Payment, Expense  # Adjust the import path if needed
+import calendar
+
 @login_required
 def financial_report(request):
-    # Get the selected month from GET parameter or use current month
     month = request.GET.get('month')
     if month:
         try:
@@ -613,20 +625,42 @@ def financial_report(request):
     else:
         selected_month = timezone.now().month
 
-    # Now pass the correct month to the report function
-    # In your view or wherever you call the function
-    report_summary = generate_financial_report(request, month=selected_month)
+    current_year = timezone.now().year
 
+    # Filter payments and expenses for the selected month and current year
+    payments = Payment.objects.filter(
+        payment_date__month=selected_month,
+        payment_date__year=current_year
+    )
 
-    import calendar
+    expenses = Expense.objects.filter(
+        expense_date__month=selected_month,
+        expense_date__year=current_year
+    )
+
+    # Generate report summary
+    total_income = sum(p.amount_paid for p in payments)
+    total_expenses = sum(e.amount for e in expenses)
+    net_profit = total_income - total_expenses
+
+    report_summary = {
+        'total_income': total_income,
+        'total_expenses': total_expenses,
+        'net_profit': net_profit,
+    }
+
+    # For month dropdown
     month_choices = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
     context = {
         'report_summary': report_summary,
+        'payments': payments,
+        'expenses': expenses,
         'selected_month': selected_month,
         'month_choices': month_choices,
     }
     return render(request, 'tenant/financial_report.html', context)
+
 
 @login_required
 def export_financial_report(request):
@@ -651,7 +685,7 @@ def export_financial_report(request):
 @login_required
 def add_expense(request):
     if request.method == 'POST':
-        form = ExpenseForm(request.POST)
+        form = ExpenseForm(request.POST,request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)  # Don't save yet
             expense.user = request.user  # Set the logged-in user
@@ -702,7 +736,6 @@ def expense_list(request):
     
     return render(request, 'tenant/expense_list.html', context)
 
-
 @login_required
 def property_list(request):
     properties = Property.objects.filter(user=request.user)
@@ -743,3 +776,8 @@ def delete_property(request, pk):
     property = get_object_or_404(Property, pk=pk)
     property.delete()
     return redirect('property_list')
+
+
+
+
+
