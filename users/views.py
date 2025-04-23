@@ -314,24 +314,37 @@ def register_employee(request):
 
 
 
+
 @login_required
 def payment_list(request):
-    # Get the latest payment per tenant
-    latest_payments = Payment.objects.filter(
-        id__in=Payment.objects.values('tenant').annotate(latest=Max('id')).values('latest')
-    ).select_related('tenant')
+    # Get latest payment per tenant belonging to the current user
+    user_tenants = Tenant.objects.filter(user=request.user)
+    
+    latest_payment_ids = Payment.objects.filter(
+        tenant__in=user_tenants
+    ).values('tenant').annotate(latest=Max('id')).values_list('latest', flat=True)
+
+    latest_payments = Payment.objects.filter(id__in=latest_payment_ids).select_related('tenant')
 
     return render(request, 'tenant/payment_list.html', {'payments': latest_payments})
+
 
 
 # ✅ View Payments for a Specific Tenant
 @login_required
 def tenant_payments(request, tenant_id):
     tenant = get_object_or_404(Tenant, id=tenant_id)
+
+    # 🔐 Ensure the tenant belongs to the logged-in user
+    if tenant.user != request.user:
+        raise Http404("You do not have permission to view this tenant's payments.")
+
     payments = Payment.objects.filter(tenant=tenant)
-    return render(request, 'tenant/tenant_payments.html', {'payments': payments, 'tenant': tenant})
 
-
+    return render(request, 'tenant/tenant_payments.html', {
+        'payments': payments,
+        'tenant': tenant
+    })
 
 
 
@@ -362,23 +375,35 @@ from django.http import HttpResponse
 import csv
 from .models import Tenant, Payment
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+from django.http import HttpResponse
+from django.shortcuts import render
+from datetime import datetime, date
+import calendar
+import csv
+
 @login_required
 def payment_summary(request):
     today = datetime.today()
     selected_month = int(request.GET.get('month', today.month))
     selected_year = int(request.GET.get('year', today.year))
     month_name = calendar.month_name[selected_month]
+    user = request.user  # Current logged-in user
 
-    # ✅ Filter tenants registered on or before the selected month/year
+    # ✅ Only include tenants of the logged-in user
     last_day = calendar.monthrange(selected_year, selected_month)[1]
     cutoff_date = date(selected_year, selected_month, last_day)
 
-    all_tenants = Tenant.objects.filter(user=request.user, move_in_date__lte=cutoff_date)
+    all_tenants = Tenant.objects.filter(user=user, move_in_date__lte=cutoff_date)
 
+    # ✅ Only include payments of the logged-in user's tenants
     paid_payments = Payment.objects.filter(
         payment_date__year=selected_year,
         payment_date__month=selected_month,
-        status='Paid'
+        status='Paid',
+        tenant__user=user  # Ensures tenant belongs to the logged-in user
     )
 
     paid_tenants = paid_payments.select_related('tenant')
@@ -388,15 +413,15 @@ def payment_summary(request):
     expected_total = all_tenants.aggregate(total=Sum('rent_amount'))['total'] or 0
     total_collected = paid_payments.aggregate(total=Sum('amount_paid'))['total'] or 0
 
-    from django.db.models.functions import TruncMonth
-    recent_payments = Payment.objects.filter(status='Paid')
+    # Chart data - only from logged-in user's data
+    recent_payments = Payment.objects.filter(status='Paid', tenant__user=user)
     recent_months = recent_payments.annotate(month=TruncMonth('payment_date')) \
         .values('month').annotate(total=Sum('amount_paid')).order_by('-month')[:6]
 
     monthly_labels = [p['month'].strftime('%b') for p in reversed(recent_months)]
     monthly_data = [p['total'] for p in reversed(recent_months)]
 
-    # ✅ Excel export with both paid and unpaid tenants
+    # ✅ Excel export
     if request.GET.get('export') == 'excel':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename="payment_summary_{selected_month}_{selected_year}.csv"'
@@ -418,7 +443,7 @@ def payment_summary(request):
                 payment.status
             ])
 
-        writer.writerow([])  # Empty row for separation
+        writer.writerow([])  # Spacer
 
         # --- Unpaid Section ---
         writer.writerow(['Unpaid Tenants'])
@@ -434,7 +459,7 @@ def payment_summary(request):
 
         return response
 
-    # Normal page render
+    # Render page normally
     context = {
         'month_choices': [(i, calendar.month_name[i]) for i in range(1, 13)],
         'year_choices': list(range(today.year - 2, today.year + 2)),
@@ -454,6 +479,7 @@ def payment_summary(request):
     }
 
     return render(request, 'tenant/payment_summary.html', context)
+
 
 
 
@@ -488,15 +514,15 @@ def update_payment_status(sender, instance, **kwargs):
 @login_required
 def add_tenant(request):
     if request.method == "POST":
-        form = TenantForm(request.POST, request.FILES)
-        if form.is_valid(): tenant = form.save(commit=False)
-        tenant.user = request.user  # ✅ Link the current logged-in user
-        tenant.save()
-        return redirect('tenant_list')
-
-            
+        form = TenantForm(request.POST or None, request.FILES or None, user=request.user)
+        if form.is_valid():
+            tenant = form.save(commit=False)
+            tenant.user = request.user  # ✅ Link the tenant to the current user
+            tenant.save()
+            return redirect('tenant_list')
     else:
-        form = TenantForm()
+        form = TenantForm(user=request.user)  # ✅ Pass user here too
+
     return render(request, 'tenant/add_tenant.html', {'form': form})
 
 # ✅ List All Tenants
@@ -616,6 +642,7 @@ from .models import Payment, Expense  # Adjust the import path if needed
 import calendar
 
 @login_required
+@login_required
 def financial_report(request):
     # Get month from query param or default to current
     month = request.GET.get('month')
@@ -625,10 +652,11 @@ def financial_report(request):
         selected_month = timezone.now().month
 
     year = timezone.now().year
+    user = request.user  # Get the logged-in user
 
-    # Payments and Expenses in selected month
-    payments = Payment.objects.filter(payment_date__month=selected_month, payment_date__year=year)
-    expenses = Expense.objects.filter(expense_date__month=selected_month, expense_date__year=year)
+    # Payments and Expenses in selected month for the logged-in user
+    payments = Payment.objects.filter(payment_date__month=selected_month, payment_date__year=year, user=user)
+    expenses = Expense.objects.filter(expense_date__month=selected_month, expense_date__year=year, user=user)
 
     total_income = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
     total_expenses = expenses.aggregate(total=Sum('amount'))['total'] or 0
@@ -642,11 +670,11 @@ def financial_report(request):
     # Monthly chart data for bar chart
     monthly_labels = [calendar.month_name[i] for i in range(1, 13)]
     income_data = [
-        float(Payment.objects.filter(payment_date__month=i, payment_date__year=year).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0)
+        float(Payment.objects.filter(payment_date__month=i, payment_date__year=year, user=user).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0)
         for i in range(1, 13)
     ]
     expense_data = [
-        float(Expense.objects.filter(expense_date__month=i, expense_date__year=year).aggregate(Sum('amount'))['amount__sum'] or 0)
+        float(Expense.objects.filter(expense_date__month=i, expense_date__year=year, user=user).aggregate(Sum('amount'))['amount__sum'] or 0)
         for i in range(1, 13)
     ]
 
@@ -668,6 +696,7 @@ def financial_report(request):
     }
 
     return render(request, 'tenant/financial_report.html', context)
+
 @login_required
 def export_financial_report(request):
     # Get the selected month from GET parameter or use current month
@@ -675,7 +704,8 @@ def export_financial_report(request):
     if not month:
         month = timezone.now().month
 
-    report_summary = generate_financial_report(month=month)
+    user = request.user  # Get the logged-in user
+    report_summary = generate_financial_report(month=month, user=user)
     
     # Prepare the CSV response
     response = HttpResponse(content_type='text/csv')
@@ -686,7 +716,6 @@ def export_financial_report(request):
     writer.writerow([report_summary['month'], report_summary['total_income'], report_summary['total_expenses'], report_summary['net_profit']])
 
     return response
-
 
 @login_required
 def add_expense(request):

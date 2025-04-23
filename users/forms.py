@@ -97,10 +97,16 @@ class TenantForm(forms.ModelForm):
             'move_in_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
+   
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Optional: only show properties with available units
-        self.fields['property'].queryset = Property.objects.all()
+        user = kwargs.pop('user', None)
+        super(TenantForm, self).__init__(*args, **kwargs)
+
+        if user is not None:
+            self.fields['property'].queryset = Property.objects.filter(user=user)
+        if not self.fields['property'].queryset.exists():
+            self.fields['property'].empty_label = "No properties available. Please add one."
+
 
 
 
@@ -127,7 +133,7 @@ class CustomUserRegisterForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-
+   
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']

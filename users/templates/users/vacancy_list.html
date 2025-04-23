@@ -687,8 +687,8 @@
             style="width: 120px; height: 120px; object-fit: cover;" alt="{{ freelancer.name }}">
           <div class="card-body">
             <h5 class="card-title">{{ freelancer.name }}</h5>
-            {% if freelancer.skill %}
-              <p class="card-text text-muted mb-1">{{ freelancer.skill }}</p>
+            {% if freelancer.description %}
+              <p class="card-text text-muted mb-1">{{ freelancer.description }}</p>
             {% else %}
               <p class="text-muted mb-1">Skill not listed</p>
             {% endif %}
