@@ -9,6 +9,8 @@ from .models import Expense
 from .forms import ExpenseForm
 from django.utils.timezone import now
 from freelancers.models import Freelancer
+from .models import ForSaleProperty
+from .forms import ForSalePropertyForm
 import json
 # forms.py
 from django import forms
@@ -70,6 +72,8 @@ from .models import Payment
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Payment
 from .forms import PaymentForm  # Create a form for editing payments
+from .models import CommercialProperty
+from .forms import CommercialPropertyForm
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -811,4 +815,52 @@ def delete_property(request, pk):
     property = get_object_or_404(Property, pk=pk)
     property.delete()
     return redirect('property_list')
-    
+
+
+
+# List all properties for sale
+def for_sale_list_view(request):
+    properties = ForSaleProperty.objects.all()
+    return render(request, 'users/for_sale_list.html', {'properties': properties})
+
+# Detail view
+def for_sale_detail_view(request, pk):
+    property = get_object_or_404(ForSaleProperty, pk=pk)
+    return render(request, 'users/for_sale_detail.html', {'property': property})
+
+# Create new property
+def for_sale_create_view(request):
+    if request.method == 'POST':
+        form = ForSalePropertyForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('for_sale_list')
+    else:
+        form = ForSalePropertyForm()
+    return render(request, 'users/for_sale_form.html', {'form': form})
+
+
+
+
+
+
+# List commercial properties
+def commercial_list_view(request):
+    properties = CommercialProperty.objects.all()
+    return render(request, 'users/commercial_list.html', {'properties': properties})
+
+# Detail view
+def commercial_detail_view(request, pk):
+    property = get_object_or_404(CommercialProperty, pk=pk)
+    return render(request, 'users/commercial_detail.html', {'property': property})
+
+# Create new commercial property
+def commercial_create_view(request):
+    if request.method == 'POST':
+        form = CommercialPropertyForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('commercial_list')
+    else:
+        form = CommercialPropertyForm()
+    return render(request, 'users/commercial_form.html', {'form': form})

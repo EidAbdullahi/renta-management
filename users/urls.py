@@ -7,7 +7,8 @@ from django.conf.urls.static import static
 from .views import payment_list, tenant_payments
 from .views import (
     dashboard, tenant_list, add_tenant, edit_tenant, delete_tenant, 
-    add_payment, payment_list, update_rent_status, edit_payment
+    add_payment, payment_list, update_rent_status, edit_payment,for_sale_list_view, for_sale_detail_view, for_sale_create_view,
+    commercial_list_view, commercial_detail_view, commercial_create_view
 )
 
 urlpatterns = [
@@ -71,6 +72,16 @@ urlpatterns = [
     path('add-vacancy/', views.add_vacancy, name='add_vacancy'),
     path('', views.vacancy_list, name='vacancy_list'),
     path('vacancies/<slug:slug>/', views.vacancy_detail, name='vacancy_detail'),
+
+
+
+    path('for-sale/', for_sale_list_view, name='for_sale_list'),
+    path('for-sale/<int:pk>/', for_sale_detail_view, name='for_sale_detail'),
+    path('for-sale/new/', for_sale_create_view, name='for_sale_create'),
+
+    path('commercial/', commercial_list_view, name='commercial_list'),
+    path('commercial/<int:pk>/', commercial_detail_view, name='commercial_detail'),
+    path('commercial/new/', commercial_create_view, name='commercial_create'),
     
 
 

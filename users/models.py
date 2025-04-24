@@ -203,3 +203,56 @@ class Partner(models.Model):
 
     def __str__(self):
         return self.name
+
+
+
+
+
+class ForSaleProperty(models.Model):
+    PROPERTY_TYPE_CHOICES = (
+        ('Apartment', 'Apartment'),
+        ('House', 'House'),
+        ('Land', 'Land'),
+        ('Townhouse', 'Townhouse'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sale_properties')
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    location = models.CharField(max_length=100)
+    property_type = models.CharField(max_length=30, choices=PROPERTY_TYPE_CHOICES)
+    lot_size = models.CharField(max_length=50, null=True, blank=True)
+    built_year = models.IntegerField(null=True, blank=True)
+    picture1 = models.ImageField(upload_to='sale_images/', null=True, blank=True)
+    picture2 = models.ImageField(upload_to='sale_images/', null=True, blank=True)
+    picture3 = models.ImageField(upload_to='sale_images/', null=True, blank=True)
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+
+
+class CommercialProperty(models.Model):
+    COMMERCIAL_TYPE_CHOICES = (
+        ('Office', 'Office'),
+        ('Retail', 'Retail'),
+        ('Warehouse', 'Warehouse'),
+        ('Industrial', 'Industrial'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='commercial_properties')
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    location = models.CharField(max_length=100)
+    commercial_type = models.CharField(max_length=30, choices=COMMERCIAL_TYPE_CHOICES)
+    floor_space = models.DecimalField(max_digits=10, decimal_places=2, help_text="In square meters")
+    parking_spaces = models.IntegerField(null=True, blank=True)
+    picture1 = models.ImageField(upload_to='commercial_images/', null=True, blank=True)
+    picture2 = models.ImageField(upload_to='commercial_images/', null=True, blank=True)
+    picture3 = models.ImageField(upload_to='commercial_images/', null=True, blank=True)
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(unique=True, blank=True)
+

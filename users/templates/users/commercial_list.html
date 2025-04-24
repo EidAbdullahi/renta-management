@@ -1,0 +1,39 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">🏢 Commercial Properties</h2>
+    
+  </div>
+
+  {% if properties %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for property in properties %}
+        <div class="col">
+          <div class="card h-100 shadow-sm border-0">
+            {% if property.picture1 %}
+              <img src="{{ property.picture1.url }}" class="card-img-top" alt="{{ property.title }}">
+            {% else %}
+              <img src="https://via.placeholder.com/400x250?text=No+Image" class="card-img-top" alt="No image">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title text-primary">{{ property.title }}</h5>
+              <p class="card-text text-muted mb-1">
+                <i class="bi bi-geo-alt-fill"></i> {{ property.location }}
+              </p>
+              <p class="card-text fw-bold text-success">ksh{{ property.price }}</p>
+              <p class="card-text">
+                <strong>Type:</strong> {{ property.commercial_type }}<br>
+                <strong>Floor Space:</strong> {{ property.floor_space }} sqm
+              </p>
+              <a href="{% url 'commercial_detail' property.pk %}" class="btn btn-outline-primary btn-sm mt-2">View Details</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-warning text-center">No commercial listings found.</div>
+  {% endif %}
+</div>
+{% endblock %}

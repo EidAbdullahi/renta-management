@@ -1,0 +1,80 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="row g-5">
+    <!-- Image Gallery -->
+    <div class="col-md-6">
+      {% if property.picture1 or property.picture2 or property.picture3 %}
+        <div id="propertyCarousel" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% if property.picture1 %}
+              <div class="carousel-item active">
+                <img src="{{ property.picture1.url }}" class="d-block w-100" alt="{{ property.title }}">
+              </div>
+            {% endif %}
+            {% if property.picture2 %}
+              <div class="carousel-item {% if not property.picture1 %}active{% endif %}">
+                <img src="{{ property.picture2.url }}" class="d-block w-100" alt="{{ property.title }}">
+              </div>
+            {% endif %}
+            {% if property.picture3 %}
+              <div class="carousel-item {% if not property.picture1 and not property.picture2 %}active{% endif %}">
+                <img src="{{ property.picture3.url }}" class="d-block w-100" alt="{{ property.title }}">
+              </div>
+            {% endif %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      {% else %}
+        <img src="https://via.placeholder.com/600x400?text=No+Image" class="img-fluid rounded" alt="No image">
+      {% endif %}
+    </div>
+
+    <!-- Property Details -->
+    <div class="col-md-6">
+      <h2 class="mb-3">{{ property.title }}</h2>
+      <p class="text-muted mb-1"><i class="bi bi-geo-alt-fill"></i> {{ property.location }}</p>
+      <p class="fw-bold fs-4 text-success">ksh{{ property.price }}</p>
+
+      <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item"><strong>Type:</strong> {{ property.commercial_type }}</li>
+        <li class="list-group-item"><strong>Floor Space:</strong> {{ property.floor_space }} sqm</li>
+        <li class="list-group-item"><strong>Parking Spaces:</strong> {{ property.parking_spaces|default:"N/A" }}</li>
+      </ul>
+
+      <div class="card p-3 bg-light">
+        <h5 class="mb-3">Description</h5>
+        <p>{{ property.description }}</p>
+      </div>
+
+      <div class="card mt-4 p-3">
+        <h5>Photo Gallery</h5>
+        <ul class="list-unstyled">
+          {% if property.picture1 %}
+            <li>
+              <img src="{{ property.picture1.url }}" class="img-fluid mb-3" alt="{{ property.title }}">
+            </li>
+          {% endif %}
+          {% if property.picture2 %}
+            <li>
+              <img src="{{ property.picture2.url }}" class="img-fluid mb-3" alt="{{ property.title }}">
+            </li>
+          {% endif %}
+          {% if property.picture3 %}
+            <li>
+              <img src="{{ property.picture3.url }}" class="img-fluid mb-3" alt="{{ property.title }}">
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

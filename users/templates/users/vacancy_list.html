@@ -442,9 +442,9 @@
     <div>
       <h4>✨ Discover Your Ideal Room with Our Exclusive Offer!</h4>
       <div class="d-flex gap-3 flex-wrap mt-3">
-        <a href="#" class="btn btn-primary category-btn">🏡 Rent</a>
-        <a href="#" class="btn btn-warning text-dark category-btn">🏠 For Sale</a>
-        <a href="#" class="btn btn-secondary category-btn">🏢 Commercial</a>
+        <a href="{% url 'vacancy_list' %}" class="btn btn-primary category-btn">🏡 Rent</a>
+        <a href="{% url 'for_sale_list' %}"class="btn btn-warning text-dark category-btn">🏠 For Sale</a>
+        <a href="{% url 'commercial_list' %}" class="btn btn-secondary category-btn">🏢 Commercial</a>
       </div>
     </div>
     <div class="mt-4 mt-md-0 ms-md-auto"> <!-- Align login button to the far right -->
@@ -700,7 +700,7 @@
             <!-- Buttons -->
             <div class="mt-auto">
               <a href="{% url 'freelancer_detail' freelancer.id %}" class="btn btn-sm btn-primary me-2 mb-2">View Profile</a>
-              <a href="# class="btn btn-sm btn-outline-secondary mb-2">Contact</a>
+              
             </div>
           </div>
         </div>

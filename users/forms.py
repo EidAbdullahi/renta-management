@@ -10,7 +10,7 @@ from .models import Expense
 # users/forms.py
 from django import forms
 from .models import Employee
-from .models import VacantRoom
+from .models import VacantRoom,ForSaleProperty, CommercialProperty
 from .models import Profile
 
 from django import forms
@@ -167,3 +167,16 @@ class PartnerForm(forms.ModelForm):
     class Meta:
         model = Partner
         fields = ['name', 'logo', 'website']
+
+
+
+
+class ForSalePropertyForm(forms.ModelForm):
+    class Meta:
+        model = ForSaleProperty
+        fields = '__all__'
+
+class CommercialPropertyForm(forms.ModelForm):
+    class Meta:
+        model = CommercialProperty
+        fields = '__all__'
