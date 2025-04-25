@@ -98,7 +98,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rental_management.wsgi.application'
 
+# settings.py
 
+AUTHENTICATION_BACKENDS = [
+    # first try to authenticate everyone, even inactive users:
+    "django.contrib.auth.backends.AllowAllUsersModelBackend",
+    # then fall back to the normal ModelBackend for permissions, etc.
+    "django.contrib.auth.backends.ModelBackend",
+]
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 

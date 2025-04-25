@@ -128,15 +128,38 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
+# users/forms.py
+from django import forms
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 class CustomUserRegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    email     = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    username  = forms.CharField(      widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password1 = forms.CharField(label="Password",         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
    
     class Meta:
-        model = User
+        model  = User
         fields = ['username', 'email', 'password1', 'password2']
+
+    def save(self, commit=True):
+        # create User object but don’t save to database yet
+        user = super().save(commit=False)
+        # mark as inactive so they cannot log in until approved
+        user.is_active = False
+        if commit:
+            user.save()
+        return user
+
+# (Optional) custom login form to show friendlier message for inactive accounts
+class InactiveUserAuthForm(AuthenticationForm):
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        "inactive": "Your account is pending approval by an administrator.",
+    }
 
 
 

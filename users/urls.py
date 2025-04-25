@@ -3,6 +3,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect
 from django.conf import settings
 from . import views
+from django.contrib.auth.views import LoginView
+from users.forms import InactiveUserAuthForm
 from django.conf.urls.static import static
 from .views import payment_list, tenant_payments
 from .views import (
@@ -22,7 +24,14 @@ urlpatterns = [
     # Authentication
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
-    path('login/', LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
+    path('login/',
+     LoginView.as_view(
+        template_name='users/login.html',
+        authentication_form=InactiveUserAuthForm,
+        redirect_authenticated_user=True
+     ),
+     name='login'),
+    # path('login/', LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
 
     # Dashboard

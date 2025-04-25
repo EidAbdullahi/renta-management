@@ -102,13 +102,13 @@ from .forms import PartnerForm
 
 # views.py
 # views.py
-@login_required
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, '🎉 Account created successfully! You can now log in.')
+            messages.success(request, '🎉 Account created successfully! Your account is pending approval by the admin..')
             return redirect('login')
     else:
         form = CustomUserRegisterForm()
@@ -567,13 +567,7 @@ def update_rent_status(request, tenant_id):
         tenant.save()
     return redirect("tenant_list")
 
-# ✅ Custom Login View
-class CustomLoginView(LoginView):
-    template_name = 'users/login.html'
-    redirect_authenticated_user = True
 
-    def get_success_url(self):
-        return reverse_lazy('dashboard')
 
 # ✅ Logout View
 def logout_view(request):
@@ -581,17 +575,25 @@ def logout_view(request):
     return redirect('login')
 
 # ✅ User Login
+from .forms import InactiveUserAuthForm
+
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = InactiveUserAuthForm(request, data=request.POST)  # Use your custom form
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('dashboard')
+            messages.success(request, "Welcome back! You have successfully logged in.")
+            return redirect('dashboard')  # Redirect to the dashboard or another view
+        else:
+            # Process non-field errors and add them to messages
+            for error in form.non_field_errors():
+                messages.error(request, error)
     else:
-        form = AuthenticationForm()
-    return render(request, 'users/login.html', {'form': form})
+        form = InactiveUserAuthForm()  # Initialize the form for GET request
 
+    # Render the login template and pass the form
+    return render(request, 'users/login.html', {'form': form})
 # ✅ Dashboard
 
 
