@@ -11,6 +11,7 @@ from django.utils.timezone import now
 from freelancers.models import Freelancer
 from .models import ForSaleProperty
 from .forms import ForSalePropertyForm
+from django.http import Http404
 import json
 # forms.py
 from django import forms

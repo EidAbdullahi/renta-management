@@ -1,0 +1,15 @@
+<!-- book_unit.html -->
+{% extends 'users/base.html' %}
+{% block content %}
+    <h1>Book Unit {{ unit.unit_number }}</h1>
+
+    <p>Unit Details: {{ unit.unit_number }} - {{ unit.unit_type }} - ${{ unit.price }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Book Unit</button>
+    </form>
+
+    <a href="{% url 'view_units' project_id=unit.project.id %}" class="btn btn-secondary mt-3">Back to Units</a>
+{% endblock %}

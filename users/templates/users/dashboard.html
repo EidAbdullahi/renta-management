@@ -10,50 +10,74 @@
         <ul class="nav flex-column">
           <li class="nav-item">
             <a class="nav-link active text-primary fw-bold" href="{% url 'dashboard' %}">
-              <i class="bi bi-house-door me-2"></i> Dashboard
+              <i class="bi bi-house-door-fill me-2 fs-4"></i> Dashboard
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu"><i class="bi bi-building me-2"></i> Properties</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#propertyMenu">
+              <i class="bi bi-building-fill me-2 fs-4"></i> Properties
+            </a>
             <div class="collapse" id="propertyMenu">
               <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'add_property' %}">Add</a></li>
-                <li><a class="nav-link" href="{% url 'property_list' %}">List</a></li>
+                <li><a class="nav-link" href="{% url 'add_property' %}"><i class="bi bi-plus-circle me-2"></i> Add</a></li>
+                <li><a class="nav-link" href="{% url 'property_list' %}"><i class="bi bi-list-ul me-2"></i> List</a></li>
               </ul>
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu"><i class="bi bi-person-lines-fill me-2"></i> Tenants</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#tenantMenu">
+              <i class="bi bi-person-lines-fill me-2 fs-4"></i> Tenants
+            </a>
             <div class="collapse" id="tenantMenu">
               <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'add_tenant' %}">Add</a></li>
-                <li><a class="nav-link" href="{% url 'tenant_list' %}">List</a></li>
+                <li><a class="nav-link" href="{% url 'add_tenant' %}"><i class="bi bi-person-plus-fill me-2"></i> Add</a></li>
+                <li><a class="nav-link" href="{% url 'tenant_list' %}"><i class="bi bi-person-check-fill me-2"></i> List</a></li>
               </ul>
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu"><i class="bi bi-credit-card me-2"></i> Financials</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#paymentMenu">
+              <i class="bi bi-credit-card-2-front-fill me-2 fs-4"></i> Financials
+            </a>
             <div class="collapse" id="paymentMenu">
               <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'payment_list' %}">Payment History</a></li>
-                <li><a class="nav-link" href="{% url 'payment_summary' %}">Payment Summary</a></li>
-                <li><a class="nav-link" href="{% url 'expense_list' %}">Expenses</a></li>
-                <li><a class="nav-link" href="{% url 'financial_report' %}">Financial Report</a></li>
+                <li><a class="nav-link" href="{% url 'payment_list' %}"><i class="bi bi-cash-stack me-2"></i> Payment History</a></li>
+                <li><a class="nav-link" href="{% url 'payment_summary' %}"><i class="bi bi-bar-chart-fill me-2"></i> Payment Summary</a></li>
+                <li><a class="nav-link" href="{% url 'expense_list' %}"><i class="bi bi-wallet-fill me-2"></i> Expenses</a></li>
+                <li><a class="nav-link" href="{% url 'financial_report' %}"><i class="bi bi-file-earmark-bar-graph me-2"></i> Financial Report</a></li>
               </ul>
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#vacancyMenu"><i class="bi bi-cash-stack me-2"></i> Vacancies</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#vacancyMenu">
+              <i class="bi bi-house-door-fill me-2 fs-4"></i> Vacancies
+            </a>
             <div class="collapse" id="vacancyMenu">
               <ul class="nav flex-column ms-3">
-                <li><a class="nav-link" href="{% url 'add_vacancy' %}">Add Vacancy</a></li>
-                <li><a class="nav-link" href="{% url 'vacancy_list' %}">Vacancy List</a></li>
+                <li><a class="nav-link" href="{% url 'add_vacancy' %}"><i class="bi bi-house-add me-2"></i> Add Vacancy</a></li>
+                <li><a class="nav-link" href="{% url 'vacancy_list' %}"><i class="bi bi-house-door me-2"></i> Vacancy List</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#offplanMenu">
+              <i class="bi bi-cash-stack me-2 fs-4"></i> Offplan
+            </a>
+            <div class="collapse" id="offplanMenu">
+              <ul class="nav flex-column ms-3">
+                <li><a class="nav-link" href="{% url 'create_project' %}"><i class="bi bi-plus-circle-fill me-2"></i> Add Project</a></li>
+                <li><a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-list-check me-2"></i> Projects List</a></li>
+                <li><a class="nav-link" href="{% url 'create_unit' %}"><i class="bi bi-plus-square-fill me-2"></i> Add Units</a></li>
+                <li><a class="nav-link" href="{% url 'vacancy_list' %}"><i class="bi bi-grid me-2"></i> Units List</a></li>
+                <li><a class="nav-link" href="{% url 'booked_units' %}"><i class="bi bi-calendar-check-fill me-2"></i> Booked Units</a></li>
               </ul>
             </div>
           </li>
         </ul>
       </div>
     </nav>
+</div>
+
 
     <!-- Main Content Area -->
     <main class="col-md-9 ms-sm-auto col-12 px-4 py-4">

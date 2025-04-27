@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'users',  # Add this
     'widget_tweaks',
     'freelancers',
+    'offplan',
+
 
 ]
 

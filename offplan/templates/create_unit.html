@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Unit</title>
+</head>
+<body>
+    <h1>Create a New Unit</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create Unit</button>
+    </form>
+    <br>
+    
+</body>
+</html>
