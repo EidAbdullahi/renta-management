@@ -9,6 +9,8 @@ from django.db.models import Q
 from .models import Unit, Project
 from datetime import datetime
 from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -19,6 +21,7 @@ from .models import Project, Unit
 from .forms import ProjectForm, UnitForm
 
 # View to create a new Project
+@login_required
 def create_project(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
@@ -30,6 +33,7 @@ def create_project(request):
     return render(request, 'create_project.html', {'form': form})
 
 # View to create a new Unit
+@login_required
 def create_unit(request):
     if request.method == 'POST':
         form = UnitForm(request.POST)
@@ -42,6 +46,7 @@ def create_unit(request):
 
 
 # List all Projects
+@login_required
 def project_list(request):
     projects = Project.objects.all()
     project_data = []
@@ -66,7 +71,7 @@ def project_list(request):
     return render(request, 'project_list.html', {'project_data': project_data})
 
 
-
+@login_required
 def view_units(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     units = Unit.objects.filter(project=project)
@@ -77,10 +82,12 @@ def view_units(request, project_id):
 
 
 
-
+@login_required
+@login_required
 def book_unit(request, unit_id):
     unit = get_object_or_404(Unit, id=unit_id)
 
+    # Check if the unit is already sold
     if unit.is_sold:
         messages.error(request, "This unit has already been sold.")
         return redirect('view_units', project_id=unit.project.id)
@@ -89,9 +96,8 @@ def book_unit(request, unit_id):
     if request.method == 'POST':
         form = ClientBookingForm(request.POST)
         if form.is_valid():
-            # Save the form data and link it to the unit
             booking = form.save(commit=False)
-            booking.unit = unit
+            booking.unit = unit  # Link the booking to the unit
             booking.save()
 
             # Mark the unit as sold
@@ -100,15 +106,14 @@ def book_unit(request, unit_id):
 
             messages.success(request, f"You have successfully booked Unit {unit.unit_number}!")
 
-            # Redirect to the project units page after booking
-            return redirect('view_units', project_id=unit.project.id)
+            # Redirect to the booking details page
+            return redirect('booking_details', booking_id=booking.id)
     else:
-        # If the form is not yet submitted, show the booking form
         form = ClientBookingForm()
 
     return render(request, 'booking.html', {'form': form, 'unit': unit})
-
 # Record Payment for a Client Booking
+@login_required
 def add_payment(request, booking_id):
     booking = get_object_or_404(ClientBooking, id=booking_id)
     
@@ -126,7 +131,7 @@ def add_payment(request, booking_id):
 
 
 
-
+@login_required
 def booked_units(request):
     # Get all available projects for filtering
     projects = Project.objects.all()
@@ -153,6 +158,10 @@ def booked_units(request):
     paginator = Paginator(booked_units, 10)  # Show 10 units per page
     page_obj = paginator.get_page(page)
 
+    # For each unit, calculate how many bookings have a deposit_amount greater than 0
+    for unit in page_obj:
+        unit.bookings_with_deposit_count = unit.bookings.filter(deposit_amount__gt=0).count()
+
     return render(request, 'booked_units.html', {
         'booked_units': page_obj,
         'projects': projects,
@@ -160,23 +169,35 @@ def booked_units(request):
         'unit_number_filter': unit_number_filter,
     })
 
-from django.http import Http404
-
 def booking_details(request, booking_id):
-    try:
-        booking = ClientBooking.objects.get(id=booking_id)
-    except ClientBooking.DoesNotExist:
-        raise Http404("Booking not found")
-    
+    # Fetch the booking
+    booking = get_object_or_404(ClientBooking, id=booking_id)
+
+    # Fetch all payments related to this booking
     payments = booking.payments.all()
+    
+    # Calculate total paid amount
     total_paid = sum(payment.amount_paid for payment in payments)
+    
+    # Calculate the remaining balance
     remaining_balance = booking.unit.price - total_paid - booking.deposit_amount
+
+    # If the booking is not fully paid, provide an option to make more payments
+    is_fully_paid = booking.is_fully_paid
+
+    # Fetch the bookings for the unit with a deposit_amount greater than 0
+    bookings_with_deposit = booking.unit.bookings.filter(deposit_amount__gt=0)
+
+    # Count bookings with deposit
+    bookings_with_deposit_count = bookings_with_deposit.count()
 
     context = {
         'booking': booking,
         'payments': payments,
         'total_paid': total_paid,
         'remaining_balance': remaining_balance,
+        'is_fully_paid': is_fully_paid,
+        'bookings_with_deposit_count': bookings_with_deposit_count,  # Add this to context
     }
-    
+
     return render(request, 'booking_details.html', context)

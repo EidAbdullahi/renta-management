@@ -1,54 +1,282 @@
 {% extends 'users/base.html' %}
 {% load static %}
 {% block content %}
+
 <head>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .table th, .table td {
+        /* Back to Dashboard Button Styling */
+        .back-button {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #6f42c1, #007bff);
+            color: white;
+            border: 1px solid transparent;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #0056b3, #6f42c1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-button i {
+            margin-right: 10px;
+        }
+
+        /* Flexbox Container Styling */
+        .d-flex {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Table Styling */
+        .table th,
+        .table td {
             text-align: center;
+            vertical-align: middle;
+            padding: 12px;
         }
+
         .table th {
-            background-color: #f8f9fa;
-            color: #495057;
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
         }
+
         .table {
             margin-top: 20px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+
+        .btn-primary {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Search and Filter Section */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-container input,
+        .search-container select {
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            max-width: 250px;
+            margin: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .search-container input:focus,
+        .search-container select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Card Styling */
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-weight: 600;
+            border-radius: 16px 16px 0 0;
+            padding: 15px;
+        }
+
+        .card-body {
+            padding: 25px;
+            background-color: #f9f9f9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container input,
+            .search-container select {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .table {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 
-<h1 class="text-center my-4">Projects</h1>
+<h1 class="text-center my-4">Projects Overview</h1>
+
+<div class="d-flex justify-content-start mb-4">
+    <a href="{% url 'dashboard' %}" class="btn back-button">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
 
 <div class="container">
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Project Name</th>
-                <th>Location</th>
-                <th>Number of Units</th>
-                <th>Units Sold</th>
-                <th>Units Available</th>
-                <th>Action</th> <!-- New Column -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in project_data %}
-                <tr>
-                    <td>{{ item.project.name }}</td>
-                    <td>{{ item.project.location }}</td>
-                    <td>{{ item.project.number_of_units }}</td>
-                    <td>{{ item.sold_units }}</td>
-                    <td>{{ item.available_units }}</td>
-                    <td>
-                        <a href="{% url 'view_units' item.project.id %}" class="btn btn-primary btn-sm">View Units</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Filter and Search Projects</h5>
+        </div>
+        <div class="card-body">
+            <!-- Search and Filter Section -->
+            <div class="search-container">
+                <!-- Search Input -->
+                <input type="text" id="searchInput" class="form-control"
+                    placeholder="Search projects by name, location..." aria-label="Search">
+
+                <!-- Filter by Location -->
+                <select id="locationFilter" class="form-select">
+                    <option value="">Filter by Location</option>
+                    {% for location in project_data|dictsort:"location" %}
+                    <option value="{{ location.project.location }}">{{ location.project.location }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Filter by Units Available -->
+                <select id="unitsFilter" class="form-select">
+                    <option value="">Filter by Units Available</option>
+                    <option value="0">0 Units</option>
+                    <option value="1">1-50 Units</option>
+                    <option value="2">51-100 Units</option>
+                    <option value="3">100+ Units</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <table class="table table-striped table-bordered table-hover" id="projectsTable">
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Location</th>
+                        <th>Number of Units</th>
+                        <th>Units Sold</th>
+                        <th>Units Available</th>
+                        <th>Action</th> <!-- Action Column for View -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in project_data %}
+                    <tr>
+                        <td>{{ item.project.name }}</td>
+                        <td>{{ item.project.location }}</td>
+                        <td>{{ item.project.number_of_units }}</td>
+                        <td>{{ item.sold_units }}</td>
+                        <td>{{ item.available_units }}</td>
+                        <td>
+                            <a href="{% url 'view_units' item.project.id %}" class="btn btn-primary btn-sm">View
+                                Units</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Search Functionality
+        $("#searchInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#projectsTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+
+        // Filter by Location
+        $("#locationFilter").on("change", function () {
+            var locationValue = $(this).val().toLowerCase();
+            filterTable(locationValue, 'location');
+        });
+
+        // Filter by Units Available
+        $("#unitsFilter").on("change", function () {
+            var unitsValue = $(this).val();
+            filterTable(unitsValue, 'units');
+        });
+
+        // Function to apply filters
+        function filterTable(filterValue, type) {
+            $("#projectsTable tbody tr").filter(function () {
+                var row = $(this);
+                var match = true;
+
+                if (filterValue) {
+                    if (type === 'location') {
+                        match = row.find("td:nth-child(2)").text().toLowerCase().indexOf(filterValue) > -1;
+                    } else if (type === 'units') {
+                        var availableUnits = row.find("td:nth-child(5)").text();
+                        if (filterValue === "0") {
+                            match = availableUnits === "0";
+                        } else if (filterValue === "1") {
+                            match = availableUnits >= 1 && availableUnits <= 50;
+                        } else if (filterValue === "2") {
+                            match = availableUnits >= 51 && availableUnits <= 100;
+                        } else if (filterValue === "3") {
+                            match = availableUnits > 100;
+                        }
+                    }
+                }
+
+                row.toggle(match);
+            });
+        }
+    });
+</script>
 {% endblock %}
