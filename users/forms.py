@@ -135,25 +135,30 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class CustomUserRegisterForm(UserCreationForm):
-    email     = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    username  = forms.CharField(      widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password1 = forms.CharField(label="Password",         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    full_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    phone_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-   
+
     class Meta:
-        model  = User
-        fields = ['username', 'email', 'password1', 'password2']
+        model = User
+        fields = ['full_name', 'phone_number', 'username', 'email', 'password1', 'password2']
 
     def save(self, commit=True):
-        # create User object but don’t save to database yet
         user = super().save(commit=False)
-        # mark as inactive so they cannot log in until approved
-        user.is_active = False
+        user.is_active = False  # Pending approval
+
+        # Temporarily storing full_name and phone_number in first_name and last_name for demo purposes
+        user.first_name = self.cleaned_data['full_name']
+        user.last_name = self.cleaned_data['phone_number']
+
         if commit:
             user.save()
         return user
-
 # (Optional) custom login form to show friendlier message for inactive accounts
 class InactiveUserAuthForm(AuthenticationForm):
     error_messages = {

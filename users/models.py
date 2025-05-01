@@ -14,11 +14,13 @@ class VacantRoom(models.Model):
         ('Double', 'Double'),
         ('Self-Contained', 'Self-Contained'),
         ('Bedsitter', 'Bedsitter'),
+         ('Airbnb', 'Airbnb'),
         ('1 Bedroom', '1 Bedroom'),
         ('2 Bedroom', '2 Bedroom'),
         ('3 Bedroom', '3 Bedroom'),
         ('4 Bedroom', '4 Bedroom'),
     )
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacant_rooms')
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -28,6 +30,7 @@ class VacantRoom(models.Model):
     picture1 = models.ImageField(upload_to='vacancy_images/', null=True, blank=True)
     picture2 = models.ImageField(upload_to='vacancy_images/', null=True, blank=True)
     picture3 = models.ImageField(upload_to='vacancy_images/', null=True, blank=True)
+    video_tour = models.FileField(upload_to='vacancy_videos/', null=True, blank=True)  # New field for video
     available_from = models.DateField()
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,8 +44,12 @@ class VacantRoom(models.Model):
     def get_absolute_url(self):
         return reverse('vacancy_detail', kwargs={'slug': self.slug})
 
+    def get_images(self):
+        return [self.picture1, self.picture2, self.picture3]
+
     def __str__(self):
-        return self.title
+        return f"{self.title} - {self.room_type} - {self.location}"
+
     
 
 class Property(models.Model):
