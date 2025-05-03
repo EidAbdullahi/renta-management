@@ -7,16 +7,20 @@
 
     <!-- Search Form -->
     <form method="get" action="." class="d-flex flex-wrap gap-2">
-      <input type="text" name="q" placeholder="Search by title or location" class="form-control form-control-sm" value="{{ request.GET.q }}">
+      <input type="text" name="q" placeholder="Search by title or location"
+             class="form-control form-control-sm"
+             value="{{ query }}">
+             
       <select name="type" class="form-select form-select-sm">
         <option value="">All Types</option>
-        <option value="Apartment" {% if request.GET.type == 'Apartment' %}selected{% endif %}>Apartment</option>
-        <option value="House" {% if request.GET.type == 'House' %}selected{% endif %}>House</option>
-        <option value="Land" {% if request.GET.type == 'Land' %}selected{% endif %}>Land</option>
-        <option value="Townhouse" {% if request.GET.type == 'Townhouse' %}selected{% endif %}>Townhouse</option>
+        <option value="Apartment" {% if property_type == 'Apartment' %}selected{% endif %}>Apartment</option>
+        <option value="House" {% if property_type == 'House' %}selected{% endif %}>House</option>
+        <option value="Land" {% if property_type == 'Land' %}selected{% endif %}>Land</option>
+        <option value="Townhouse" {% if property_type == 'Townhouse' %}selected{% endif %}>Townhouse</option>
       </select>
-      <button type="submit" class="btn btn-sm btn-outline-primary">
-        <i class="bi bi-search"></i> Search
+
+      <button type="submit" class="btn btn-sm btn-outline-primary d-flex align-items-center">
+        <i class="bi bi-search me-1"></i> Search
       </button>
     </form>
   </div>
@@ -36,7 +40,7 @@
               <h5 class="card-title text-primary">{{ property.title }}</h5>
               <p class="card-text text-muted"><i class="bi bi-geo-alt-fill"></i> {{ property.location }}</p>
               <p class="card-text text-muted mb-1"><strong>Type:</strong> {{ property.property_type }}</p>
-              <p class="fw-bold text-success mb-2">Ksh {{ property.price }}</p>
+              <p class="fw-bold text-success mb-2">Ksh {{ property.price|floatformat:0 }}</p>
               <a href="{% url 'for_sale_detail' property.pk %}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
             </div>
           </div>

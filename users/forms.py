@@ -80,7 +80,11 @@ class PaymentForm(forms.ModelForm):
         }
 
 
-
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # Extract the user from kwargs
+        super().__init__(*args, **kwargs)
+        # Limit tenant queryset to those belonging to this user
+        self.fields['tenant'].queryset = Tenant.objects.filter(user=user)
 
 
 class TenantForm(forms.ModelForm):

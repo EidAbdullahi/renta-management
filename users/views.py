@@ -156,7 +156,7 @@ def vacancy_list(request):
     freelancers = Freelancer.objects.all()
     partners = Partner.objects.all()
 
-    # Filtering based on search form
+    # Filtering
     if form.is_valid():
         query = form.cleaned_data.get('query')
         room_type = form.cleaned_data.get('room_type')
@@ -173,24 +173,34 @@ def vacancy_list(request):
         if max_price is not None:
             rooms = rooms.filter(amount__lte=max_price)
         if location:
-            rooms = rooms.filter(Q(location__icontains=location))  # Filter based on location
-           
-    # Pagination (after filtering)
+            rooms = rooms.filter(Q(location__icontains=location))
+
+    # Convert to list to modify
+    rooms = list(rooms)
+
+    # Add full image URL
+    for room in rooms:
+        if room.picture1:
+            room.picture1_url = request.build_absolute_uri(room.picture1.url)
+        else:
+            room.picture1_url = ""
+
+    # Pagination
     paginator = Paginator(rooms, 6)
     page = request.GET.get('page')
     rooms = paginator.get_page(page)
 
-    # Latest and Popular rooms (assuming views added later)
+    # Latest and Popular Rooms
     latest_rooms = VacantRoom.objects.order_by('-created_at')[:6]
-    popular_rooms = VacantRoom.objects.order_by('-created_at')[:6]  # Replace with '-views' when views field is added
+    popular_rooms = VacantRoom.objects.order_by('-created_at')[:6]
 
     return render(request, 'users/vacancy_list.html', {
         'rooms': rooms,
         'form': form,
         'latest_rooms': latest_rooms,
         'popular_rooms': popular_rooms,
-        'freelancers': freelancers, 
-        'partners': partners, 
+        'freelancers': freelancers,
+        'partners': partners,
     })
 
 def vacancy_detail(request, slug):
@@ -352,25 +362,23 @@ def tenant_payments(request, tenant_id):
     })
 
 
-
 @login_required
 def add_payment(request, tenant_id):
-    tenant = get_object_or_404(Tenant, id=tenant_id)
+    tenant = get_object_or_404(Tenant, id=tenant_id, user=request.user)
+
     if request.method == 'POST':
-        form = PaymentForm(request.POST, request.FILES)
+        form = PaymentForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            payment = form.save(commit=False)  # Don't save yet
-            payment.user = request.user  # Set the logged-in user
+            payment = form.save(commit=False)
+            payment.user = request.user
             payment.tenant = tenant
             payment.save()
-            messages.success(request, "✅ Payment added successfully!")  # ✅ Success message
-            return redirect('add_payment', tenant_id=tenant.id)  # Redirect to avoid form resubmission
+            messages.success(request, "✅ Payment added successfully!")
+            return redirect('add_payment', tenant_id=tenant.id)
     else:
-        form = PaymentForm()
+        form = PaymentForm(user=request.user)
+        
     return render(request, 'tenant/add_payment.html', {'form': form, 'tenant': tenant})
-
-
-
 
 from datetime import datetime, date
 import calendar
@@ -823,8 +831,24 @@ def delete_property(request, pk):
 
 # List all properties for sale
 def for_sale_list_view(request):
+    query = request.GET.get('q', '')
+    property_type = request.GET.get('type', '')
+
     properties = ForSaleProperty.objects.all()
-    return render(request, 'users/for_sale_list.html', {'properties': properties})
+
+    if query:
+        properties = properties.filter(
+            Q(title__icontains=query) | Q(location__icontains=query)
+        )
+
+    if property_type:
+        properties = properties.filter(property_type=property_type)
+
+    return render(request, 'users/for_sale_list.html', {
+        'properties': properties,
+        'query': query,
+        'property_type': property_type
+    })
 
 # Detail view
 def for_sale_detail_view(request, pk):
