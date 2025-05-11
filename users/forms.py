@@ -37,8 +37,10 @@ class VacancySearchForm(forms.Form):
         choices=[('', 'All Types')] + list(VacantRoom.ROOM_TYPE_CHOICES),
         required=False
     )
-    min_price = forms.DecimalField(required=False, label='Min Price')
-    max_price = forms.DecimalField(required=False, label='Max Price')
+    min_price = forms.DecimalField(required=False, label='Min Price', decimal_places=2)
+    max_price = forms.DecimalField(required=False, label='Max Price', decimal_places=2)
+    location = forms.CharField(required=False, label='Location')
+
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
@@ -212,3 +214,15 @@ class CommercialPropertyForm(forms.ModelForm):
     class Meta:
         model = CommercialProperty
         fields = '__all__'
+
+from django import forms
+from .models import FreelancerContact
+
+class FreelancerContactForm(forms.ModelForm):
+    class Meta:
+        model = FreelancerContact
+        fields = ['name', 'contact', 'help_text', 'date', 'address']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'help_text': forms.Textarea(attrs={'rows': 4}),
+        }

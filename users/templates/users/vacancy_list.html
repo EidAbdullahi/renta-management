@@ -26,10 +26,103 @@
 
     <!-- Search -->
     <form method="GET" action="{% url 'vacancy_list' %}" class="row g-3 align-items-end mb-5 bg-white p-4 rounded shadow-sm">
-      <div class="col-md-5">
+      <div class="col-md-5 position-relative">
         <label class="form-label fw-semibold">📍 Location</label>
-        {{ form.query|add_class:"form-control" }}
-      </div>
+        <input
+            type="text"
+            id="locationInput"
+            name="location"
+            class="form-control"
+            placeholder="Search for a location..."
+            value="{{ location|default:'' }}"  
+            autocomplete="off"
+        />
+      
+        <!-- Suggestions List -->
+        <ul id="suggestions" class="list-group mt-1 position-absolute w-100 z-3" style="display: none; max-height: 200px; overflow-y: auto;">
+            {% for loc in search_history %}
+                <li class="list-group-item list-group-item-action" data-location="{{ loc }}">{{ loc }}</li>
+            {% empty %}
+                <li class="list-group-item">No previous locations</li>
+            {% endfor %}
+        </ul>
+      
+        <!-- Loading Indicator -->
+        <div id="loading" class="mt-1 text-muted small" style="display: none;">
+            Loading...
+        </div>
+    </div>
+    
+    
+    
+    
+    <script>
+        let timeout;
+        const input = document.getElementById("locationInput");
+        const suggestionsBox = document.getElementById("suggestions");
+        const loadingIndicator = document.getElementById("loading");
+    
+        input.addEventListener("input", function () {
+            const query = this.value.trim();
+    
+            // Clear previous timeout
+            clearTimeout(timeout);
+    
+            // Hide suggestions if query too short
+            if (query.length < 1) {
+                suggestionsBox.style.display = "none";
+                loadingIndicator.style.display = "none";
+                return;
+            }
+    
+            // Show loading, wait 300ms before fetching
+            loadingIndicator.style.display = "block";
+            timeout = setTimeout(() => {
+                fetch(`/search-places/?q=${encodeURIComponent(query)}`)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        suggestionsBox.innerHTML = "";
+                        if (data.length > 0) {
+                            data.forEach((item) => {
+                                const li = document.createElement("li");
+                                li.textContent = item;
+                                li.classList.add("list-group-item", "list-group-item-action");
+                                suggestionsBox.appendChild(li);
+                            });
+                            suggestionsBox.style.display = "block";
+                        } else {
+                            suggestionsBox.style.display = "none";
+                        }
+                    })
+                    .catch((err) => {
+                        console.error("Error fetching places:", err);
+                        suggestionsBox.style.display = "none";
+                    })
+                    .finally(() => {
+                        loadingIndicator.style.display = "none";
+                    });
+            }, 300);
+        });
+    
+        // Select a suggestion
+        suggestionsBox.addEventListener("click", function (e) {
+            if (e.target.tagName === "LI") {
+                input.value = e.target.textContent;
+                suggestionsBox.style.display = "none";
+            }
+        });
+    
+        // Hide suggestions when clicking outside
+        document.addEventListener("click", function (e) {
+            if (!suggestionsBox.contains(e.target) && e.target !== input) {
+                suggestionsBox.style.display = "none";
+            }
+        });
+    </script>
+    
+    
+    
+      
       <div class="col-md-3">
         <label class="form-label fw-semibold">🏠 Property Type</label>
         {{ form.room_type|add_class:"form-select" }}
@@ -120,18 +213,7 @@
       </ul>
     </nav>
 
-    <!-- Partners -->
-    <section class="mt-5 py-5 bg-white rounded shadow-sm">
-      <h2 class="text-center fw-bold mb-4">🤝 Our Trusted Partners</h2>
-      <div class="row g-4 justify-content-center">
-        {% for partner in partners %}
-        <div class="col-6 col-md-3 text-center">
-          <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="img-fluid mb-2" style="max-height: 80px;">
-          <p class="fw-semibold">{{ partner.name }}</p>
-        </div>
-        {% endfor %}
-      </div>
-    </section>
+    
 
     <!-- Freelancers -->
     <section class="mt-5 py-5 bg-light rounded shadow-sm">
@@ -149,6 +231,20 @@
               </div>
             </div>
           </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+
+    <!-- Partners -->
+    <section class="mt-5 py-5 bg-white rounded shadow-sm">
+      <h2 class="text-center fw-bold mb-4">🤝 Our Trusted Partners</h2>
+      <div class="row g-4 justify-content-center">
+        {% for partner in partners %}
+        <div class="col-6 col-md-3 text-center">
+          <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="img-fluid mb-2" style="max-height: 80px;">
+          <p class="fw-semibold">{{ partner.name }}</p>
         </div>
         {% endfor %}
       </div>

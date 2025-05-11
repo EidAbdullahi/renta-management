@@ -65,7 +65,14 @@
             <!-- Contact Info Section -->
             <h5 class="mt-4 fw-bold" style="font-size: 1.25rem; color: #222;">Contact Info</h5>
             <p><strong style="font-weight: 500;">Phone/Email:</strong> <span style="font-size: 1.1rem; color: #555;">{{ freelancer.contact }}</span></p>
-
+            <div class="container mt-4">
+                <h2>Contact Us</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
             <!-- Contact Button -->
             <a href="#" class="btn btn-primary btn-lg mt-3 shadow-sm" style="transition: all 0.3s ease; padding: 0.75rem 2rem;">Contact {{ freelancer.name }}</a>
         </div>

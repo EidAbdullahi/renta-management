@@ -1,0 +1,42 @@
+{% extends "users/base.html" %}
+{% block title %}{{ project.name }} - Construction Expenses{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Construction Expenses for "{{ project.name }}"</h2>
+  
+  <table class="table table-bordered table-striped mt-4">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Date Incurred</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ expense.get_description_display }}</td>
+        <td>${{ expense.amount }}</td>
+        <td>{{ expense.date_incurred }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No expenses found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2">Total</th>
+        <th colspan="2">${{ total_expenses }}</th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <a href="{% url 'add_construction_expense' project.id %}" class="btn btn-primary">Add Expense</a>
+
+</div>
+{% endblock %}

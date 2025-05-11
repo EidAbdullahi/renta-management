@@ -100,6 +100,18 @@ import calendar
 from .models import Partner
 from .forms import PartnerForm
 
+from django.shortcuts import render, redirect
+from .forms import FreelancerContactForm
+
+def contact_us(request):
+    if request.method == 'POST':
+        form = FreelancerContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, 'freelancers/contact_success.html')
+    else:
+        form = FreelancerContactForm()
+    return render(request, 'freelancers/contact_form.html', {'form': form})
 
 # views.py
 # views.py
@@ -156,52 +168,87 @@ def vacancy_list(request):
     freelancers = Freelancer.objects.all()
     partners = Partner.objects.all()
 
-    # Filtering
+    # Initialize search history if it doesn't exist
+    if 'search_history' not in request.session:
+        request.session['search_history'] = []
+
+    # Fetch location from GET or session
+    location = request.GET.get('location', request.session.get('location', ''))
+
+    # Save location in session for history (even after page reloads)
+    if location and location not in request.session['search_history']:
+        request.session['search_history'].insert(0, location)  # Insert at the beginning
+        # Limit the history to a specific number (e.g., 5)
+        if len(request.session['search_history']) > 5:
+            request.session['search_history'].pop()  # Remove the oldest one
+        request.session.modified = True
+
+    # Filtering by other parameters from the form
     if form.is_valid():
         query = form.cleaned_data.get('query')
         room_type = form.cleaned_data.get('room_type')
         min_price = form.cleaned_data.get('min_price')
         max_price = form.cleaned_data.get('max_price')
-        location = form.cleaned_data.get('location')
 
+        # Apply filters if provided
         if query:
             rooms = rooms.filter(Q(title__icontains=query) | Q(location__icontains=query))
-        if room_type:
+        if location:
+            rooms = rooms.filter(location__icontains=location)
+        if room_type and room_type != '':
             rooms = rooms.filter(room_type=room_type)
         if min_price is not None:
             rooms = rooms.filter(amount__gte=min_price)
         if max_price is not None:
             rooms = rooms.filter(amount__lte=max_price)
-        if location:
-            rooms = rooms.filter(Q(location__icontains=location))
 
-    # Convert to list to modify
+    # Convert to list to modify room objects
     rooms = list(rooms)
 
-    # Add full image URL
+    # Add full image URL for each room
     for room in rooms:
         if room.picture1:
             room.picture1_url = request.build_absolute_uri(room.picture1.url)
         else:
             room.picture1_url = ""
 
-    # Pagination
+    # Pagination logic
     paginator = Paginator(rooms, 6)
     page = request.GET.get('page')
     rooms = paginator.get_page(page)
 
-    # Latest and Popular Rooms
     latest_rooms = VacantRoom.objects.order_by('-created_at')[:6]
     popular_rooms = VacantRoom.objects.order_by('-created_at')[:6]
 
-    return render(request, 'users/vacancy_list.html', {
+    # Prepare the context
+    my_context = {
         'rooms': rooms,
         'form': form,
         'latest_rooms': latest_rooms,
         'popular_rooms': popular_rooms,
         'freelancers': freelancers,
         'partners': partners,
-    })
+        'search_history': request.session.get('search_history', []),  # Search history
+        'location': location,  # Location
+    }
+
+    return render(request, 'users/vacancy_list.html', {**my_context})  # Unpack context into the template
+
+@login_required
+def home(request):
+    return render(request, 'users/home.html')
+
+def remove_location(request):
+    location = request.GET.get('location')
+    if location and 'search_history' in request.session:
+        search_history = request.session['search_history']
+        if location in search_history:
+            search_history.remove(location)
+            request.session['search_history'] = search_history
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+
 
 def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
@@ -593,7 +640,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, "Welcome back! You have successfully logged in.")
-            return redirect('dashboard')  # Redirect to the dashboard or another view
+            return redirect('home')  # Redirect to the dashboard or another view
         else:
             # Process non-field errors and add them to messages
             for error in form.non_field_errors():
@@ -891,3 +938,55 @@ def commercial_create_view(request):
     else:
         form = CommercialPropertyForm()
     return render(request, 'users/commercial_form.html', {'form': form})
+
+
+from django.core.cache import cache
+from django.http import JsonResponse
+import requests
+
+
+
+def autocomplete_places(request):
+    query = request.GET.get('q', '').strip()
+
+    if not query:
+        return JsonResponse([], safe=False)
+
+    cached_data = cache.get(query)
+    if cached_data is not None:
+        return JsonResponse(cached_data, safe=False)
+
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": query,
+        "countrycodes": "KE",
+        "format": "json",
+        "limit": 10,
+        "addressdetails": 1
+    }
+    headers = {
+        "User-Agent": "YourAppName (contact@example.com)"
+    }
+
+    try:
+        response = requests.get(url, params=params, headers=headers, timeout=5)
+        response.raise_for_status()
+        results = response.json()
+
+        # Trim display_name to only the first part before the comma
+        suggestions = []
+        for item in results:
+            name = item.get("display_name", "")
+            if name:
+                trimmed = name.split(",")[0].strip().capitalize()
+                suggestions.append(trimmed)
+
+        # Remove duplicates
+        suggestions = list(dict.fromkeys(suggestions))
+
+        cache.set(query, suggestions, timeout=300)
+        return JsonResponse(suggestions, safe=False)
+
+    except requests.RequestException as e:
+        print(f"Nominatim API error: {e}")
+        return JsonResponse([], safe=False)

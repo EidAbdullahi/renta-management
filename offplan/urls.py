@@ -10,4 +10,10 @@ urlpatterns = [
     path('booking/<int:booking_id>/', views.booking_details, name='booking_details'),
     path('booking/<int:booking_id>/add_payment/', views.add_payment, name='add_payment'),
     path('booked_units/', views.booked_units, name='booked_units'),
+    path('dashboard/',views. offplan_dashboard, name='offplan_dashboard'),
+    path('project/<int:project_id>/add-expense/', views.add_construction_expense, name='add_construction_expense'),
+
+    path('project/<int:project_id>/expenses/', views.project_expenses, name='project_expenses'),
+
+    
 ]

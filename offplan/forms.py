@@ -3,6 +3,8 @@ from .models import ClientBooking, Payment
 from .models import Unit
 from .models import Project
 from datetime import date
+from .models import ConstructionExpense
+
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -62,3 +64,16 @@ class PaymentForm(forms.ModelForm):
         if amount <= 0:
             raise forms.ValidationError("Amount paid must be positive.")
         return amount
+
+
+
+
+class ConstructionExpenseForm(forms.ModelForm):
+    class Meta:
+        model = ConstructionExpense
+        fields = ['project', 'description', 'amount', 'date_incurred']
+        widgets = {
+            'date_incurred': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+        project = forms.ModelChoiceField(queryset=Project.objects.all(), label="Select Project")

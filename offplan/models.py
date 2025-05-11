@@ -1,4 +1,10 @@
 from django.db import models
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+
+
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
@@ -71,3 +77,47 @@ class Expense(models.Model):
 
     def __str__(self):
         return f'Expense for {self.project.name} - KES {self.amount}'
+    
+
+
+
+from django.db import models
+from django.utils import timezone
+from .models import Project
+
+class ConstructionExpense(models.Model):
+    EXPENSE_CHOICES = [
+        ('materials', 'Materials'),
+        ('labor', 'Labor'),
+        ('equipment', 'Equipment'),
+        ('permits', 'Permits'),
+        ('consultants', 'Consultants'),
+        ('transport', 'Transport'),
+        ('misc', 'Miscellaneous'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='construction_expenses')
+    description = models.CharField(max_length=50, choices=EXPENSE_CHOICES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    date_incurred = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.get_description_display()} - {self.amount}"
+
+
+
+# models.py
+
+
+
+class Construction(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name='construction')
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    progress_percentage = models.PositiveIntegerField(default=0)  # 0 to 100
+    current_phase = models.CharField(max_length=100)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.project.name} - {self.progress_percentage}%"
+

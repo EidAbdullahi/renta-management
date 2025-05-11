@@ -1,0 +1,876 @@
+{% extends "users/base.html" %}
+{% load static %} {# Assuming you might use static files like a logo later #}
+{% block title %}Dashboard - Rental Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {# We keep the Bootstrap classes but add custom styling via CSS #}
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block sidebar">
+      <div class="d-flex align-items-center justify-content-center py-4 mb-3">
+        {# Replace with your logo or site title #}
+        <span class="fs-4 fw-bold text-primary">Rentalex</span>
+      </div>
+      <div class="overflow-auto sidebar-nav-scroll"> {# Added overflow for scrollable content #}
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}">
+              <i class="bi bi-house-door-fill me-2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#projectsMenu">
+              <i class="bi bi-building-fill me-2"></i> Projects
+            </a>
+            <div class="collapse" id="projectsMenu">
+              <ul class="nav flex-column sub-menu">
+                <li><a class="nav-link" href="{% url 'create_project'%}"><i class="bi bi-plus-circle me-2"></i> Add Project</a></li>
+                <li><a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-list-ul me-2"></i> Project List</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#unitsMenu">
+              <i class="bi bi-person-lines-fill me-2"></i> Units
+            </a>
+            <div class="collapse" id="unitsMenu">
+              <ul class="nav flex-column sub-menu">
+                <li><a class="nav-link" href="{% url 'create_unit'%}"><i class="bi bi-person-plus-fill me-2"></i> Add Unit</a></li>
+                {# Assuming this URL exists for a full unit list #}
+                <li><a class="nav-link" href="#"><i class="bi bi-list-ul me-2"></i> Unit List</a></li>
+                <li><a class="nav-link" href="{% url 'booked_units' %}"><i class="bi bi-person-check-fill me-2"></i> Booked Units</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#constructionMenu"> {# Renamed ID #}
+              <i class="bi bi-tools me-2"></i> Construction
+            </a>
+            <div class="collapse" id="constructionMenu"> {# Renamed ID #}
+              <ul class="nav flex-column sub-menu">
+                {# Check if a project ID is available; otherwise, link might go to a list or add page #}
+                <li><a class="nav-link" href="{% url 'project_list' %}">
+                    <i class="bi bi-cash-stack me-2"></i> Manage Expenses</a> {# Changed text #}
+                  </li>
+              </ul>
+            </div>
+          </li>
+           
+          
+        </ul>
+      </div>
+    </nav>
+
+    {# Adjusted margin for smaller screens below md #}
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom header-bar"> {# Added header-bar class #}
+        <div class="d-md-none">
+          {# Used a more standard button style #}
+          <button class="btn btn-outline-secondary d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+            <i class="bi bi-list me-2"></i> Menu
+          </button>
+        </div>
+        <h2 class="h4 mb-0">Dashboard Overview</h2> {# Adjusted heading class and margin #}
+        <div class="d-flex align-items-center profile-actions"> {# Added profile-actions class #}
+          <a href="{% url 'profile' %}" class="profile-link d-flex align-items-center me-3">
+            <img src="{{ user.profile.image.url }}" alt="Profile" class="rounded-circle me-2 profile-img">
+            <span class="d-none d-sm-inline">{{ user.username }}</span> {# Show username on larger small screens #}
+          </a>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger btn-sm">Logout</button>
+          </form>
+        </div>
+      </div>
+
+      {# Added a container div for consistent spacing #}
+      <div class="info-cards-container">
+        <div class="row g-4"> {# Increased gutter #}
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3"> {# Adjusted column classes for more cards per row on larger screens #}
+              <div class="card dashboard-card bg-primary text-white"> {# Added dashboard-card class #}
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Total Projects</h6>
+                  <h4 class="card-text display-6">{{ total_projects|default:0 }}</h4> {# Larger text for the number #}
+                  <a href="{% url 'project_list' %}" class="card-link">View Details <i class="bi bi-arrow-right"></i></a> {# Styled link #}
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <div class="card dashboard-card bg-info text-white">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Total Units</h6>
+                  <h4 class="card-text display-6">{{ total_units|default:0 }}</h4>
+                   <a href="{% url 'vacancy_list' %}" class="card-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <div class="card dashboard-card bg-success text-white">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Units Sold</h6>
+                  <h4 class="card-text display-6">{{ units_sold|default:0 }}</h4>
+                   <a href="{% url 'booked_units' %}" class="card-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <div class="card dashboard-card bg-warning text-dark">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Available Units</h6>
+                  <h4 class="card-text display-6">{{ available_units|default:0 }}</h4>
+                  <a href="{% url 'vacancy_list' %}" class="card-link text-dark">View Details <i class="bi bi-arrow-right text-dark"></i></a> {# Dark link for warning background #}
+                </div>
+              </div>
+            </div>
+             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <div class="card dashboard-card bg-danger text-white">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Booked Units</h6>
+                  <h4 class="card-text display-6">{{ booked_units|default:0 }}</h4>
+                   <a href="{% url 'booked_units' %}" class="card-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <div class="card dashboard-card bg-secondary text-white">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Construction Progress</h6>
+                  <h4 class="card-text display-6">{{ average_progress|default:0 }}%</h4>
+                   <a href="{% url 'project_list' %}" class="card-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <div class="card dashboard-card bg-dark text-white">
+                <div class="card-body">
+                  <h6 class="card-title mb-3">Construction Expenses</h6>
+                  <h4 class="card-text display-6">${{ total_construction_expenses|default:0|floatformat:2 }}</h4>
+                   <a href="{% url 'project_list' %}" class="card-link">View Details <i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+
+      {% comment %}
+      <div class="row mt-4">
+        <div class="col-12 col-lg-8">
+           <div class="card shadow-sm">
+              <div class="card-header">Payment Trends</div>
+              <div class="card-body">
+                 <canvas id="paymentsChart" height="300"></canvas> {# Set a base height #}
+              </div>
+           </div>
+        </div>
+         {# Add another chart or content block here if needed #}
+         <div class="col-12 col-lg-4">
+            {# Example: Small card for quick stats or a mini-list #}
+             <div class="card shadow-sm">
+                 <div class="card-header">Quick Info</div>
+                 <div class="card-body">
+                     <p>Example content...</p>
+                 </div>
+             </div>
+         </div>
+      </div>
+      {% endcomment %}
+
+    </main>
+  </div>
+</div>
+
+{# Kept the structure, added styling via CSS #}
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="mobileSidebarLabel">Menu</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="nav flex-column">
+       <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}"><i class="bi bi-house-door-fill me-2"></i> Dashboard</a>
+      </li>
+      {# You might want to replicate the dropdown structure here or simplify for mobile #}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-building-fill me-2"></i> Projects</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="#"><i class="bi bi-person-lines-fill me-2"></i> Units</a> {# Link to unit list #}
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-tools me-2"></i> Construction</a> {# Link to where they can manage construction #}
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'property_list' %}"><i class="bi bi-building me-2"></i> Properties</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="{% url 'tenant_list' %}"><i class="bi bi-people me-2"></i> Tenants</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'payment_list' %}"><i class="bi bi-wallet2 me-2"></i> Payments</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'expense_list' %}"><i class="bi bi-receipt me-2"></i> Expenses</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'financial_report' %}"><i class="bi bi-graph-up me-2"></i> Reports</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Ensure the canvas element exists before trying to create a chart
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('paymentsChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line', // Smooth curve chart
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], // Example: Full year labels
+          datasets: [{
+            label: 'Payments Received', // More descriptive label
+            data: [500, 1000, 750, 1250, 900, 1500, 1100, 1300, 800, 1400, 1000, 1600], // More sample data
+            borderColor: '#0d6efd', // Use Bootstrap primary color
+            backgroundColor: 'rgba(13, 110, 253, 0.1)', // Light primary background
+            tension: 0.4, // Smoothness of the line
+            fill: true,
+            pointBackgroundColor: '#0d6efd',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#0d6efd',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              title: {
+                display: true,
+                text: 'Month'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '$' + value;
+                }
+              },
+              title: {
+                display: true,
+                text: 'Amount ($)'
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(tooltipItem) {
+                  return 'Amount: $' + tooltipItem.raw;
+                }
+              }
+            },
+            legend: {
+              display: true,
+              position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Monthly Payment Trends',
+                font: {
+                    size: 16
+                },
+                padding: {
+                    top: 10,
+                    bottom: 30
+                }
+            }
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+  body {
+    background-color: #f4f7f6; /* Light serene background */
+    color: #333;
+    font-family: 'Inter', sans-serif; /* Ensure Inter font is used */
+  }
+
+  /* Sidebar Styling */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100; /* Behind the navbar */
+    padding: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff; /* White sidebar background */
+    width: 250px; /* Fixed width for sidebar */
+  }
+
+   .sidebar-nav-scroll {
+        height: calc(100vh - 100px); /* Adjust height based on logo/title area */
+        overflow-y: auto;
+        padding-bottom: 20px; /* Add padding at the bottom */
+    }
+
+    /* Custom Scrollbar for sidebar (Optional but nice) */
+    .sidebar-nav-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .sidebar-nav-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .sidebar-nav-scroll::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .sidebar-nav-scroll::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+
+  .sidebar .nav-link {
+    font-weight: 500;
+    color: #555; /* Darker gray for links */
+    padding: 12px 20px; /* Adjusted padding */
+    margin-bottom: 5px; /* Space between links */
+    transition: all 0.3s ease;
+    border-radius: 5px; /* Slight border radius */
+  }
+
+  .sidebar .nav-link i {
+    font-size: 1.2rem; /* Slightly larger icons */
+    width: 25px; /* Fixed width for icons */
+  }
+
+  .sidebar .nav-link:hover {
+    color: #0d6efd; /* Bootstrap primary color on hover */
+    background-color: #e9ecef; /* Light gray background on hover */
+  }
+
+  .sidebar .nav-link.active {
+    color: #fff; /* White text for active link */
+    background-color: #0d6efd; /* Bootstrap primary color background */
+    font-weight: 600;
+  }
+
+  .sidebar .nav-link.active i {
+     color: #fff; /* White icons for active link */
+  }
+
+  /* Dropdown Sub-menu Styling */
+  .sidebar .sub-menu .nav-link {
+    padding-left: 40px; /* Indent sub-menu items */
+    font-size: 0.95rem;
+    color: #666;
+  }
+
+  .sidebar .sub-menu .nav-link:hover {
+     color: #0d6efd;
+     background-color: #f8f9fa; /* Lighter background for sub-menu hover */
+  }
+
+  /* Main Content Area */
+  main {
+    margin-left: 250px; /* Offset main content by sidebar width */
+    transition: margin-left 0.3s ease; /* Smooth transition */
+  }
+
+  /* Header Bar Styling */
+  .header-bar {
+    background-color: #fff; /* White background for header bar */
+    padding: 15px 20px; /* Padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  }
+
+  .header-bar h2 {
+      color: #1a237e; /* Deeper blue for heading */
+      font-weight: 700;
+  }
+
+  .profile-link {
+      color: #555;
+      text-decoration: none;
+      transition: color 0.3s ease;
+  }
+
+  .profile-link:hover {
+      color: #0d6efd;
+  }
+
+  .profile-img {
+      border: 2px solid #0d6efd; /* Border around profile image */
+  }
+
+  /* Info Cards Styling */
+  .info-cards-container {
+      margin-top: 30px; /* Space above cards */
+  }
+
+  .dashboard-card {
+      border: none; /* Remove default card border */
+      border-radius: 12px; /* More rounded corners */
+      overflow: hidden; /* Hide anything outside rounded corners */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .dashboard-card:hover {
+      transform: translateY(-5px); /* Lift card on hover */
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+  }
+
+  .dashboard-card .card-body {
+      padding: 25px; /* Increased padding */
+  }
+
+  .dashboard-card .card-title {
+      font-size: 1rem;
+      opacity: 0.8; /* Slightly transparent title */
+  }
+
+  .dashboard-card .card-text {
+      font-size: 2.5rem; /* Make the numbers stand out */
+      font-weight: 700;
+      margin-bottom: 15px; /* Space below the number */
+  }
+
+  .dashboard-card .card-link {
+      color: rgba(255, 255, 255, 0.9); /* Slightly transparent white for link */
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+  }
+
+  .dashboard-card .card-link:hover {
+      color: #fff; /* Solid white on hover */
+  }
+
+  /* Specific link color for warning background */
+  .dashboard-card.bg-warning .card-link,
+   .dashboard-card.bg-warning .card-link i {
+      color: #333 !important; /* Dark text for contrast */
+  }
+
+   .dashboard-card.bg-warning .card-link:hover {
+      color: #000 !important;
+   }
+
+  /* Chart Styling */
+  #paymentsChart {
+      width: 100% !important; /* Ensure chart is responsive */
+      height: 300px; /* Maintain consistent height */
+  }
+
+
+  /* Offcanvas Mobile Sidebar */
+  .offcanvas-start {
+    width: 250px; /* Match desktop sidebar width */
+  }
+
+  .offcanvas-header {
+      border-bottom: 1px solid #eee;
+  }
+
+  .offcanvas-body .nav-link {
+      font-weight: 500;
+      color: #555;
+      padding: 12px 20px;
+       transition: all 0.3s ease;
+       border-radius: 5px;
+  }
+
+   .offcanvas-body .nav-link i {
+       font-size: 1.2rem;
+       width: 25px;
+   }
+
+   .offcanvas-body .nav-link:hover {
+       color: #0d6efd;
+       background-color: #e9ecef;
+   }
+
+    .offcanvas-body .nav-link.active {
+       color: #fff;
+       background-color: #0d6efd;
+       font-weight: 600;
+   }
+    .offcanvas-body .nav-link.active i {
+        color: #fff;
+    }
+
+
+  /* Responsiveness */
+  @media (max-width: 767.98px) { /* Bootstrap's md breakpoint */
+    main {
+      margin-left: 0 !important; /* Remove left margin on small screens */
+      padding-left: 15px !important; /* Adjust padding */
+      padding-right: 15px !important; /* Adjust padding */
+    }
+
+    .sidebar {
+      position: static; /* Sidebar becomes static on small screens */
+      height: auto; /* Auto height */
+      box-shadow: none; /* Remove shadow */
+      width: 100%; /* Full width */
+      display: none; /* Hide the static sidebar, replaced by offcanvas */
+    }
+
+     .header-bar {
+        padding: 10px 15px; /* Adjusted padding for smaller screens */
+     }
+
+     .profile-actions {
+         gap: 10px; /* Reduce gap */
+     }
+
+      .profile-img {
+          width: 22px;
+          height: 22px;
+      }
+  }
+
+   @media (min-width: 768px) {
+       .sidebar {
+           display: block !important; /* Ensure sidebar is block on md and up */
+       }
+   }
+
+
+  /* Further adjustments for smaller screens if needed */
+  @media (max-width: 575.98px) { /* Bootstrap's sm breakpoint */
+      .dashboard-card .card-body {
+          padding: 20px;
+      }
+
+       .dashboard-card .card-text {
+           font-size: 2rem;
+       }
+
+       .header-bar h2 {
+           font-size: 1.5rem;
+       }
+  }
+  
+  body {
+    background-color: #f4f7f6; /* Light serene background */
+    color: #333;
+    font-family: 'Inter', sans-serif; /* Ensure Inter font is used */
+  }
+
+  /* Sidebar Styling */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100; /* Behind the navbar */
+    padding: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff; /* White sidebar background */
+    width: 250px; /* Fixed width for sidebar */
+  }
+
+   .sidebar-nav-scroll {
+        height: calc(100vh - 100px); /* Adjust height based on logo/title area */
+        overflow-y: auto;
+        padding-bottom: 20px; /* Add padding at the bottom */
+    }
+
+    /* Custom Scrollbar for sidebar (Optional but nice) */
+    .sidebar-nav-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .sidebar-nav-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .sidebar-nav-scroll::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .sidebar-nav-scroll::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+
+  .sidebar .nav-link {
+    font-weight: 500;
+    color: #555; /* Darker gray for links */
+    padding: 12px 20px; /* Adjusted padding */
+    margin-bottom: 5px; /* Space between links */
+    transition: all 0.3s ease;
+    border-radius: 5px; /* Slight border radius */
+  }
+
+  .sidebar .nav-link i {
+    font-size: 1.2rem; /* Slightly larger icons */
+    width: 25px; /* Fixed width for icons */
+  }
+
+  .sidebar .nav-link:hover {
+    color: #0d6efd; /* Bootstrap primary color on hover */
+    background-color: #e9ecef; /* Light gray background on hover */
+  }
+
+  .sidebar .nav-link.active {
+    color: #fff; /* White text for active link */
+    background-color: #0d6efd; /* Bootstrap primary color background */
+    font-weight: 600;
+  }
+
+  .sidebar .nav-link.active i {
+     color: #fff; /* White icons for active link */
+  }
+
+  /* Dropdown Sub-menu Styling */
+  .sidebar .sub-menu .nav-link {
+    padding-left: 40px; /* Indent sub-menu items */
+    font-size: 0.95rem;
+    color: #666;
+  }
+
+  .sidebar .sub-menu .nav-link:hover {
+     color: #0d6efd;
+     background-color: #f8f9fa; /* Lighter background for sub-menu hover */
+  }
+
+  /* Main Content Area */
+  main {
+    margin-left: 250px; /* Offset main content by sidebar width */
+    transition: margin-left 0.3s ease; /* Smooth transition */
+  }
+
+  /* Header Bar Styling */
+  .header-bar {
+    background-color: #fff; /* White background for header bar */
+    padding: 15px 20px; /* Padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  }
+
+  .header-bar h2 {
+      color: #1a237e; /* Deeper blue for heading */
+      font-weight: 700;
+  }
+
+  .profile-link {
+      color: #555;
+      text-decoration: none;
+      transition: color 0.3s ease;
+  }
+
+  .profile-link:hover {
+      color: #0d6efd;
+  }
+
+  .profile-img {
+      width: 32px; /* Adjusted default size */
+      height: 32px; /* Adjusted default size */
+      border: 2px solid #0d6efd; /* Border around profile image */
+      object-fit: cover; /* Ensure the image covers the area without distortion */
+  }
+
+  /* Info Cards Styling */
+  .info-cards-container {
+      margin-top: 30px; /* Space above cards */
+  }
+
+  .dashboard-card {
+      border: none; /* Remove default card border */
+      border-radius: 12px; /* More rounded corners */
+      overflow: hidden; /* Hide anything outside rounded corners */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .dashboard-card:hover {
+      transform: translateY(-5px); /* Lift card on hover */
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+  }
+
+  .dashboard-card .card-body {
+      padding: 25px; /* Increased padding */
+  }
+
+  .dashboard-card .card-title {
+      font-size: 1rem;
+      opacity: 0.8; /* Slightly transparent title */
+  }
+
+  .dashboard-card .card-text {
+      font-size: 2.5rem; /* Make the numbers stand out */
+      font-weight: 700;
+      margin-bottom: 15px; /* Space below the number */
+  }
+
+  .dashboard-card .card-link {
+      color: rgba(255, 255, 255, 0.9); /* Slightly transparent white for link */
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+  }
+
+  .dashboard-card .card-link:hover {
+      color: #fff; /* Solid white on hover */
+  }
+
+  /* Specific link color for warning background */
+  .dashboard-card.bg-warning .card-link,
+   .dashboard-card.bg-warning .card-link i {
+      color: #333 !important; /* Dark text for contrast */
+  }
+
+   .dashboard-card.bg-warning .card-link:hover {
+      color: #000 !important;
+   }
+
+
+  /* Chart Styling */
+  #paymentsChart {
+      width: 100% !important; /* Ensure chart is responsive */
+      height: 300px; /* Maintain consistent height */
+  }
+
+
+  /* Offcanvas Mobile Sidebar */
+  .offcanvas-start {
+    width: 250px; /* Match desktop sidebar width */
+  }
+
+  .offcanvas-header {
+      border-bottom: 1px solid #eee;
+  }
+
+  .offcanvas-body .nav-link {
+      font-weight: 500;
+      color: #555;
+      padding: 12px 20px;
+       transition: all 0.3s ease;
+       border-radius: 5px;
+  }
+
+   .offcanvas-body .nav-link i {
+       font-size: 1.2rem;
+       width: 25px;
+   }
+
+   .offcanvas-body .nav-link:hover {
+       color: #0d6efd;
+       background-color: #e9ecef;
+   }
+
+    .offcanvas-body .nav-link.active {
+       color: #fff;
+       background-color: #0d6efd;
+       font-weight: 600;
+   }
+    .offcanvas-body .nav-link.active i {
+        color: #fff;
+    }
+
+
+  /* Responsiveness */
+  @media (max-width: 767.98px) { /* Bootstrap's md breakpoint */
+    main {
+      margin-left: 0 !important; /* Remove left margin on small screens */
+      padding-left: 15px !important; /* Adjust padding */
+      padding-right: 15px !important; /* Adjust padding */
+    }
+
+    .sidebar {
+      position: static; /* Sidebar becomes static on small screens */
+      height: auto; /* Auto height */
+      box-shadow: none; /* Remove shadow */
+      width: 100%; /* Full width */
+      display: none; /* Hide the static sidebar, replaced by offcanvas */
+    }
+
+     .header-bar {
+        padding: 10px 15px; /* Adjusted padding for smaller screens */
+     }
+
+     .profile-actions {
+         gap: 10px; /* Reduce gap between profile and logout */
+     }
+
+      .profile-img {
+          width: 28px; /* Slightly smaller on mobile */
+          height: 28px; /* Slightly smaller on mobile */
+      }
+
+      /* Hide username on extra small screens */
+      .profile-link span.d-none.d-sm-inline {
+           display: none !important;
+      }
+  }
+
+   @media (min-width: 768px) {
+       .sidebar {
+           display: block !important; /* Ensure sidebar is block on md and up */
+       }
+        /* Ensure username is displayed from sm upwards as per Bootstrap class */
+       .profile-link span.d-none.d-sm-inline {
+           display: inline !important;
+       }
+   }
+
+   /* Adjust layout for smaller screens if items in header bar overlap */
+    @media (max-width: 500px) { /* Example breakpoint, adjust as needed */
+        .header-bar {
+            flex-direction: column; /* Stack items vertically */
+            align-items: flex-start; /* Align items to the start */
+            gap: 10px; /* Add space between stacked items */
+        }
+
+        .profile-actions {
+             width: 100%; /* Make profile/logout take full width */
+             justify-content: space-between; /* Space out profile link and logout button */
+        }
+    }
+
+
+  /* Further adjustments for smaller screens if needed */
+  @media (max-width: 575.98px) { /* Bootstrap's sm breakpoint */
+      .dashboard-card .card-body {
+          padding: 20px;
+      }
+
+       .dashboard-card .card-text {
+           font-size: 2rem;
+       }
+
+       .header-bar h2 {
+           font-size: 1.5rem;
+       }
+  }
+
+</style>
+{% endblock %}

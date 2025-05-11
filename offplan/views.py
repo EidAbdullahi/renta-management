@@ -11,9 +11,13 @@ from datetime import datetime
 from django.core.paginator import Paginator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-
-
-
+from .models import Project, Construction, ConstructionExpense
+from django.db.models import Avg, Sum
+from django.shortcuts import render, redirect
+from .forms import ConstructionExpenseForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import Http404
 
 
 from django.shortcuts import render, redirect
@@ -201,3 +205,75 @@ def booking_details(request, booking_id):
     }
 
     return render(request, 'booking_details.html', context)
+
+
+@login_required
+def offplan_dashboard(request):
+    current_user = request.user
+
+    # Get all projects for the user (if needed to filter per user in future)
+    projects = Project.objects.all()
+
+    # Units across all projects
+    all_units = Unit.objects.all()
+
+    total_projects = projects.count()
+    total_units = all_units.count()
+    units_sold = all_units.filter(is_sold=True).count()
+    available_units = all_units.filter(is_sold=False).count()
+
+    # Booked units (i.e. units with at least one client booking)
+    booked_units = ClientBooking.objects.values('unit').distinct().count()
+
+    # Construction stats
+    average_progress = Construction.objects.aggregate(avg=Avg('progress_percentage'))['avg'] or 0
+    total_construction_expenses = ConstructionExpense.objects.aggregate(total=Sum('amount'))['total'] or 0
+
+    context = {
+        'total_projects': total_projects,
+        'total_units': total_units,
+        'units_sold': units_sold,
+        'available_units': available_units,
+        'booked_units': booked_units,
+        'now': datetime.now(),
+        'user': current_user,
+        'average_progress': round(average_progress),
+        'total_construction_expenses': total_construction_expenses,
+    }
+
+    return render(request, 'offplan_dashboard.html', context)
+
+
+@login_required
+def add_construction_expense(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    if request.method == 'POST':
+        form = ConstructionExpenseForm(request.POST)
+        if form.is_valid():
+            expense = form.save(commit=False)
+            expense.project = project
+            expense.save()
+            messages.success(request, "Construction expense added successfully.")
+            return redirect('project_expenses', project_id=project.id)
+    else:
+        form = ConstructionExpenseForm(initial={'project': project})
+
+    return render(request, 'add_expense.html', {'form': form, 'project': project})
+
+@login_required
+
+
+def project_expenses(request, project_id):
+    try:
+        project = Project.objects.get(pk=project_id)
+    except Project.DoesNotExist:
+        raise Http404("Project does not exist")
+
+    expenses = project.construction_expenses.all()
+    total_expenses = expenses.aggregate(total=Sum('amount'))['total'] or 0
+
+    return render(request, 'expense_list.html', {
+        'project': project,
+        'expenses': expenses,
+        'total_expenses': total_expenses,
+    })
