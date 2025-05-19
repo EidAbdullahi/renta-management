@@ -2,7 +2,11 @@
 
 {% block content %}
 <h1 class="text-center my-5">Booked Units</h1>
-
+<div class="mb-3">
+    <a href="{% url 'offplan_dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm">
+        <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+    </a>
+</div>
 <!-- Filter by Project Section -->
 <div class="container mb-4">
     <form method="GET" class="shadow-sm p-4 rounded bg-light">
@@ -59,21 +63,21 @@
                         </td>
                         <td>
                             {% if unit.bookings.count > 0 %}
-                                KES {{ unit.bookings.first.deposit_amount }}
+                                $ {{ unit.bookings.first.deposit_amount }}
                             {% else %}
                                 N/A
                             {% endif %}
                         </td>
                         <td>
                             {% if unit.bookings.count > 0 %}
-                                KES {{ unit.bookings.first.total_payments }}
+                                $ {{ unit.bookings.first.total_payments }}
                             {% else %}
                                 N/A
                             {% endif %}
                         </td>
                         <td>
                             {% if unit.bookings.count > 0 %}
-                                KES {{ unit.bookings.first.remaining_balance }}
+                                $ {{ unit.bookings.first.remaining_balance }}
                             {% else %}
                                 N/A
                             {% endif %}

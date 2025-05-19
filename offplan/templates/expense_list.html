@@ -2,41 +2,56 @@
 {% block title %}{{ project.name }} - Construction Expenses{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Construction Expenses for "{{ project.name }}"</h2>
-  
-  <table class="table table-bordered table-striped mt-4">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Description</th>
-        <th>Amount</th>
-        <th>Date Incurred</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for expense in expenses %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ expense.get_description_display }}</td>
-        <td>${{ expense.amount }}</td>
-        <td>{{ expense.date_incurred }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="text-center">No expenses found.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-    <tfoot>
-      <tr>
-        <th colspan="2">Total</th>
-        <th colspan="2">${{ total_expenses }}</th>
-      </tr>
-    </tfoot>
-  </table>
+<div class="container mt-5">
+  <div class="card shadow border-0 rounded-4">
+    <div class="card-header bg-dark text-white rounded-top-4">
+      <h4 class="mb-0">📊 Construction Expenses for <strong>"{{ project.name }}"</strong></h4>
+    </div>
+    <div class="card-body">
+      {% if expenses %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle table-bordered text-center">
+            <thead class="table-primary">
+              <tr>
+                <th>#</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date Incurred</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for expense in expenses %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ expense.get_description_display }}</td>
+                <td><span class="badge bg-success">${{ expense.amount }}</span></td>
+                <td>{{ expense.date_incurred }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <th colspan="2" class="text-end">Total</th>
+                <th colspan="2" class="text-success h5">${{ total_expenses }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info text-center" role="alert">
+          No expenses found for this project.
+        </div>
+      {% endif %}
 
-  <a href="{% url 'add_construction_expense' project.id %}" class="btn btn-primary">Add Expense</a>
-
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'offplan_dashboard' %}" class="btn btn-secondary">
+          🔙 Back to Dashboard
+        </a>
+        <a href="{% url 'add_construction_expense' project.id %}" class="btn btn-outline-primary">
+          ➕ Add Expense
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

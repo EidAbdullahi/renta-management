@@ -6,10 +6,36 @@ from datetime import date
 from .models import ConstructionExpense
 
 
+from django import forms
+from .models import Project
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['name', 'location','number_of_units' ,'start_date', 'completion_date']
+        fields = ['name', 'location', 'number_of_units', 'start_date', 'completion_date']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Enter project name'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Enter location'
+            }),
+            'number_of_units': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Number of units'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'type': 'date', 
+                'class': 'form-control'
+            }),
+            'completion_date': forms.DateInput(attrs={
+                'type': 'date', 
+                'class': 'form-control'
+            }),
+        }
+
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -41,6 +67,12 @@ class UnitForm(forms.ModelForm):
         if price <= 0:
             raise forms.ValidationError("Price must be greater than zero.")
         return price
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # accept user as a parameter
+        super().__init__(*args, **kwargs)
+        # Filter project choices to only the current user's projects
+        self.fields['project'].queryset = Project.objects.filter(user=user)
 
 class ClientBookingForm(forms.ModelForm):
     class Meta:

@@ -1,64 +1,179 @@
 {% extends "users/base.html" %}
 {% block content %}
 <div class="container py-5">
-  <div class="row g-5 align-items-start">
-    <!-- Image Gallery (Carousel) -->
-    <div class="col-md-6">
+  <div class="row g-5"> {# Use g-5 for larger gutter #}
+
+    <div class="col-lg-7 col-md-12"> {# Take more space on larger screens, full width on medium/small #}
       {% if property.picture1 or property.picture2 or property.picture3 %}
-        <div id="propertyCarousel" class="carousel slide border rounded shadow-sm" data-bs-ride="carousel">
+        <div id="propertyCarousel" class="carousel slide shadow-lg rounded-3 overflow-hidden" data-bs-ride="carousel"> {# Add larger shadow, rounded corners, hide overflow #}
           <div class="carousel-inner">
+            {# Indicators (Optional but good for navigation) #}
+            <div class="carousel-indicators">
+              {% if property.picture1 %}<button type="button" data-bs-target="#propertyCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>{% endif %}
+              {% if property.picture2 %}<button type="button" data-bs-target="#propertyCarousel" data-bs-slide-to="1" aria-label="Slide 2" {% if not property.picture1 %}class="active" aria-current="true"{% endif %}></button>{% endif %}
+              {% if property.picture3 %}<button type="button" data-bs-target="#propertyCarousel" data-bs-slide-to="2" aria-label="Slide 3" {% if not property.picture1 and not property.picture2 %}class="active" aria-current="true"{% endif %}></button>{% endif %}
+            </div>
+
+            {# Carousel Items #}
             {% if property.picture1 %}
               <div class="carousel-item active">
-                <img src="{{ property.picture1.url }}" class="d-block w-100 img-fluid" alt="{{ property.title }}">
+                {# Use object-fit to ensure images cover the space without distortion (add custom CSS or inline style) #}
+                <img src="{{ property.picture1.url }}" class="d-block w-100 carousel-img" alt="{{ property.title }}">
               </div>
             {% endif %}
             {% if property.picture2 %}
               <div class="carousel-item {% if not property.picture1 %}active{% endif %}">
-                <img src="{{ property.picture2.url }}" class="d-block w-100 img-fluid" alt="{{ property.title }}">
+                <img src="{{ property.picture2.url }}" class="d-block w-100 carousel-img" alt="{{ property.title }}">
               </div>
             {% endif %}
             {% if property.picture3 %}
               <div class="carousel-item {% if not property.picture1 and not property.picture2 %}active{% endif %}">
-                <img src="{{ property.picture3.url }}" class="d-block w-100 img-fluid" alt="{{ property.title }}">
+                <img src="{{ property.picture3.url }}" class="d-block w-100 carousel-img" alt="{{ property.title }}">
               </div>
             {% endif %}
           </div>
+
+          {# Carousel Controls #}
           <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
           </button>
         </div>
+
+        {# Add custom CSS for carousel image sizing and object-fit #}
+        <style>
+          .carousel-img {
+            height: 450px; /* Set a fixed height for consistency */
+            object-fit: cover; /* Crop image to cover the area */
+            object-position: center; /* Center the image */
+          }
+          /* Optional: Style carousel controls more subtly */
+          .carousel-control-prev-icon,
+          .carousel-control-next-icon {
+              background-color: rgba(0, 0, 0, 0.5);
+              border-radius: 50%;
+              padding: 1rem; /* Make icons larger */
+          }
+           .carousel-control-prev,
+           .carousel-control-next {
+             width: 10%; /* Increase click area */
+           }
+        </style>
+
       {% else %}
-        <img src="https://via.placeholder.com/600x400?text=No+Image" class="img-fluid rounded shadow-sm" alt="No image available">
+        <div class="text-center py-5 border rounded-3 shadow-sm"> {# Nicer styling for no image #}
+          <img src="https://via.placeholder.com/600x400?text=No+Image+Available" class="img-fluid" alt="No image available">
+          <p class="mt-3 text-muted">No images uploaded for this property.</p>
+        </div>
       {% endif %}
     </div>
 
-    <!-- Property Info -->
-    <div class="col-md-6">
-      <h1 class="fw-bold mb-3">{{ property.title }}</h1>
+    <div class="col-lg-5 col-md-12"> {# Take less space on large screens, full width on medium/small #}
+      <h1 class="fw-bold mb-3 display-5">{{ property.title }}</h1> {# Larger, more prominent title #}
 
-      <div class="mb-3">
-        <span class="badge bg-primary"><i class="bi bi-geo-alt-fill"></i> {{ property.location }}</span>
-        <span class="badge bg-secondary"><i class="bi bi-house-door"></i> {{ property.property_type }}</span>
-        <span class="badge bg-success"><i class="bi bi-cash-coin"></i> Ksh {{ property.price }}</span>
-      </div>
-
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Property Description</h5>
-          <p class="card-text text-muted">{{ property.description }}</p>
+      {# Redesigned Info Block #}
+      <div class="mb-4 p-3 bg-light rounded-3 shadow-sm">
+        <div class="row row-cols-auto g-3 align-items-center"> {# Use auto columns for flexible layout #}
+          <div class="col">
+            <span class="text-primary"><i class="bi bi-geo-alt-fill me-1"></i> {{ property.location }}</span>
+          </div>
+          <div class="col">
+            <span class="text-secondary"><i class="bi bi-house-door me-1"></i> {{ property.property_type }}</span>
+          </div>
+          <div class="col">
+            <span class="text-success fs-5 fw-bold"><i class="bi bi-cash-coin me-1"></i> Ksh {{ property.price }}</span> {# Make price more prominent #}
+          </div>
+          {# Add more property details here if available in your model #}
+          {% if property.bedrooms %}
+            <div class="col">
+              <span class="text-info"><i class="bi bi-bed me-1"></i> {{ property.bedrooms }} Beds</span>
+            </div>
+          {% endif %}
+          {% if property.bathrooms %}
+            <div class="col">
+              <span class="text-info"><i class="bi bi-bath me-1"></i> {{ property.bathrooms }} Baths</span>
+            </div>
+          {% endif %}
+           {% if property.size_sqft %} {# Assuming you have a size field #}
+            <div class="col">
+              <span class="text-info"><i class="bi bi-rulers me-1"></i> {{ property.size_sqft }} sqft</span>
+            </div>
+          {% endif %}
         </div>
       </div>
 
-      <!-- Call to Action -->
-      <a href="#contactForm" class="btn btn-lg btn-outline-success mt-2">
+      {# Description Area #}
+      <div class="mb-4">
+        <h5 class="card-title border-bottom pb-2 mb-3">Property Description</h5> {# Add a subtle separator #}
+        <p class="card-text text-secondary lh-lg">{{ property.description }}</p> {# Use text-secondary for slightly lighter text, lh-lg for more line height #}
+      </div>
+
+      {# Optional: Add Amenities/Features Section #}
+      {% comment %}
+      {% if property.amenities.all %} {# Assuming a ManyToMany field named 'amenities' #}
+      <div class="mb-4">
+          <h5 class="card-title border-bottom pb-2 mb-3">Amenities</h5>
+          <ul class="list-unstyled row row-cols-sm-2 g-2"> {# Use grid for amenities list #}
+              {% for amenity in property.amenities.all %}
+                  <li class="col"><i class="bi bi-check-circle-fill text-success me-1"></i> {{ amenity.name }}</li> {# Assuming amenity object has a 'name' field #}
+              {% endfor %}
+          </ul>
+      </div>
+      {% endif %}
+      {% endcomment %}
+
+
+      {# Make the button more prominent and maybe a solid color #}
+      <a href="#contactForm" class="btn btn-success btn-lg w-100 mt-3 shadow"> {# Full width button, added shadow #}
         <i class="bi bi-envelope-paper-heart-fill me-2"></i>Enquire Now
       </a>
     </div>
   </div>
+
+  {# Contact Form Section (Placeholder) #}
+  <div id="contactForm" class="row mt-5 pt-5 border-top"> {# Add padding top, border top to separate #}
+      <div class="col-12">
+          <h2 class="text-center mb-4">Contact Us About This Property</h2>
+          {# Add your contact form implementation here #}
+          <div class="row justify-content-center">
+              <div class="col-md-8">
+                  {% comment %}
+                  <form method="post" action="{% url 'your_contact_form_view' property.id %}">
+                      {% csrf_token %}
+                      {# Your form fields go here, e.g., #}
+                      <div class="mb-3">
+                          <label for="name" class="form-label">Your Name</label>
+                          <input type="text" class="form-control" id="name" name="name" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="email" class="form-label">Your Email</label>
+                          <input type="email" class="form-control" id="email" name="email" required>
+                      </div>
+                       <div class="mb-3">
+                          <label for="phone" class="form-label">Your Phone (Optional)</label>
+                          <input type="tel" class="form-control" id="phone" name="phone">
+                      </div>
+                      <div class="mb-3">
+                          <label for="message" class="form-label">Message</label>
+                          <textarea class="form-control" id="message" name="message" rows="4" required>I am interested in property "{{ property.title }}" (ID: {{ property.id }}). Please provide more details or arrange a viewing.</textarea>
+                      </div>
+                      <div class="d-grid">
+                          <button type="submit" class="btn btn-primary btn-lg">Send Enquiry</button>
+                      </div>
+                  </form>
+                  {% endcomment %}
+                  <p class="text-center text-muted">
+                      [Your Contact Form Goes Here] <br>
+                      You would typically include fields for Name, Email, Phone, and Message.
+                  </p>
+              </div>
+          </div>
+      </div>
+  </div>
+
 </div>
 {% endblock %}

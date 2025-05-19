@@ -659,26 +659,30 @@ def login_view(request):
 
 
 @login_required
+
+
 def dashboard(request):
-    # Get the current user
     current_user = request.user
 
-    # Get all tenants for the current user
     total_tenants = Tenant.objects.filter(user=current_user).count()
-    total_employees = Employee.objects.filter(user=current_user).count()  # Add employee count
+    total_employees = Employee.objects.filter(user=current_user).count()
     pending_payments = Payment.objects.filter(user=current_user, status="Pending").count()
     total_paid = Payment.objects.filter(user=current_user).aggregate(total=Sum('amount_paid'))['total'] or 0
-    total_payment_list = Payment.objects.filter(user=current_user).count()  # Example, count all payments
+    total_payment_list = Payment.objects.filter(user=current_user).count()
 
-    # Fetch last 5 recent payments for the current user
-    recent_payments = Payment.objects.filter(user=current_user).order_by('-payment_date')[:5]
+    # Latest 2 payments
+    recent_payments = Payment.objects.filter(user=current_user).order_by('-payment_date')[:2]
 
-    # Calculate total occupied and available units for the current user
+    # Paginated list of payments
+    all_payments = Payment.objects.filter(user=current_user).order_by('-payment_date')
+    paginator = Paginator(all_payments, 5)  # Show 5 payments per page
+    page_number = request.GET.get('page')
+    paginated_payments = paginator.get_page(page_number)
+
     properties = Property.objects.filter(user=current_user)
     total_occupied_units = sum([p.occupied_units for p in properties])
     total_available_units = sum([p.available_units for p in properties])
 
-    # Prepare the data to display for the current user
     context = {
         'total_tenants': total_tenants,
         'total_employees': total_employees,
@@ -688,8 +692,9 @@ def dashboard(request):
         'total_payment_list': total_payment_list,
         'total_occupied_units': total_occupied_units,
         'total_available_units': total_available_units,
-        'now': datetime.now(),
-        'user': current_user,  # Include user information
+        'paginated_payments': paginated_payments,
+        'now': now(),
+        'user': current_user,
     }
 
     return render(request, 'users/dashboard.html', context)
