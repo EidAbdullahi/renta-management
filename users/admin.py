@@ -27,11 +27,20 @@ class VacantRoomAdmin(admin.ModelAdmin):
     )
     list_filter = ('room_type', 'location', 'is_available')
     search_fields = ('title', 'description', 'location')
-    
-    readonly_fields = ['video_preview']
+
+    readonly_fields = ['video_preview']  # Keep this only after the method works
 
     def video_preview(self, obj):
-        if obj.video_tour:
-            return format_html(f'<video width="320" height="240" controls><source src="{obj.video_tour.url}" type="video/mp4">Your browser does not support the video tag.</video>')
+        try:
+            if obj.video_tour:
+                return format_html(
+                    '<video width="320" height="240" controls>'
+                    '<source src="{}" type="video/mp4">'
+                    'Your browser does not support the video tag.'
+                    '</video>', str(obj.video_tour)
+                )
+        except Exception as e:
+            return f"Error loading video: {str(e)}"
         return "No video"
+
     video_preview.short_description = "Video Tour Preview"
