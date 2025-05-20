@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from cloudinary.models import CloudinaryField
 
 
 class VacantRoom(models.Model):
@@ -27,10 +28,11 @@ class VacantRoom(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=100)
     room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES)
-    picture1 = models.ImageField(upload_to='vacancy_images/', null=True, blank=True)
-    picture2 = models.ImageField(upload_to='vacancy_images/', null=True, blank=True)
-    picture3 = models.ImageField(upload_to='vacancy_images/', null=True, blank=True)
-    video_tour = models.FileField(upload_to='vacancy_videos/', null=True, blank=True)  # New field for video
+    picture1 = CloudinaryField('image', null=True, blank=True)
+    picture2 = CloudinaryField('image', null=True, blank=True)
+    picture3 = CloudinaryField('image', null=True, blank=True)
+    video_tour = CloudinaryField('video', null=True, blank=True)
+
     available_from = models.DateField()
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -84,9 +86,8 @@ class Employee(models.Model):
     salary = models.DecimalField(max_digits=10, decimal_places=2)
     gender = models.CharField(max_length=6)
     emergency_contact = models.CharField(max_length=15)
-    upload_id = models.FileField(upload_to='employee_ids/')
-    face_image = models.ImageField(upload_to='employee_faces/', null=True, blank=True)
-
+    upload_id = CloudinaryField('file')  # changed from FileField
+    face_image = CloudinaryField('image', null=True, blank=True)
     def __str__(self):
         return self.full_name
 
@@ -100,7 +101,7 @@ class Tenant(models.Model):
     property = models.ForeignKey(Property, related_name='tenants', on_delete=models.CASCADE,blank=True,null=True)
     move_in_date = models.DateField()
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    id_document = models.FileField(upload_to='tenant_documents/', blank=True, null=True)
+    id_document = CloudinaryField('file', blank=True, null=True)
     unit_number = models.CharField(max_length=50, blank=True, null=True)
 
 
@@ -134,7 +135,7 @@ class Payment(models.Model):
     tenant = models.ForeignKey('Tenant', on_delete=models.CASCADE)
     payment_date = models.DateField(default=timezone.now)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    receipt = models.FileField(upload_to="receipts/", blank=True, null=True)
+    receipt = CloudinaryField('file', blank=True, null=True)
 
     PAYMENT_METHODS = [
         ('M-Pesa', 'M-Pesa'),
@@ -175,7 +176,7 @@ class Expense(models.Model):
         ('Repairs', 'Repairs'),
         ('Other', 'Other'),
     ]
-    receipt = models.FileField(upload_to="receipts/", blank=True, null=True)
+    receipt = CloudinaryField('file', blank=True, null=True)
     expense_type = models.CharField(max_length=50, choices=EXPENSE_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     expense_date = models.DateField(default=timezone.now)
@@ -189,7 +190,7 @@ class Expense(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, blank=True)
-    image = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg')
+    image = CloudinaryField('image', default='profile_pics/default.jpg')
 
     @receiver(post_save, sender=User)
     def create_or_update_user_profile(sender, instance, created, **kwargs):
@@ -205,7 +206,7 @@ class Profile(models.Model):
 
 class Partner(models.Model):
     name = models.CharField(max_length=100)
-    logo = models.ImageField(upload_to='partners_logos/')
+    logo = CloudinaryField('image')
     website = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -231,9 +232,9 @@ class ForSaleProperty(models.Model):
     property_type = models.CharField(max_length=30, choices=PROPERTY_TYPE_CHOICES)
     lot_size = models.CharField(max_length=50, null=True, blank=True)
     built_year = models.IntegerField(null=True, blank=True)
-    picture1 = models.ImageField(upload_to='sale_images/', null=True, blank=True)
-    picture2 = models.ImageField(upload_to='sale_images/', null=True, blank=True)
-    picture3 = models.ImageField(upload_to='sale_images/', null=True, blank=True)
+    picture1 = CloudinaryField('image', null=True, blank=True)
+    picture2 = CloudinaryField('image', null=True, blank=True)
+    picture3 = CloudinaryField('image', null=True, blank=True)
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True)
@@ -256,9 +257,9 @@ class CommercialProperty(models.Model):
     commercial_type = models.CharField(max_length=30, choices=COMMERCIAL_TYPE_CHOICES)
     floor_space = models.DecimalField(max_digits=10, decimal_places=2, help_text="In square meters")
     parking_spaces = models.IntegerField(null=True, blank=True)
-    picture1 = models.ImageField(upload_to='commercial_images/', null=True, blank=True)
-    picture2 = models.ImageField(upload_to='commercial_images/', null=True, blank=True)
-    picture3 = models.ImageField(upload_to='commercial_images/', null=True, blank=True)
+    picture1 = CloudinaryField('image', null=True, blank=True)
+    picture2 = CloudinaryField('image', null=True, blank=True)
+    picture3 = CloudinaryField('image', null=True, blank=True)
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True)
