@@ -25,7 +25,7 @@
     {# Desktop Sidebar - Using Bootstrap classes #}
     <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block bg-white sidebar"> {# Use Bootstrap classes #}
       <div class="d-flex align-items-center justify-content-center py-4 mb-3 border-bottom">
-        <span class="fs-4 fw-bold text-primary">Rentalex</span>
+        <span class="fs-4 fw-bold text-primary">Kirofinder</span>
       </div>
       <div class="overflow-auto sidebar-nav-scroll" style="height: calc(100vh - 100px);">
         <ul class="nav flex-column">
@@ -740,4 +740,8 @@
 
 
 </style>
+{% block extra_script %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+k0lVRQBd3IdNFkBVuA2+bmS2hYFx9E1F2eA0cfkRghYkXAPF9nOflrx6DpTMe" crossorigin="anonymous"></script>
+{% endblock %}
+
 {% endblock %}

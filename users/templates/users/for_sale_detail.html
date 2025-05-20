@@ -128,9 +128,11 @@
 
 
       {# Make the button more prominent and maybe a solid color #}
-      <a href="#contactForm" class="btn btn-success btn-lg w-100 mt-3 shadow"> {# Full width button, added shadow #}
-        <i class="bi bi-envelope-paper-heart-fill me-2"></i>Enquire Now
-      </a>
+      <a href="https://wa.me/{{ whatsapp_number }}?text={{ 'Hi, I am interested in the property: ' | add:property.title | add:' (ID: ' | add:property.id|stringformat:'s' | add:'). Please share more details.' | urlencode }}" 
+   class="btn btn-success btn-lg w-100 mt-3 shadow" target="_blank">
+  <i class="bi bi-whatsapp me-2"></i>Enquire on WhatsApp
+</a>
+
     </div>
   </div>
 

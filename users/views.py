@@ -135,7 +135,7 @@ def profile(request):
         if p_form.is_valid():
             p_form.save()
             messages.success(request, '✅ Your profile has been updated.')
-            return redirect('profile')
+            return redirect('dashboard')
     else:
         p_form = ProfileUpdateForm(instance=request.user.profile)
 

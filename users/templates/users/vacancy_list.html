@@ -178,10 +178,10 @@
             <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
             <div class="mt-auto">
               <a href="https://wa.me/254798883849?text={{ 
-                ('Hello, I\'m interested in \''|add:room.title|add:'\' located in '|add:room.location|add:'. Description: '|add:room.description|add:'. Photo: '|add:room.picture1_url)|urlencode}}" 
+                ('Hello, I\'m interested in "'|add:room.title|add:'" located in '|add:room.location|add:'. Description: '|add:room.description|add:'. Photo: '|add:room.picture1_url)|urlencode }}" 
                target="_blank" 
                class="btn btn-outline-success btn-sm">
-              <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                <i class="fab fa-whatsapp me-1"></i> WhatsApp
             </a>
             
             

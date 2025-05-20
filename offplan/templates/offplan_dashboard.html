@@ -1,239 +1,250 @@
 {% extends "base.html" %}
 {% load static %} {# Assuming you might use static files like a logo later #}
 
+
 {% block title %}Offplan Dashboard - Rental Management{% endblock %} {# Updated title #}
 
-{% block extra_head %}
-    {# Ensure Bootstrap CSS is included in your base.html or here #}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
-    {# Optional: Add Google Font - Inter for a modern look #}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    {# Keep Bootstrap Icons CSS #}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-     {# FontAwesome for Icons if needed elsewhere in your base #}
-    {# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> #}
+{% block extra_head %}
+   {# Ensure Bootstrap CSS is included in your base.html or here #}
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+
+   {# Optional: Add Google Font - Inter for a modern look #}
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+   {# Keep Bootstrap Icons CSS #}
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {# FontAwesome for Icons if needed elsewhere in your base #}
+   {# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> #}
 {% endblock %}
+
+
 
 
 {% block content %}
 
+
 <div class="container-fluid"> {# Use Bootstrap container-fluid for the main layout #}
-  <div class="row"> {# Use Bootstrap row for sidebar and main content columns #}
-
-    {# Desktop Sidebar - Using Bootstrap classes, styled with custom CSS #}
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block bg-white sidebar"> {# Use Bootstrap classes #}
-      <div class="d-flex align-items-center justify-content-center py-4 mb-3 border-bottom">
-        <span class="fs-4 fw-bold text-primary">Rentalex</span>
-      </div>
-       {# Adjusted height calculation to be consistent with dashboard #}
-      <div class="overflow-auto sidebar-nav-scroll" style="height: calc(100vh - 100px);">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-             {# Apply active class based on current URL name #}
-            <a class="nav-link {% if request.resolver_match.url_name == 'offplan_dashboard' %}active{% endif %}" href="{% url 'offplan_dashboard' %}">
-              <i class="bi bi-house-door-fill me-2"></i> Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-             {# Apply active class if any project related URL is active #}
-             <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'project_list' or request.resolver_match.url_name == 'create_project' or 'project_detail' in request.resolver_match.url_name %}" active{% endif %} data-bs-toggle="collapse" href="#projectsMenu" role="button" aria-expanded="false" aria-controls="projectsMenu">
-              <i class="bi bi-building-fill me-2"></i> Projects
-            </a>
-             {# Ensure this menu starts open if active #}
-            <div class="collapse {% if request.resolver_match.url_name == 'project_list' or request.resolver_match.url_name == 'create_project' or 'project_detail' in request.resolver_match.url_name %}" show{% endif %}" id="projectsMenu">
-              <ul class="nav flex-column sub-menu">
-                <li><a class="nav-link {% if request.resolver_match.url_name == 'create_project' %}" active{% endif %}" href="{% url 'create_project'%}"><i class="bi bi-plus-circle me-2"></i> Add Project</a></li>
-                <li><a class="nav-link {% if request.resolver_match.url_name == 'project_list' %}" active{% endif %}" href="{% url 'project_list' %}"><i class="bi bi-list-ul me-2"></i> Project List</a></li>
-                {# Add link to Project Detail if applicable #}
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item">
-             {# Apply active class if any unit related URL is active #}
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'create_unit' or request.resolver_match.url_name == 'booked_units' or request.resolver_match.url_name == 'unit_list' %}" active{% endif %} data-bs-toggle="collapse" href="#unitsMenu" role="button" aria-expanded="false" aria-controls="unitsMenu">
-              <i class="bi bi-key-fill me-2"></i> Units {# Changed icon #}
-            </a>
-             {# Ensure this menu starts open if active #}
-            <div class="collapse {% if request.resolver_match.url_name == 'create_unit' or request.resolver_match.url_name == 'booked_units' or request.resolver_match.url_name == 'unit_list' %}" show{% endif %}" id="unitsMenu">
-              <ul class="nav flex-column sub-menu">
-                <li><a class="nav-link {% if request.resolver_match.url_name == 'create_unit' %}" active{% endif %}" href="{% url 'create_unit'%}"><i class="bi bi-plus-circle me-2"></i> Add Unit</a></li>
-                {# Assuming this URL exists for a full unit list #}
-                <li><a class="nav-link {% if request.resolver_match.url_name == 'unit_list' %}" active{% endif %}" href="#"><i class="bi bi-list-ul me-2"></i> Unit List</a></li> {# Use default #}
-                <li><a class="nav-link {% if request.resolver_match.url_name == 'booked_units' %}" active{% endif %}" href="{% url 'booked_units' %}"><i class="bi bi-person-check-fill me-2"></i> Booked Units</a></li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item">
-             {# Apply active class if any construction/expense related URL is active (linking to project_list) #}
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'expense_list' %}" active{% endif %} data-bs-toggle="collapse" href="#constructionMenu" role="button" aria-expanded="false" aria-controls="constructionMenu">
-              <i class="bi bi-tools me-2"></i> Construction
-            </a>
-             {# Ensure this menu starts open if active #}
-            <div class="collapse {% if request.resolver_match.url_name == 'expense_list' %}" show{% endif %}" id="constructionMenu">
-              <ul class="nav flex-column sub-menu">
-                {# Link to Expense List or related page where construction costs are managed #}
-                <li><a class="nav-link {% if request.resolver_match.url_name == 'expense_list' %}" active{% endif %}" href="{% url 'expense_list' %}">
-                    <i class="bi bi-wallet-fill me-2"></i> Manage Expenses</a>
-                  </li>
-                  {# Add other construction related links if applicable #}
-              </ul>
-            </div>
-          </li>
-           {# Removed extra links #}
-
-        </ul>
-      </div>
-    </nav>
+ <div class="row"> {# Use Bootstrap row for sidebar and main content columns #}
 
 
-    {# Main Content Area - Using Bootstrap grid and components, styled with custom CSS #}
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content-area"> {# Added custom class #}
-
-      {# Header Bar - Using Bootstrap flex and custom styling #}
-      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom header-bar"> {# Bootstrap flex classes #}
-
-        {# Mobile Menu Button (visible below md) - Using Bootstrap classes and custom styling #}
-        <button class="btn btn-outline-secondary d-md-none d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-          <i class="bi bi-list me-2"></i> Menu
-        </button>
-
-        <h2 class="h4 mb-0">Offplan Dashboard Overview</h2> {# Adjusted heading class and margin, specific title #}
-
-        {# Profile and Logout - Using Bootstrap flex and custom styling #}
-        <div class="d-flex align-items-center profile-actions">
-          <a href="{% url 'profile' %}" class="profile-link d-flex align-items-center me-3">
-             {# Profile image size adjusted via custom CSS #}
-            <img src="{{ user.profile.image.url }}" alt="Profile" class="rounded-circle me-2 profile-img">
-            <span class="d-none d-sm-inline">{{ user.username }}</span> {# Show username on larger small screens #}
+  <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-none d-md-block sidebar">
+    <div class="d-flex align-items-center justify-content-center py-4 mb-3">
+      <span class="fs-4 fw-bold text-primary">Kirofinder</span>
+    </div>
+    <div class="overflow-auto sidebar-nav-scroll">
+      <ul class="nav flex-column">
+  
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'offplan_dashboard' %}active{% endif %}" href="{% url 'offplan_dashboard' %}">
+            <i class="bi bi-house-door-fill me-2"></i> Dashboard
           </a>
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-          </form>
+        </li>
+  
+        <!-- Projects Dropdown -->
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#projectsMenu" role="button" aria-expanded="false" aria-controls="projectsMenu">
+            <i class="bi bi-building-fill me-2"></i> Projects
+          </a>
+          <div class="collapse" id="projectsMenu">
+            <ul class="nav flex-column sub-menu">
+              <li><a class="nav-link" href="{% url 'create_project'%}"><i class="bi bi-plus-circle me-2"></i> Add Project</a></li>
+              <li><a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-list-ul me-2"></i> Project List</a></li>
+            </ul>
+          </div>
+        </li>
+  
+        <!-- Units Dropdown -->
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#unitsMenu" role="button" aria-expanded="false" aria-controls="unitsMenu">
+            <i class="bi bi-person-lines-fill me-2"></i> Units
+          </a>
+          <div class="collapse" id="unitsMenu">
+            <ul class="nav flex-column sub-menu">
+              <li><a class="nav-link" href="{% url 'create_unit'%}"><i class="bi bi-person-plus-fill me-2"></i> Add Unit</a></li>
+              <li><a class="nav-link" href="#"><i class="bi bi-list-ul me-2"></i> Unit List</a></li>
+              <li><a class="nav-link" href="{% url 'booked_units' %}"><i class="bi bi-person-check-fill me-2"></i> Booked Units</a></li>
+            </ul>
+          </div>
+        </li>
+  
+        <!-- Construction Dropdown -->
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#constructionMenu" role="button" aria-expanded="false" aria-controls="constructionMenu">
+            <i class="bi bi-tools me-2"></i> Construction
+          </a>
+          <div class="collapse" id="constructionMenu">
+            <ul class="nav flex-column sub-menu">
+              <li><a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-cash-stack me-2"></i> Manage Expenses</a></li>
+            </ul>
+          </div>
+        </li>
+  
+      </ul>
+    </div>
+  </nav>
+  
+
+
+   {# Main Content Area - Using Bootstrap grid and components, styled with custom CSS #}
+   <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content-area"> {# Added custom class #}
+
+
+     {# Header Bar - Using Bootstrap flex and custom styling #}
+     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom header-bar"> {# Bootstrap flex classes #}
+
+
+       {# Mobile Menu Button (visible below md) - Using Bootstrap classes and custom styling #}
+       <button class="btn btn-outline-secondary d-md-none d-flex align-items-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+         <i class="bi bi-list me-2"></i> Menu
+       </button>
+
+
+       <h2 class="h4 mb-0">Offplan Dashboard Overview</h2> {# Adjusted heading class and margin, specific title #}
+
+
+       {# Profile and Logout - Using Bootstrap flex and custom styling #}
+       <div class="d-flex align-items-center profile-actions">
+         <a href="{% url 'profile' %}" class="profile-link d-flex align-items-center me-3">
+            {# Profile image size adjusted via custom CSS #}
+           <img src="{{ user.profile.image.url }}" alt="Profile" class="rounded-circle me-2 profile-img">
+           <span class="d-none d-sm-inline">{{ user.username }}</span> {# Show username on larger small screens #}
+         </a>
+         <form method="post" action="{% url 'logout' %}">
+           {% csrf_token %}
+           <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+         </form>
+       </div>
+     </div>
+
+
+     {# Info Cards Container - Using Bootstrap grid and custom card styling #}
+     <div class="info-cards-container"> {# Custom class #}
+       <div class="row g-4"> {# Bootstrap row and gutter #}
+           <div class="col-12 col-sm-6 col-lg-4 col-xl-3"> {# Bootstrap columns #}
+             {# Card Example 1: Total Projects - Removed bg/text color classes #}
+             <div class="card dashboard-card"> {# Bootstrap card, custom class #}
+               <div class="card-body"> {# Bootstrap card-body #}
+                 <h6 class="card-title mb-3">Total Projects</h6> {# Bootstrap card-title #}
+                 <h4 class="card-text display-6 text-primary">{{ total_projects|default:0 }}</h4> {# Bootstrap card-text, display-6, text-primary for color #}
+                 {# Link color handled by custom CSS or Bootstrap text-* #}
+                 <a href="{% url 'project_list' %}" class="card-link text-primary">View Details <i class="bi bi-arrow-right"></i></a> {# Bootstrap card-link, text-primary #}
+               </div>
+             </div>
+           </div>
+           <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              {# Card Example 2: Total Units - Removed bg/text color classes #}
+             <div class="card dashboard-card">
+               <div class="card-body">
+                 <h6 class="card-title mb-3">Total Units</h6>
+                 <h4 class="card-text display-6 text-info">{{ total_units|default:0 }}</h4> {# text-info for color #}
+                  <a href="#" class="card-link text-info">View Details <i class="bi bi-arrow-right"></i></a> {# Link to unit list, text-info #}
+               </div>
+             </div>
+           </div>
+           <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              {# Card Example 3: Units Sold - Removed bg/text color classes #}
+             <div class="card dashboard-card">
+               <div class="card-body">
+                 <h6 class="card-title mb-3">Units Sold</h6>
+                 <h4 class="card-text display-6 text-success">{{ units_sold|default:0 }}</h4> {# text-success for color #}
+                  <a href="{% url 'booked_units' %}" class="card-link text-success">View Details <i class="bi bi-arrow-right"></i></a> {# text-success #}
+               </div>
+             </div>
+           </div>
+           <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              {# Card Example 4: Available Units - Removed bg/text color classes #}
+             <div class="card dashboard-card"> {# Card remains default white #}
+               <div class="card-body">
+                 <h6 class="card-title mb-3">Available Units</h6>
+                 <h4 class="card-text display-6 text-warning">{{ available_units|default:0 }}</h4> {# text-warning for color #}
+                  {# Link to unit list, text-warning #}
+                 <a href="#" class="card-link text-warning">View Details <i class="bi bi-arrow-right text-warning"></i></a>
+               </div>
+             </div>
+           </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+               {# Card Example 5: Booked Units - Removed bg/text color classes #}
+             <div class="card dashboard-card">
+               <div class="card-body">
+                 <h6 class="card-title mb-3">Booked Units</h6>
+                 <h4 class="card-text display-6 text-danger">{{ booked_units|default:0 }}</h4> {# text-danger for color #}
+                  <a href="{% url 'booked_units' %}" class="card-link text-danger">View Details <i class="bi bi-arrow-right"></i></a> {# text-danger #}
+               </div>
+             </div>
+           </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              {# Card Example 6: Construction Progress - Removed bg/text color classes #}
+             <div class="card dashboard-card">
+               <div class="card-body">
+                 <h6 class="card-title mb-3">Construction Progress</h6>
+                 <h4 class="card-text display-6 text-secondary">{{ average_progress|default:0 }}%</h4> {# Display percentage, text-secondary for color #}
+                  <a href="{% url 'project_list' %}" class="card-link text-secondary">View Details <i class="bi bi-arrow-right"></i></a> {# Link to project list, text-secondary #}
+               </div>
+             </div>
+           </div>
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+              {# Card Example 7: Construction Expenses - Removed bg/text color classes #}
+             <div class="card dashboard-card">
+               <div class="card-body">
+                 <h6 class="card-title mb-3">Construction Expenses</h6>
+                 <h4 class="card-text display-6 text-dark">${{ total_construction_expenses|default:0|floatformat:2 }}</h4> {# Display currency, text-dark for color #}
+                  <a href="{% url 'expense_list' %}" class="card-link text-dark">View Details <i class="bi bi-arrow-right"></i></a> {# Link to expense list, text-dark #}
+               </div>
+             </div>
+           </div>
+       </div>
+     </div>
+
+
+
+
+     {# Chart Section - Using Bootstrap card and custom styling #}
+     {# Added back the chart section with modern card styling #}
+     <div class="card shadow-sm mt-5"> {# Bootstrap card and shadow #}
+        <div class="card-header">Project Status Overview</div> {# Card header #}
+        <div class="card-body"> {# Card body #}
+           <canvas id="projectStatusChart" height="300"></canvas> {# Canvas for a new chart #}
         </div>
-      </div>
-
-      {# Info Cards Container - Using Bootstrap grid and custom card styling #}
-      <div class="info-cards-container"> {# Custom class #}
-        <div class="row g-4"> {# Bootstrap row and gutter #}
-            <div class="col-12 col-sm-6 col-lg-4 col-xl-3"> {# Bootstrap columns #}
-              {# Card Example 1: Total Projects - Removed bg/text color classes #}
-              <div class="card dashboard-card"> {# Bootstrap card, custom class #}
-                <div class="card-body"> {# Bootstrap card-body #}
-                  <h6 class="card-title mb-3">Total Projects</h6> {# Bootstrap card-title #}
-                  <h4 class="card-text display-6 text-primary">{{ total_projects|default:0 }}</h4> {# Bootstrap card-text, display-6, text-primary for color #}
-                  {# Link color handled by custom CSS or Bootstrap text-* #}
-                  <a href="{% url 'project_list' %}" class="card-link text-primary">View Details <i class="bi bi-arrow-right"></i></a> {# Bootstrap card-link, text-primary #}
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-               {# Card Example 2: Total Units - Removed bg/text color classes #}
-              <div class="card dashboard-card">
-                <div class="card-body">
-                  <h6 class="card-title mb-3">Total Units</h6>
-                  <h4 class="card-text display-6 text-info">{{ total_units|default:0 }}</h4> {# text-info for color #}
-                   <a href="#" class="card-link text-info">View Details <i class="bi bi-arrow-right"></i></a> {# Link to unit list, text-info #}
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-               {# Card Example 3: Units Sold - Removed bg/text color classes #}
-              <div class="card dashboard-card">
-                <div class="card-body">
-                  <h6 class="card-title mb-3">Units Sold</h6>
-                  <h4 class="card-text display-6 text-success">{{ units_sold|default:0 }}</h4> {# text-success for color #}
-                   <a href="{% url 'booked_units' %}" class="card-link text-success">View Details <i class="bi bi-arrow-right"></i></a> {# text-success #}
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-               {# Card Example 4: Available Units - Removed bg/text color classes #}
-              <div class="card dashboard-card"> {# Card remains default white #}
-                <div class="card-body">
-                  <h6 class="card-title mb-3">Available Units</h6>
-                  <h4 class="card-text display-6 text-warning">{{ available_units|default:0 }}</h4> {# text-warning for color #}
-                   {# Link to unit list, text-warning #}
-                  <a href="#" class="card-link text-warning">View Details <i class="bi bi-arrow-right text-warning"></i></a>
-                </div>
-              </div>
-            </div>
-             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                {# Card Example 5: Booked Units - Removed bg/text color classes #}
-              <div class="card dashboard-card">
-                <div class="card-body">
-                  <h6 class="card-title mb-3">Booked Units</h6>
-                  <h4 class="card-text display-6 text-danger">{{ booked_units|default:0 }}</h4> {# text-danger for color #}
-                   <a href="{% url 'booked_units' %}" class="card-link text-danger">View Details <i class="bi bi-arrow-right"></i></a> {# text-danger #}
-                </div>
-              </div>
-            </div>
-             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-               {# Card Example 6: Construction Progress - Removed bg/text color classes #}
-              <div class="card dashboard-card">
-                <div class="card-body">
-                  <h6 class="card-title mb-3">Construction Progress</h6>
-                  <h4 class="card-text display-6 text-secondary">{{ average_progress|default:0 }}%</h4> {# Display percentage, text-secondary for color #}
-                   <a href="{% url 'project_list' %}" class="card-link text-secondary">View Details <i class="bi bi-arrow-right"></i></a> {# Link to project list, text-secondary #}
-                </div>
-              </div>
-            </div>
-             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-               {# Card Example 7: Construction Expenses - Removed bg/text color classes #}
-              <div class="card dashboard-card">
-                <div class="card-body">
-                  <h6 class="card-title mb-3">Construction Expenses</h6>
-                  <h4 class="card-text display-6 text-dark">${{ total_construction_expenses|default:0|floatformat:2 }}</h4> {# Display currency, text-dark for color #}
-                   <a href="{% url 'expense_list' %}" class="card-link text-dark">View Details <i class="bi bi-arrow-right"></i></a> {# Link to expense list, text-dark #}
-                </div>
-              </div>
-            </div>
-        </div>
-      </div>
+     </div>
 
 
-      {# Chart Section - Using Bootstrap card and custom styling #}
-      {# Added back the chart section with modern card styling #}
-      <div class="card shadow-sm mt-5"> {# Bootstrap card and shadow #}
-         <div class="card-header">Project Status Overview</div> {# Card header #}
-         <div class="card-body"> {# Card body #}
-            <canvas id="projectStatusChart" height="300"></canvas> {# Canvas for a new chart #}
-         </div>
-      </div>
 
 
-    </main>
-  </div>
+   </main>
+ </div>
 </div>
+
 
 {# Mobile Offcanvas Sidebar - Using Bootstrap classes, styled with custom CSS #}
 <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
-  <div class="offcanvas-header border-bottom"> {# Added border #}
-    <h5 class="offcanvas-title" id="mobileSidebarLabel">Menu</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body px-4"> {# Added horizontal padding #}
-    <ul class="nav flex-column">
-       <li class="nav-item">
-         <a class="nav-link {% if request.resolver_match.url_name == 'offplan_dashboard' %}active{% endif %}" href="{% url 'offplan_dashboard' %}"><i class="bi bi-house-door-fill me-2"></i> Dashboard</a>
-      </li>
-      {# Replicate the simplified mobile navigation links here #}
-       <li class="nav-item">
-        <a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-building-fill me-2"></i> Projects</a>
-      </li>
-       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="bi bi-key-fill me-2"></i> Units</a> {# Link to unit list #}
-      </li>
-       <li class="nav-item">
-        <a class="nav-link" href="{% url 'expense_list' %}"><i class="bi bi-tools me-2"></i> Construction Expenses</a> {# Link to where they can manage construction #}
-      </li>
-       {# Removed extra links #}
-    </ul>
-  </div>
+ <div class="offcanvas-header border-bottom"> {# Added border #}
+   <h5 class="offcanvas-title" id="mobileSidebarLabel">Menu</h5>
+   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+ </div>
+ <div class="offcanvas-body px-4"> {# Added horizontal padding #}
+   <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'offplan_dashboard' %}active{% endif %}" href="{% url 'offplan_dashboard' %}"><i class="bi bi-house-door-fill me-2"></i> Dashboard</a>
+     </li>
+     {# Replicate the simplified mobile navigation links here #}
+      <li class="nav-item">
+       <a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-building-fill me-2"></i> Projects</a>
+     </li>
+      <li class="nav-item">
+       <a class="nav-link" href="#"><i class="bi bi-key-fill me-2"></i> Units</a> {# Link to unit list #}
+     </li>
+      <li class="nav-item">
+       <a class="nav-link" href="{% url 'expense_list' %}"><i class="bi bi-tools me-2"></i> Construction Expenses</a> {# Link to where they can manage construction #}
+     </li>
+      {# Removed extra links #}
+   </ul>
+ </div>
 </div>
 
+
 {% endblock %}
+
 
 {% block extra_js %}
 {# Keep Chart.js scripts #}
@@ -243,383 +254,453 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 
+
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      // --- Chart.js for Project Status Overview ---
-      const projectCtx = document.getElementById('projectStatusChart');
-      if (projectCtx) {
-          // Replace with actual data passed from your Django view
-          const projectStatusData = {
-              labels: ['Completed', 'In Progress', 'Planned', 'Delayed'], // Example Statuses
-              datasets: [{
-                  data: [5, 12, 8, 2], // Example Counts
-                  backgroundColor: [
-                      '#28a745', // Bootstrap Success
-                      '#0d6efd', // Bootstrap Primary
-                      '#ffc107', // Bootstrap Warning
-                      '#dc3545'  // Bootstrap Danger
-                  ],
-                  hoverBackgroundColor: [
-                      '#218838',
-                      '#0b5ed7',
-                      '#ffb007',
-                      '#c82333'
-                  ]
-              }]
-          };
-
-           new Chart(projectCtx, {
-            type: 'pie', // Or 'doughnut'
-            data: projectStatusData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                  legend: {
-                      position: 'top',
-                  },
-                   title: {
-                    display: true,
-                    text: 'Project Status Breakdown',
-                     font: {
-                        size: 16
-                    },
-                     padding: {
-                        top: 10,
-                        bottom: 30
-                    }
-                }
-              }
-            }
-          });
-      }
-
-      // Removed payments chart from Offplan dashboard context
+ document.addEventListener('DOMContentLoaded', function() {
+     // --- Chart.js for Project Status Overview ---
+     const projectCtx = document.getElementById('projectStatusChart');
+     if (projectCtx) {
+         // Replace with actual data passed from your Django view
+         const projectStatusData = {
+             labels: ['Completed', 'In Progress', 'Planned', 'Delayed'], // Example Statuses
+             datasets: [{
+                 data: [5, 12, 8, 2], // Example Counts
+                 backgroundColor: [
+                     '#28a745', // Bootstrap Success
+                     '#0d6efd', // Bootstrap Primary
+                     '#ffc107', // Bootstrap Warning
+                     '#dc3545'  // Bootstrap Danger
+                 ],
+                 hoverBackgroundColor: [
+                     '#218838',
+                     '#0b5ed7',
+                     '#ffb007',
+                     '#c82333'
+                 ]
+             }]
+         };
 
 
-  });
+          new Chart(projectCtx, {
+           type: 'pie', // Or 'doughnut'
+           data: projectStatusData,
+           options: {
+             responsive: true,
+             maintainAspectRatio: false,
+             plugins: {
+                 legend: {
+                     position: 'top',
+                 },
+                  title: {
+                   display: true,
+                   text: 'Project Status Breakdown',
+                    font: {
+                       size: 16
+                   },
+                    padding: {
+                       top: 10,
+                       bottom: 30
+                   }
+               }
+             }
+           }
+         });
+     }
+
+
+     // Removed payments chart from Offplan dashboard context
+
+
+
+
+ });
 </script>
 {% endblock %}
 
+
 {% block styles %}
 <style>
-  body {
-    font-family: 'Inter', sans-serif; /* Use Inter font */
-    background-color: #f8f9fa; /* Use a light Bootstrap background color */
-    color: #212529; /* Use Bootstrap default text color */
-  }
+ body {
+   font-family: 'Inter', sans-serif; /* Use Inter font */
+   background-color: #f8f9fa; /* Use a light Bootstrap background color */
+   color: #212529; /* Use Bootstrap default text color */
+ }
 
-  /* Sidebar Styling - Adjusting Bootstrap defaults */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 100; /* Ensure it's above main content */
-    padding: 0;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    /* background-color: #fff; Handled by Bootstrap bg-white */
-    /* Width handled by Bootstrap col classes */
-  }
 
-   .sidebar-nav-scroll {
-        /* Height calculated in HTML style attribute */
-        overflow-y: auto;
-        padding-bottom: 20px;
-    }
+ /* Sidebar Styling - Adjusting Bootstrap defaults */
+ .sidebar {
+   position: fixed;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   z-index: 100; /* Ensure it's above main content */
+   padding: 0;
+   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+   /* background-color: #fff; Handled by Bootstrap bg-white */
+   /* Width handled by Bootstrap col classes */
+ }
 
-    /* Custom Scrollbar (Optional) */
-    .overflow-y-auto::-webkit-scrollbar {
-        width: 8px;
-    }
 
-    .overflow-y-auto::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
-    }
-
-    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-
-  /* Adjust Main Content Margin and Background */
-   main.main-content-area {
-       /* Bootstrap's ms-sm-auto provides the margin for md and up */
-       /* Add padding via Bootstrap px-md-4 py-4 */
-       background-color: #f4f7f6; /* Lighter background for content area */
-       min-height: 100vh; /* Ensure it takes full height */
+  .sidebar-nav-scroll {
+       /* Height calculated in HTML style attribute */
+       overflow-y: auto;
+       padding-bottom: 20px;
    }
 
-   @media (max-width: 767.98px) { /* Bootstrap's md breakpoint */
-      main.main-content-area {
-          margin-left: 0 !important; /* Remove margin on small screens */
-          /* Padding handled by Bootstrap px-4 py-4 */
-      }
+
+   /* Custom Scrollbar (Optional) */
+   .overflow-y-auto::-webkit-scrollbar {
+       width: 8px;
    }
 
-    /* Sidebar Nav Link Styling - Making them look more modern */
-    .sidebar .nav-link {
+
+   .overflow-y-auto::-webkit-scrollbar-track {
+       background: #f1f1f1;
+       border-radius: 10px;
+   }
+
+
+   .overflow-y-auto::-webkit-scrollbar-thumb {
+       background: #888;
+       border-radius: 10px;
+   }
+
+
+   .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+       background: #555;
+   }
+
+
+ /* Adjust Main Content Margin and Background */
+  main.main-content-area {
+      /* Bootstrap's ms-sm-auto provides the margin for md and up */
+      /* Add padding via Bootstrap px-md-4 py-4 */
+      background-color: #f4f7f6; /* Lighter background for content area */
+      min-height: 100vh; /* Ensure it takes full height */
+  }
+
+
+  @media (max-width: 767.98px) { /* Bootstrap's md breakpoint */
+     main.main-content-area {
+         margin-left: 0 !important; /* Remove margin on small screens */
+         /* Padding handled by Bootstrap px-4 py-4 */
+     }
+  }
+
+
+   /* Sidebar Nav Link Styling - Making them look more modern */
+   .sidebar .nav-link {
+       font-weight: 500;
+       color: #495057; /* Darker gray */
+       padding: 12px 20px;
+       margin-bottom: 5px;
+       transition: all 0.3s ease;
+       border-radius: 5px;
+   }
+
+
+   .sidebar .nav-link i {
+       font-size: 1.2rem;
+       width: 25px;
+   }
+
+
+   .sidebar .nav-link:hover {
+       color: #0d6efd; /* Bootstrap primary color on hover */
+       background-color: #e9ecef; /* Light gray background on hover */
+   }
+
+
+   .sidebar .nav-link.active {
+       color: #fff !important; /* Ensure white text for active */
+       background-color: #0d6efd !important; /* Ensure blue background for active */
+       font-weight: 600;
+   }
+
+
+    .sidebar .nav-link.active i {
+       color: #fff !important; /* Ensure white icons for active */
+    }
+
+
+    /* Sub-menu Indentation and Style */
+    .sidebar .sub-menu .nav-link {
+        padding-left: 40px; /* Indent */
+        font-size: 0.95rem;
+        color: #6c757d; /* Slightly lighter gray */
+    }
+
+
+    .sidebar .sub-menu .nav-link:hover {
+        background-color: #f8f9fa; /* Lighter hover background */
+    }
+
+
+
+
+  /* Header Bar Styling */
+  .header-bar {
+     background-color: #fff; /* White background */
+     padding: 15px 20px;
+     border-radius: 8px; /* Rounded corners */
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+     margin-bottom: 25px; /* Increased space below header */
+  }
+
+
+  .header-bar h2 {
+       color: #1a237e; /* Deeper blue */
+       font-weight: 700;
+       font-size: 1.75rem; /* Larger heading */
+  }
+
+
+   .profile-link { /* Style for profile link if used in other headers */
+       color: #495057;
+       text-decoration: none;
+       transition: color 0.3s ease;
+   }
+
+
+   .profile-link:hover {
+       color: #0d6efd;
+   }
+
+
+   .profile-img { /* Style for profile image */
+       width: 36px; /* Consistent size */
+       height: 36px;
+       border: 2px solid #0d6efd;
+       object-fit: cover;
+   }
+
+
+
+
+  /* Info Cards Styling - White cards with colored text/links */
+  .info-cards-container {
+       margin-top: 20px; /* Space above cards */
+       margin-bottom: 30px; /* Space below cards */
+   }
+
+
+  .dashboard-card {
+       border: none; /* Remove default border */
+       border-radius: 12px; /* More rounded corners */
+       overflow: hidden;
+       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+       transition: transform 0.3s ease, box-shadow 0.3s ease;
+       background-color: #fff; /* Explicitly set white background */
+  }
+
+
+   .dashboard-card:hover {
+       transform: translateY(-5px); /* Lift card on hover */
+       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+   }
+
+
+   .dashboard-card .card-body {
+       padding: 25px; /* Increased padding */
+   }
+
+
+   .dashboard-card .card-title {
+       font-size: 1rem;
+       color: #6c757d; /* Darker gray color for title */
+       margin-bottom: 10px; /* Space below title */
+   }
+
+
+    .dashboard-card .card-text.display-6 {
+        font-size: 2.5rem; /* Match size */
+        font-weight: 700;
+        /* Color will be set by text-* class in HTML, e.g., text-primary */
+        margin-bottom: 15px;
+    }
+
+
+
+
+    .dashboard-card .card-link {
         font-weight: 500;
-        color: #495057; /* Darker gray */
+        text-decoration: none;
+         /* Color will be set by text-* class in HTML, e.g., text-primary */
+        transition: color 0.3s ease;
+    }
+
+
+     .dashboard-card .card-link i {
+         /* Ensure icon color matches link color set by text-* class */
+     }
+
+
+
+
+   /* Adjust Bootstrap Offcanvas Header */
+   .offcanvas-header {
+       border-bottom: 1px solid #dee2e6; /* Bootstrap default border */
+   }
+
+
+    .offcanvas-header .btn-close {
+        /* Adjust close button color if needed */
+    }
+
+
+   /* Adjust Offcanvas Body Nav Link Style */
+    .offcanvas-body .nav-link {
+        font-weight: 500;
+        color: #495057;
         padding: 12px 20px;
-        margin-bottom: 5px;
         transition: all 0.3s ease;
         border-radius: 5px;
     }
 
-    .sidebar .nav-link i {
+
+     .offcanvas-body .nav-link i {
         font-size: 1.2rem;
         width: 25px;
     }
 
-    .sidebar .nav-link:hover {
-        color: #0d6efd; /* Bootstrap primary color on hover */
-        background-color: #e9ecef; /* Light gray background on hover */
+
+     .offcanvas-body .nav-link:hover {
+        color: #0d6efd;
+        background-color: #e9ecef;
     }
 
-    .sidebar .nav-link.active {
-        color: #fff !important; /* Ensure white text for active */
-        background-color: #0d6efd !important; /* Ensure blue background for active */
+
+     .offcanvas-body .nav-link.active {
+        color: #fff !important;
+        background-color: #0d6efd !important;
         font-weight: 600;
     }
-
-     .sidebar .nav-link.active i {
-        color: #fff !important; /* Ensure white icons for active */
-     }
-
-     /* Sub-menu Indentation and Style */
-     .sidebar .sub-menu .nav-link {
-         padding-left: 40px; /* Indent */
-         font-size: 0.95rem;
-         color: #6c757d; /* Slightly lighter gray */
-     }
-
-     .sidebar .sub-menu .nav-link:hover {
-         background-color: #f8f9fa; /* Lighter hover background */
-     }
-
-
-   /* Header Bar Styling */
-   .header-bar {
-      background-color: #fff; /* White background */
-      padding: 15px 20px;
-      border-radius: 8px; /* Rounded corners */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Subtle shadow */
-      margin-bottom: 25px; /* Increased space below header */
-   }
-
-   .header-bar h2 {
-        color: #1a237e; /* Deeper blue */
-        font-weight: 700;
-        font-size: 1.75rem; /* Larger heading */
-   }
-
-    .profile-link { /* Style for profile link if used in other headers */
-        color: #495057;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    .profile-link:hover {
-        color: #0d6efd;
-    }
-
-    .profile-img { /* Style for profile image */
-        width: 36px; /* Consistent size */
-        height: 36px;
-        border: 2px solid #0d6efd;
-        object-fit: cover;
+     .offcanvas-body .nav-link.active i {
+        color: #fff !important;
     }
 
 
-   /* Info Cards Styling - White cards with colored text/links */
-   .info-cards-container {
-        margin-top: 20px; /* Space above cards */
-        margin-bottom: 30px; /* Space below cards */
-    }
-
-   .dashboard-card {
-        border: none; /* Remove default border */
-        border-radius: 12px; /* More rounded corners */
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        background-color: #fff; /* Explicitly set white background */
-   }
-
-    .dashboard-card:hover {
-        transform: translateY(-5px); /* Lift card on hover */
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
-    }
-
-    .dashboard-card .card-body {
-        padding: 25px; /* Increased padding */
-    }
-
-    .dashboard-card .card-title {
-        font-size: 1rem;
-        color: #6c757d; /* Darker gray color for title */
-        margin-bottom: 10px; /* Space below title */
-    }
-
-     .dashboard-card .card-text.display-6 {
-         font-size: 2.5rem; /* Match size */
-         font-weight: 700;
-         /* Color will be set by text-* class in HTML, e.g., text-primary */
-         margin-bottom: 15px;
-     }
 
 
-     .dashboard-card .card-link {
-         font-weight: 500;
-         text-decoration: none;
-          /* Color will be set by text-* class in HTML, e.g., text-primary */
-         transition: color 0.3s ease;
-     }
+  /* Responsive Adjustments */
+  @media (max-width: 767.98px) { /* Bootstrap's md breakpoint */
+      /* Main content margin handled by Bootstrap ms-md-auto */
+      /* Sidebar hidden by Bootstrap d-none d-md-block */
 
-      .dashboard-card .card-link i {
-          /* Ensure icon color matches link color set by text-* class */
+
+      main.main-content-area {
+          margin-left: 0 !important; /* Remove margin on small screens */
+          /* Padding handled by Bootstrap px-4 py-4 */
       }
 
 
-    /* Adjust Bootstrap Offcanvas Header */
-    .offcanvas-header {
-        border-bottom: 1px solid #dee2e6; /* Bootstrap default border */
-    }
-
-     .offcanvas-header .btn-close {
-         /* Adjust close button color if needed */
-     }
-
-    /* Adjust Offcanvas Body Nav Link Style */
-     .offcanvas-body .nav-link {
-         font-weight: 500;
-         color: #495057;
-         padding: 12px 20px;
-         transition: all 0.3s ease;
-         border-radius: 5px;
-     }
-
-      .offcanvas-body .nav-link i {
-         font-size: 1.2rem;
-         width: 25px;
-     }
-
-      .offcanvas-body .nav-link:hover {
-         color: #0d6efd;
-         background-color: #e9ecef;
-     }
-
-      .offcanvas-body .nav-link.active {
-         color: #fff !important;
-         background-color: #0d6efd !important;
-         font-weight: 600;
-     }
-      .offcanvas-body .nav-link.active i {
-         color: #fff !important;
-     }
 
 
-   /* Responsive Adjustments */
-   @media (max-width: 767.98px) { /* Bootstrap's md breakpoint */
-       /* Main content margin handled by Bootstrap ms-md-auto */
-       /* Sidebar hidden by Bootstrap d-none d-md-block */
+      .header-bar {
+          flex-direction: column; /* Stack title and profile/logout */
+          align-items: flex-start;
+          gap: 15px;
+          padding: 10px 15px;
+      }
 
-       main.main-content-area {
-           margin-left: 0 !important; /* Remove margin on small screens */
-           /* Padding handled by Bootstrap px-4 py-4 */
+
+       .header-bar h2 {
+            font-size: 1.5rem; /* Smaller heading */
        }
 
 
-       .header-bar {
-           flex-direction: column; /* Stack title and profile/logout */
-           align-items: flex-start;
-           gap: 15px;
-           padding: 10px 15px;
+       .profile-actions { /* Profile and logout container */
+            width: 100%;
+            justify-content: space-between;
        }
 
-        .header-bar h2 {
-             font-size: 1.5rem; /* Smaller heading */
-        }
 
-        .profile-actions { /* Profile and logout container */
-             width: 100%;
-             justify-content: space-between;
-        }
-
-        .profile-img {
-             width: 28px; /* Slightly smaller on mobile */
-             height: 28px;
-         }
-
-        /* Hide username on extra small screens */
-        .profile-link span.d-none.d-sm-inline {
-             display: none !important;
+       .profile-img {
+            width: 28px; /* Slightly smaller on mobile */
+            height: 28px;
         }
 
 
-       .dashboard-card .card-body {
-           padding: 20px; /* Reduced padding */
-       }
-
-        .dashboard-card .card-text.display-6 {
-           font-size: 2rem; /* Smaller number size */
-       }
-
-        /* Adjust layout for smaller screens if items in header bar overlap */
-        @media (max-width: 500px) { /* Example breakpoint, adjust as needed */
-            .header-bar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .profile-actions {
-                 width: 100%;
-                 justify-content: space-between;
-            }
-        }
-
-   }
-
-   @media (min-width: 768px) {
-       .sidebar {
-           display: block !important; /* Ensure sidebar is block on md and up */
-       }
-        /* Ensure username is displayed from sm upwards as per Bootstrap class */
+       /* Hide username on extra small screens */
        .profile-link span.d-none.d-sm-inline {
-           display: inline !important;
+            display: none !important;
        }
 
-        main.main-content-area {
-            /* Bootstrap ms-sm-auto provides the left margin */
-        }
-   }
 
 
-    /* Further adjustments for smaller screens if needed */
-  @media (max-width: 575.98px) { /* Bootstrap's sm breakpoint */
+
       .dashboard-card .card-body {
-          padding: 15px; /* Even smaller padding */
+          padding: 20px; /* Reduced padding */
       }
 
-       .dashboard-card .card-title {
-           font-size: 0.9rem; /* Smaller title */
-       }
 
        .dashboard-card .card-text.display-6 {
-           font-size: 1.8rem; /* Even smaller number size */
+          font-size: 2rem; /* Smaller number size */
+      }
+
+
+       /* Adjust layout for smaller screens if items in header bar overlap */
+       @media (max-width: 500px) { /* Example breakpoint, adjust as needed */
+           .header-bar {
+               flex-direction: column;
+               align-items: flex-start;
+               gap: 10px;
+           }
+
+
+           .profile-actions {
+                width: 100%;
+                justify-content: space-between;
+           }
        }
 
-       /* Adjust grid columns if needed for very small screens,
-          though col-12 already makes them stack */
+
   }
+
+
+  @media (min-width: 768px) {
+      .sidebar {
+          display: block !important; /* Ensure sidebar is block on md and up */
+      }
+       /* Ensure username is displayed from sm upwards as per Bootstrap class */
+      .profile-link span.d-none.d-sm-inline {
+          display: inline !important;
+      }
+
+
+       main.main-content-area {
+           /* Bootstrap ms-sm-auto provides the left margin */
+       }
+  }
+
+
+
+
+   /* Further adjustments for smaller screens if needed */
+ @media (max-width: 575.98px) { /* Bootstrap's sm breakpoint */
+     .dashboard-card .card-body {
+         padding: 15px; /* Even smaller padding */
+     }
+
+
+      .dashboard-card .card-title {
+          font-size: 0.9rem; /* Smaller title */
+      }
+
+
+      .dashboard-card .card-text.display-6 {
+          font-size: 1.8rem; /* Even smaller number size */
+      }
+
+
+      /* Adjust grid columns if needed for very small screens,
+         though col-12 already makes them stack */
+ }
+
+
 
 
 </style>
 {% endblock %}
+
