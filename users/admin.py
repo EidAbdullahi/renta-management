@@ -2,9 +2,7 @@ from django.contrib import admin
 from .models import Partner
 from .models import  ForSaleProperty, CommercialProperty,VacantRoom
 from django.utils.html import format_html
-from .models import Vacancy
 
-admin.site.register(Vacancy)
 
 
 # Register your models here.
