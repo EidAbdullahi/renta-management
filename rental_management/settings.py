@@ -29,9 +29,8 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -47,8 +46,7 @@ DATABASES = {
     'default': dj_database_url.parse(config('DATABASE_URL'))
 }
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # Security settings
 if not DEBUG:
@@ -63,15 +61,15 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # Optional: If you also want static files on Cloudinary
-# STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
-from decouple import config
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': config('CLOUDINARY_API_KEY'),
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
+
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
