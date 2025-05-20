@@ -8,15 +8,19 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# Build paths
+# BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECRET KEY
 SECRET_KEY = config('SECRET_KEY')
+
+# DEBUG MODE
 DEBUG = config('DEBUG', cast=bool)
+
+# ALLOWED HOSTS
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-# Application definition
+# APPLICATIONS
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,17 +28,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Your apps
     'users',
-    'widget_tweaks',
     'freelancers',
     'offplan',
+
+    # Third-party
+    'widget_tweaks',
     'cloudinary',
     'cloudinary_storage',
 ]
 
+# MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -43,8 +52,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# ROOT URL
 ROOT_URLCONF = 'rental_management.urls'
 
+# TEMPLATE CONFIG
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,40 +76,71 @@ TEMPLATES = [
     },
 ]
 
+# WSGI
 WSGI_APPLICATION = 'rental_management.wsgi.application'
 
-# Database
+# DATABASES
 DATABASES = {
     'default': dj_database_url.parse(config('DATABASE_URL'))
 }
 
-# Password validators
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+# AUTH BACKENDS
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.AllowAllUsersModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
-# Internationalization
+# PASSWORD VALIDATION
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# LANGUAGE & TIMEZONE
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Login/Logout Redirects
+# STATIC FILES
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Media files (Uploaded by users)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Cloudinary Storage
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Optional: Use Cloudinary for static files too (if needed)
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+# Or keep WhiteNoise (default for most projects)
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# LOGIN/LOGOUT
 LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Message Tags for Bootstrap
+# SECURITY SETTINGS (Only enforced in production)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# MESSAGE TAGS (Bootstrap-compatible)
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
@@ -108,26 +150,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Cloudinary Config
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET'),
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
-
-# Static files (Cloudinary handles this)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Needed for collectstatic
-
-# Media (Cloudinary handles this as well)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Caching (Redis)
+# REDIS CACHE (Optional)
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -138,18 +161,5 @@ CACHES = {
     }
 }
 
-# Production Security (only active when DEBUG=False)
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 3600
-
-# Auto field
+# DEFAULT AUTO FIELD
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Auth Backends
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.AllowAllUsersModelBackend",
-    "django.contrib.auth.backends.ModelBackend",
-]
