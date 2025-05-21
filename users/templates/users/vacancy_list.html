@@ -167,8 +167,7 @@
             {% endif %}
           </div>
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title"><a href="{{ room.get_absolute_url }}" class="text-decoration-none">{{ room.title
-                }}</a></h5>
+            <h5 class="card-title"><a href="{{ room.get_absolute_url }}" class="text-decoration-none">{{ room.title}}</a></h5>
             <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
             <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
             <p class="mb-1"><strong>KES {{ room.amount }}</strong></p>
@@ -180,11 +179,7 @@
                 target="_blank" class="btn btn-outline-success btn-sm">
                 <i class="fab fa-whatsapp me-1"></i> WhatsApp
               </a>
-              <a href="https://wa.me/254726173245?text=Hello%20{{ property.owner }}%2C%20I'm%20interested%20in%20the%20'{{ property.title }}'%20property%20located%20in%20{{ property.location }}.%20Price%3A%20KES%20{{ property.price }}.%20Available%20from%20{{ property.available_date }}."
-                target="_blank" class="btn btn-success">
-                WhatsApp
-              </a>
-
+              
 
             </div>
           </div>
