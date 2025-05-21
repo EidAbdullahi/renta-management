@@ -175,10 +175,12 @@
             <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
             <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
             <div class="mt-auto">
-              <a href="https://wa.me/254726173245?text=Hello%20{{ property.owner }}%2C%20I'm%20interested%20in%20the%20'{{ property.title }}'%20property%20located%20in%20{{ property.location }}.%20Price%3A%20KES%20{{ property.price }}.%20Available%20from%20{{ property.available_date }}."
-                target="_blank" class="btn btn-success">
-                WhatsApp
-              </a>
+              <a href="https://wa.me/254798883849?text={{ 
+                ('Hello, I\'m interested in this room: '|add:request.build_absolute_uri(room.get_absolute_url))|urlencode 
+            }}"
+            target="_blank" class="btn btn-outline-success btn-sm">
+            <i class="fab fa-whatsapp me-1"></i> WhatsApp
+            </a>
 
 
             </div>
