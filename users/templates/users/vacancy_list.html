@@ -18,111 +18,106 @@
           </div>
         </div>
         <div class="mt-3 mt-md-0">
-          
+
           <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4 py-2">🔑 Login</a>
         </div>
       </div>
     </div>
 
     <!-- Search -->
-    <form method="GET" action="{% url 'vacancy_list' %}" class="row g-3 align-items-end mb-5 bg-white p-4 rounded shadow-sm">
+    <form method="GET" action="{% url 'vacancy_list' %}"
+      class="row g-3 align-items-end mb-5 bg-white p-4 rounded shadow-sm">
       <div class="col-md-5 position-relative">
         <label class="form-label fw-semibold">📍 Location</label>
-        <input
-            type="text"
-            id="locationInput"
-            name="location"
-            class="form-control"
-            placeholder="Search for a location..."
-            value="{{ location|default:'' }}"  
-            autocomplete="off"
-        />
-      
+        <input type="text" id="locationInput" name="location" class="form-control"
+          placeholder="Search for a location..." value="{{ location|default:'' }}" autocomplete="off" />
+
         <!-- Suggestions List -->
-        <ul id="suggestions" class="list-group mt-1 position-absolute w-100 z-3" style="display: none; max-height: 200px; overflow-y: auto;">
-            {% for loc in search_history %}
-                <li class="list-group-item list-group-item-action" data-location="{{ loc }}">{{ loc }}</li>
-            {% empty %}
-                <li class="list-group-item">No previous locations</li>
-            {% endfor %}
+        <ul id="suggestions" class="list-group mt-1 position-absolute w-100 z-3"
+          style="display: none; max-height: 200px; overflow-y: auto;">
+          {% for loc in search_history %}
+          <li class="list-group-item list-group-item-action" data-location="{{ loc }}">{{ loc }}</li>
+          {% empty %}
+          <li class="list-group-item">No previous locations</li>
+          {% endfor %}
         </ul>
-      
+
         <!-- Loading Indicator -->
         <div id="loading" class="mt-1 text-muted small" style="display: none;">
-            Loading...
+          Loading...
         </div>
-    </div>
-    
-    
-    
-    
-    <script>
+      </div>
+
+
+
+
+      <script>
         let timeout;
         const input = document.getElementById("locationInput");
         const suggestionsBox = document.getElementById("suggestions");
         const loadingIndicator = document.getElementById("loading");
-    
+
         input.addEventListener("input", function () {
-            const query = this.value.trim();
-    
-            // Clear previous timeout
-            clearTimeout(timeout);
-    
-            // Hide suggestions if query too short
-            if (query.length < 1) {
+          const query = this.value.trim();
+
+          // Clear previous timeout
+          clearTimeout(timeout);
+
+          // Hide suggestions if query too short
+          if (query.length < 1) {
+            suggestionsBox.style.display = "none";
+            loadingIndicator.style.display = "none";
+            return;
+          }
+
+          // Show loading, wait 300ms before fetching
+          loadingIndicator.style.display = "block";
+          timeout = setTimeout(() => {
+            fetch(`/search-places/?q=${encodeURIComponent(query)}`)
+              .then((res) => res.json())
+              .then((data) => {
+                suggestionsBox.innerHTML = "";
+                if (data.length > 0) {
+                  data.forEach((item) => {
+                    const li = document.createElement("li");
+                    li.textContent = item;
+                    li.classList.add("list-group-item", "list-group-item-action");
+                    suggestionsBox.appendChild(li);
+                  });
+                  suggestionsBox.style.display = "block";
+                } else {
+                  suggestionsBox.style.display = "none";
+                }
+              })
+              .catch((err) => {
+                console.error("Error fetching places:", err);
                 suggestionsBox.style.display = "none";
+              })
+              .finally(() => {
                 loadingIndicator.style.display = "none";
-                return;
-            }
-    
-            // Show loading, wait 300ms before fetching
-            loadingIndicator.style.display = "block";
-            timeout = setTimeout(() => {
-                fetch(`/search-places/?q=${encodeURIComponent(query)}`)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        suggestionsBox.innerHTML = "";
-                        if (data.length > 0) {
-                            data.forEach((item) => {
-                                const li = document.createElement("li");
-                                li.textContent = item;
-                                li.classList.add("list-group-item", "list-group-item-action");
-                                suggestionsBox.appendChild(li);
-                            });
-                            suggestionsBox.style.display = "block";
-                        } else {
-                            suggestionsBox.style.display = "none";
-                        }
-                    })
-                    .catch((err) => {
-                        console.error("Error fetching places:", err);
-                        suggestionsBox.style.display = "none";
-                    })
-                    .finally(() => {
-                        loadingIndicator.style.display = "none";
-                    });
-            }, 300);
+              });
+          }, 300);
         });
-    
+
         // Select a suggestion
         suggestionsBox.addEventListener("click", function (e) {
-            if (e.target.tagName === "LI") {
-                input.value = e.target.textContent;
-                suggestionsBox.style.display = "none";
-            }
+          if (e.target.tagName === "LI") {
+            input.value = e.target.textContent;
+            suggestionsBox.style.display = "none";
+          }
         });
-    
+
         // Hide suggestions when clicking outside
         document.addEventListener("click", function (e) {
-            if (!suggestionsBox.contains(e.target) && e.target !== input) {
-                suggestionsBox.style.display = "none";
-            }
+          if (!suggestionsBox.contains(e.target) && e.target !== input) {
+            suggestionsBox.style.display = "none";
+          }
         });
-    </script>
-    
-    
-    
-      
+      </script>
+
+
+
+
       <div class="col-md-3">
         <label class="form-label fw-semibold">🏠 Property Type</label>
         {{ form.room_type|add_class:"form-select" }}
@@ -161,30 +156,32 @@
               {% endif %}
             </div>
             {% if room.picture2 or room.picture3 %}
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ room.id }}" data-bs-slide="prev">
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ room.id }}"
+              data-bs-slide="prev">
               <span class="carousel-control-prev-icon"></span>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ room.id }}" data-bs-slide="next">
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ room.id }}"
+              data-bs-slide="next">
               <span class="carousel-control-next-icon"></span>
             </button>
             {% endif %}
           </div>
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title"><a href="{{ room.get_absolute_url }}" class="text-decoration-none">{{ room.title }}</a></h5>
+            <h5 class="card-title"><a href="{{ room.get_absolute_url }}" class="text-decoration-none">{{ room.title
+                }}</a></h5>
             <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
             <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
             <p class="mb-1"><strong>KES {{ room.amount }}</strong></p>
             <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
             <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
             <div class="mt-auto">
-              <a href="https://wa.me/254798883849?text={{ 
-                ('Hello, I\'m interested in "'|add:room.title|add:'" located in '|add:room.location|add:'. Description: '|add:room.description|add:'. Photo: '|add:room.picture1_url)|urlencode }}" 
-               target="_blank" 
-               class="btn btn-outline-success btn-sm">
-                <i class="fab fa-whatsapp me-1"></i> WhatsApp
-            </a>
-            
-            
+             
+              <a href="https://wa.me/254726173245?text=Hello%20{{ property.owner }}%2C%20I'm%20interested%20in%20the%20'{{ property.title }}'%20property%20located%20in%20{{ property.location }}.%20Price%3A%20KES%20{{ property.price }}.%20Available%20from%20{{ property.available_date }}."
+                target="_blank" class="btn btn-success">
+                WhatsApp
+              </a>
+
+
             </div>
           </div>
         </div>
@@ -205,7 +202,8 @@
         <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
         <li class="page-item"><a class="page-link" href="?page={{ rooms.previous_page_number }}">&laquo;</a></li>
         {% endif %}
-        <li class="page-item disabled"><span class="page-link">Page {{ rooms.number }} of {{ rooms.paginator.num_pages }}</span></li>
+        <li class="page-item disabled"><span class="page-link">Page {{ rooms.number }} of {{ rooms.paginator.num_pages
+            }}</span></li>
         {% if rooms.has_next %}
         <li class="page-item"><a class="page-link" href="?page={{ rooms.next_page_number }}">&raquo;</a></li>
         <li class="page-item"><a class="page-link" href="?page={{ rooms.paginator.num_pages }}">&raquo;&raquo;</a></li>
@@ -213,7 +211,7 @@
       </ul>
     </nav>
 
-    
+
 
     <!-- Freelancers -->
     <section class="mt-5 py-5 bg-light rounded shadow-sm">
@@ -222,12 +220,14 @@
         {% for freelancer in freelancers %}
         <div class="col-6 col-md-3">
           <div class="card text-center border-0 shadow-sm h-100">
-            <img src="{{ freelancer.photo.url }}" class="rounded-circle mx-auto mt-4" alt="{{ freelancer.name }}" style="width: 100px; height: 100px; object-fit: cover;">
+            <img src="{{ freelancer.photo.url }}" class="rounded-circle mx-auto mt-4" alt="{{ freelancer.name }}"
+              style="width: 100px; height: 100px; object-fit: cover;">
             <div class="card-body d-flex flex-column">
               <h6 class="fw-bold">{{ freelancer.name }}</h6>
               <small class="text-muted">{{ freelancer.location }}</small>
               <div class="mt-auto">
-                <a href="{% url 'freelancer_detail' freelancer.id %}" class="btn btn-sm btn-primary mt-2">View Profile</a>
+                <a href="{% url 'freelancer_detail' freelancer.id %}" class="btn btn-sm btn-primary mt-2">View
+                  Profile</a>
               </div>
             </div>
           </div>
@@ -304,22 +304,23 @@
 </div>
 
 <style>
-.back-to-top {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background-color: #0d6efd;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: none;
-  font-size: 20px;
-  z-index: 1000;
-}
-.back-to-top.show {
-  display: block;
-}
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #0d6efd;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    font-size: 20px;
+    z-index: 1000;
+  }
+
+  .back-to-top.show {
+    display: block;
+  }
 </style>
 
 {% endblock %}
