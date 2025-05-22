@@ -96,7 +96,7 @@ urlpatterns = [
     path('search-places/', autocomplete_places, name='search_places'),
     path('remove-location/', views.remove_location, name='remove-location'),
 
-    path('vacancy/<slug:slug>/', views.vacancy_detail, name='vacancy_detail'),
+    path('vacancy/<slug:slug>/', views.vacancy_detail, name='vacancy_details'),
 
 
     

@@ -102,6 +102,28 @@ from .forms import PartnerForm
 
 from django.shortcuts import render, redirect
 from .forms import FreelancerContactForm
+from django.shortcuts import get_object_or_404, render
+from .models import VacantRoom
+
+def vacancy_detail(request, slug):
+    room = get_object_or_404(VacantRoom, slug=slug)
+    
+    # Prepare message text for WhatsApp
+    message = (
+        f"Hello, I am interested in this room:\n"
+        f"Title: {room.title}\n"
+        f"Location: {room.location}\n"
+        f"Type: {room.room_type}\n"
+        f"Price: KES {room.amount}\n"
+        "Please contact me."
+    )
+    
+    context = {
+        'room': room,
+        'message': message,
+    }
+    return render(request, 'users/vacancy_details.html', context)
+
 
 def contact_us(request):
     if request.method == 'POST':
