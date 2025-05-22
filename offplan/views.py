@@ -159,9 +159,9 @@ def book_unit(request, unit_id):
 def booking_details(request, booking_id):
     booking = get_object_or_404(ClientBooking, id=booking_id)
 
-    # Check if the logged-in user owns the project of this unit
-    if booking.unit.project.user != request.user:
-        return HttpResponseForbidden("You do not have permission to view this booking.")
+    # # Check if the logged-in user owns the project of this unit
+    # if booking.unit.project.user != request.user:
+    #     return HttpResponseForbidden("You do not have permission to view this booking.")
 
     payments = booking.payments.all()
     total_paid = sum(payment.amount_paid for payment in payments)

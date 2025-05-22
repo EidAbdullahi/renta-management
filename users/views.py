@@ -161,6 +161,11 @@ def add_vacancy(request):
 
     return render(request, 'users/add_vacancy.html', {'form': form})
 
+import urllib.parse
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render
+from .forms import VacancySearchForm  # assuming you have this form
 
 def vacancy_list(request):
     form = VacancySearchForm(request.GET)
@@ -202,17 +207,29 @@ def vacancy_list(request):
         if max_price is not None:
             rooms = rooms.filter(amount__lte=max_price)
 
-    # Convert to list to modify room objects
-    rooms = list(rooms)
+    rooms = list(rooms)  # convert to list for modification
 
-    # Add full image URL for each room
+    # Add full image URL and WhatsApp message URL for each room
     for room in rooms:
         if room.picture1:
             room.picture1_url = request.build_absolute_uri(room.picture1.url)
         else:
             room.picture1_url = ""
 
-    # Pagination logic
+        # Prepare truncated description without newlines
+        short_desc = room.description.replace('\n', ' ').replace('\r', '')[:100]
+
+        # Build WhatsApp message string
+        message = (
+            f"Hello, I'm interested in \"{room.title}\" located in {room.location}. "
+            f"Description: {short_desc}. "
+            f"Photo: {room.picture1_url}"
+        )
+
+        # URL encode the entire message
+        room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
+
+    # Pagination
     paginator = Paginator(rooms, 6)
     page = request.GET.get('page')
     rooms = paginator.get_page(page)
@@ -220,19 +237,19 @@ def vacancy_list(request):
     latest_rooms = VacantRoom.objects.order_by('-created_at')[:6]
     popular_rooms = VacantRoom.objects.order_by('-created_at')[:6]
 
-    # Prepare the context
-    my_context = {
+    context = {
         'rooms': rooms,
         'form': form,
         'latest_rooms': latest_rooms,
         'popular_rooms': popular_rooms,
         'freelancers': freelancers,
         'partners': partners,
-        'search_history': request.session.get('search_history', []),  # Search history
-        'location': location,  # Location
+        'search_history': request.session.get('search_history', []),
+        'location': location,
     }
 
-    return render(request, 'users/vacancy_list.html', {**my_context})  # Unpack context into the template
+    return render(request, 'users/vacancy_list.html', context)
+
 
 @login_required
 def home(request):
