@@ -67,13 +67,13 @@ def project_list(request):
 @login_required
 def create_unit(request):
     if request.method == 'POST':
-        form = UnitForm(request.POST, user=request.user)  # pass user here too!
+        form = UnitForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, "Unit created successfully!")
-            return redirect('unit_list')  # or appropriate URL
+            return redirect('unit_list')
     else:
-        form = UnitForm(user=request.user)  # pass user on GET too!
+        form = UnitForm(user=request.user)
 
     return render(request, 'create_unit.html', {'form': form})
 

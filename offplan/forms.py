@@ -67,12 +67,13 @@ class UnitForm(forms.ModelForm):
         if price <= 0:
             raise forms.ValidationError("Price must be greater than zero.")
         return price
-    
+
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')  # accept user as a parameter
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        # Filter project choices to only the current user's projects
-        self.fields['project'].queryset = Project.objects.filter(user=user)
+
+        if user is not None:
+            self.fields['project'].queryset = Project.objects.filter(user=user)
 
 class ClientBookingForm(forms.ModelForm):
     class Meta:
