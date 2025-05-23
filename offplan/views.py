@@ -69,15 +69,15 @@ def create_unit(request):
     if request.method == 'POST':
         form = UnitForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            unit = form.save(commit=False)  # create unit object but don't save yet
+            unit.user = request.user       # assign the user
+            unit.save()                    # now save to DB
             messages.success(request, "Unit created successfully!")
-            return redirect('unit_list')
+            return redirect('view_units', project_id=unit.project.id)  # redirect with project_id
     else:
         form = UnitForm(user=request.user)
 
     return render(request, 'create_unit.html', {'form': form})
-
-
 
 @login_required
 def view_units(request, project_id):

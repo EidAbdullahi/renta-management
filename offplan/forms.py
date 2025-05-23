@@ -50,7 +50,6 @@ class ProjectForm(forms.ModelForm):
         return start_date
 
 
-
 class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
@@ -69,11 +68,19 @@ class UnitForm(forms.ModelForm):
         return price
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        if user is not None:
-            self.fields['project'].queryset = Project.objects.filter(user=user)
+        if self.user is not None:
+            self.fields['project'].queryset = Project.objects.filter(user=self.user)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.user:
+            instance.user = self.user
+        if commit:
+            instance.save()
+        return instance
 
 class ClientBookingForm(forms.ModelForm):
     class Meta:

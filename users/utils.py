@@ -20,7 +20,7 @@ def get_paid_tenants_for_month(year, month):
     ).select_related('tenant')
 # users/utils.py
 
-from django.utils.timezone import now
+from django.utils import timezone
 from django.db.models import Sum
 from .models import Payment, Expense
 
