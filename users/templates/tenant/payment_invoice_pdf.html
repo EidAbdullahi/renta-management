@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 14px; }
+        .header { text-align: center; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table td, .table th { border: 1px solid #000; padding: 8px; }
+        .table th { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Payment Invoice</h2>
+        <p><strong>Invoice ID:</strong> {{ payment.id }}</p>
+        <p><strong>Date:</strong> {{ payment.payment_date }}</p>
+    </div>
+
+    <table class="table">
+        <tr>
+            <th>Tenant</th>
+            <td>{{ payment.tenant.name }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ payment.tenant.email }}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{ payment.tenant.phone }}</td>
+        </tr>
+        <tr>
+            <th>Property</th>
+            <td>{{ payment.tenant.property.name }}</td>
+        </tr>
+        <tr>
+            <th>Payment Method</th>
+            <td>{{ payment.payment_method }}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{{ payment.status }}</td>
+        </tr>
+        <tr>
+            <th>Amount Paid</th>
+            <td>KES {{ payment.amount_paid }}</td>
+        </tr>
+    </table>
+
+    <p>Thank you for your payment.</p>
+</body>
+</html>

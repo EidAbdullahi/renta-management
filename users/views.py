@@ -13,6 +13,8 @@ from .models import ForSaleProperty
 from .forms import ForSalePropertyForm
 from django.http import Http404
 import json
+from django.http import HttpResponse
+from .utils import generate_invoice_pdf
 # forms.py
 from django import forms
 from .forms import TenantForm, PaymentForm
@@ -38,10 +40,13 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db.models import Q
 import calendar
-import csv
 from .forms import ProfileUpdateForm
 
-
+import urllib.parse
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render
+from .forms import VacancySearchForm  # assuming you have this form
 
 
 
@@ -55,7 +60,17 @@ from .models import Employee
 from django.template.loader import get_template
 from django.shortcuts import render
 from .models import Employee  # Import the Employee model
+from datetime import datetime, date
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from .models import Tenant, Payment
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+from django.shortcuts import render
+from datetime import datetime, date
 
 
 from django.shortcuts import render
@@ -76,7 +91,7 @@ from .forms import PaymentForm  # Create a form for editing payments
 from .models import CommercialProperty
 from .forms import CommercialPropertyForm
 
-from django.http import HttpResponse
+
 from django.shortcuts import render
 from django.utils import timezone
 import csv
@@ -90,18 +105,25 @@ from django.contrib import messages
 from .forms import CustomUserRegisterForm
 from .forms import EmployeeSearchForm
 from django.core.paginator import Paginator
-import csv
 from datetime import datetime
 from django.db.models import Sum
 from django.shortcuts import render
-from django.http import HttpResponse
 from .models import Tenant, Payment
-import calendar
 from .models import Partner
 from .forms import PartnerForm
 
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Payment, Expense  # Adjust the import path if needed
+import calendar
 from django.shortcuts import render, redirect
 from .forms import FreelancerContactForm
+
+@login_required
+def preview_invoice(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+    return render(request, 'tenant/invoice_preview.html', {'payment': payment})
 
 def contact_us(request):
     if request.method == 'POST':
@@ -161,11 +183,7 @@ def add_vacancy(request):
 
     return render(request, 'users/add_vacancy.html', {'form': form})
 
-import urllib.parse
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.shortcuts import render
-from .forms import VacancySearchForm  # assuming you have this form
+
 
 def vacancy_list(request):
     form = VacancySearchForm(request.GET)
@@ -387,13 +405,6 @@ def register_employee(request):
     return render(request, 'employee/register_employee.html', {'form': form})
 
 
-
-
-
-
-
-
-
 @login_required
 def payment_list(request):
     # Get latest payment per tenant belonging to the current user
@@ -425,10 +436,10 @@ def tenant_payments(request, tenant_id):
         'tenant': tenant
     })
 
-
 @login_required
 def add_payment(request, tenant_id):
     tenant = get_object_or_404(Tenant, id=tenant_id, user=request.user)
+    payment = None
 
     if request.method == 'POST':
         form = PaymentForm(request.POST, request.FILES, user=request.user)
@@ -437,29 +448,31 @@ def add_payment(request, tenant_id):
             payment.user = request.user
             payment.tenant = tenant
             payment.save()
+
             messages.success(request, "✅ Payment added successfully!")
-            return redirect('add_payment', tenant_id=tenant.id)
+            # Instead of redirect, fall through to render same page with payment info
     else:
         form = PaymentForm(user=request.user)
-        
-    return render(request, 'tenant/add_payment.html', {'form': form, 'tenant': tenant})
 
-from datetime import datetime, date
-import calendar
-from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
-from django.http import HttpResponse
-import csv
-from .models import Tenant, Payment
+    return render(request, 'tenant/add_payment.html', {
+        'form': form,
+        'tenant': tenant,
+        'payment': payment,  # This will be None on GET, or payment object on successful POST
+    })
 
-from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
-from django.db.models.functions import TruncMonth
-from django.http import HttpResponse
-from django.shortcuts import render
-from datetime import datetime, date
-import calendar
-import csv
+
+
+
+@login_required
+def download_invoice_pdf(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+    pdf = generate_invoice_pdf(payment)
+    if not pdf:
+        return HttpResponse("Error generating PDF", status=500)
+
+    response = HttpResponse(pdf.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{payment.id}.pdf"'
+    return response
 
 @login_required
 def payment_summary(request):
@@ -719,11 +732,6 @@ def dashboard(request):
 
 
 
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Payment, Expense  # Adjust the import path if needed
-import calendar
 
 @login_required
 @login_required

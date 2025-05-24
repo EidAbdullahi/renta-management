@@ -196,7 +196,7 @@ def add_payment(request, booking_id):
     else:
         form = PaymentForm()
 
-    return render(request, 'add_payment.html', {'form': form, 'booking': booking})
+    return render(request, 'payment.html', {'form': form, 'booking': booking})
 
 
 

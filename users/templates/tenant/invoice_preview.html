@@ -1,0 +1,31 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+        <div class="text-center mb-4">
+            <h2>🧾 Payment Invoice Preview</h2>
+            <p><strong>Invoice ID:</strong> {{ payment.id }}</p>
+            <p><strong>Date:</strong> {{ payment.payment_date }}</p>
+        </div>
+
+        <table class="table table-bordered">
+            <tr><th>Tenant</th><td>{{ payment.tenant.name }}</td></tr>
+            <tr><th>Email</th><td>{{ payment.tenant.email }}</td></tr>
+            <tr><th>Phone</th><td>{{ payment.tenant.phone }}</td></tr>
+            <tr><th>Property</th><td>{{ payment.tenant.property.name }}</td></tr>
+            <tr><th>Method</th><td>{{ payment.get_payment_method_display }}</td></tr>
+            <tr><th>Status</th><td>{{ payment.status }}</td></tr>
+            <tr><th>Amount Paid</th><td class="text-success fw-bold">KES {{ payment.amount_paid }}</td></tr>
+        </table>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'download_invoice_pdf' payment.id %}" class="btn btn-primary">
+                <i class="fas fa-file-download"></i> Download PDF
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- FontAwesome CDN (for icons) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

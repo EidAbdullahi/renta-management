@@ -52,6 +52,8 @@ urlpatterns = [
     # Rent Status Update
     path('update-rent-status/<int:tenant_id>/', update_rent_status, name='update_rent_status'),
     path('add-payment/<int:tenant_id>/', add_payment, name='add_payment'),
+    path('invoice/<int:payment_id>/download/', views.download_invoice_pdf, name='download_invoice_pdf'),
+    
     
     path('register_employee/', views.register_employee, name='register_employee'),
     path('employee_list/', views.employee_list, name='employee_list'),
@@ -64,7 +66,8 @@ urlpatterns = [
     
     # URL for exporting the financial report to CSV
     path('export-financial-report/', views.export_financial_report, name='export_financial_report'),
-    
+    path('invoice/<int:payment_id>/preview/', views.preview_invoice, name='preview_invoice'),
+
 
     path('add-expense/', views.add_expense, name='add_expense'),
     path('expense-list/', views.expense_list, name='expense_list'),

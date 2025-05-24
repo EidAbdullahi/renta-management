@@ -43,3 +43,36 @@ def generate_financial_report(month, user):
         'net_profit': float(net_profit),
     }
 
+
+
+# utils.py
+from io import BytesIO
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+def generate_invoice_pdf(payment):
+    template = get_template('tenant/payment_invoice_pdf.html')
+    html = template.render({'payment': payment})
+    result = BytesIO()
+    pisa_status = pisa.CreatePDF(html, dest=result)
+    if pisa_status.err:
+        return None
+    return result
+
+
+# utils.py (continued or separate file)
+from django.core.mail import EmailMessage
+
+def send_invoice_email(payment):
+    pdf = generate_invoice_pdf(payment)
+    if not pdf:
+        return
+
+    email = EmailMessage(
+        subject=f"Invoice for Payment #{payment.id}",
+        body="Attached is your payment invoice. Thank you!",
+        from_email="your_gmail@gmail.com",
+        to=[payment.tenant.email]
+    )
+    email.attach(f'invoice_{payment.id}.pdf', pdf.getvalue(), 'application/pdf')
+    email.send()
