@@ -76,6 +76,9 @@
             <div class="mt-auto">
               <a href="{% url 'react_to_item' item.id 'like' %}" class="me-3 text-decoration-none">👍 {{ item.like_count }}</a>
               <a href="{% url 'react_to_item' item.id 'love' %}" class="text-decoration-none">❤️ {{ item.love_count }}</a>
+              <a href="{{ item.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+              </a>
             </div>
           </div>
         </div>
@@ -85,4 +88,5 @@
     {% endfor %}
   </div>
 </div>
+
 {% endblock %}
