@@ -25,176 +25,184 @@
       </div>
     </div>
 
-    <!-- Search -->
-    <form method="GET" action="{% url 'vacancy_list' %}"
-      class="row g-3 align-items-end mb-5 bg-white p-4 rounded shadow-sm">
-      <div class="col-md-5 position-relative">
-        <label class="form-label fw-semibold">📍 Location</label>
-        <input type="text" id="locationInput" name="location" class="form-control"
-          placeholder="Search for a location..." value="{{ location|default:'' }}" autocomplete="off" />
+  <!-- Search Form -->
+<form method="GET" action="{% url 'vacancy_list' %}"
+class="row g-3 align-items-end mb-5 bg-white p-4 rounded shadow-sm">
+<div class="col-md-5 position-relative">
+  <label class="form-label fw-semibold">📍 Location</label>
+  <input type="text" id="locationInput" name="location" class="form-control"
+    placeholder="Search for a location..." value="{{ location|default:'' }}" autocomplete="off" />
 
-        <!-- Suggestions List -->
-        <ul id="suggestions" class="list-group mt-1 position-absolute w-100 z-3"
-          style="display: none; max-height: 200px; overflow-y: auto;">
-          {% for loc in search_history %}
-          <li class="list-group-item list-group-item-action" data-location="{{ loc }}">{{ loc }}</li>
-          {% empty %}
-          <li class="list-group-item">No previous locations</li>
-          {% endfor %}
-        </ul>
+  <!-- Suggestions List -->
+  <ul id="suggestions" class="list-group mt-1 position-absolute w-100 z-3"
+    style="display: none; max-height: 200px; overflow-y: auto;">
+    {% for loc in search_history %}
+    <li class="list-group-item list-group-item-action" data-location="{{ loc }}">{{ loc }}</li>
+    {% empty %}
+    <li class="list-group-item">No previous locations</li>
+    {% endfor %}
+  </ul>
 
-        <!-- Loading Indicator -->
-        <div id="loading" class="mt-1 text-muted small" style="display: none;">
-          Loading...
+  <!-- Loading Indicator -->
+  <div id="loading" class="mt-1 text-muted small" style="display: none;">
+    Loading...
+  </div>
+</div>
+
+<div class="col-md-3">
+  <label class="form-label fw-semibold">🏠 Property Type</label>
+  {{ form.room_type|add_class:"form-select" }}
+</div>
+<div class="col-md-2">
+  <label class="form-label fw-semibold">🛏️ Beds</label>
+  {{ form.beds|add_class:"form-select" }}
+</div>
+<div class="col-md-2 d-grid">
+  <button type="submit" class="btn btn-success"><i class="bi bi-search"></i> Search</button>
+</div>
+</form>
+
+<!-- Search Suggestions Script -->
+<script>
+let timeout;
+const input = document.getElementById("locationInput");
+const suggestionsBox = document.getElementById("suggestions");
+const loadingIndicator = document.getElementById("loading");
+
+input.addEventListener("input", function () {
+  const query = this.value.trim();
+  clearTimeout(timeout);
+
+  if (query.length < 1) {
+    suggestionsBox.style.display = "none";
+    loadingIndicator.style.display = "none";
+    return;
+  }
+
+  loadingIndicator.style.display = "block";
+  timeout = setTimeout(() => {
+    fetch(`/search-places/?q=${encodeURIComponent(query)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        suggestionsBox.innerHTML = "";
+        if (data.length > 0) {
+          data.forEach((item) => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            li.classList.add("list-group-item", "list-group-item-action");
+            suggestionsBox.appendChild(li);
+          });
+          suggestionsBox.style.display = "block";
+        } else {
+          suggestionsBox.style.display = "none";
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching places:", err);
+        suggestionsBox.style.display = "none";
+      })
+      .finally(() => {
+        loadingIndicator.style.display = "none";
+      });
+  }, 300);
+});
+
+suggestionsBox.addEventListener("click", function (e) {
+  if (e.target.tagName === "LI") {
+    input.value = e.target.textContent;
+    suggestionsBox.style.display = "none";
+  }
+});
+
+document.addEventListener("click", function (e) {
+  if (!suggestionsBox.contains(e.target) && e.target !== input) {
+    suggestionsBox.style.display = "none";
+  }
+});
+</script>
+
+<!-- Search Results -->
+<div id="search-results" class="row g-4">
+{% for room in rooms %}
+<div class="col-12 col-md-6 col-lg-4">
+  <div class="card h-100 shadow-sm border-0">
+    <div id="carousel{{ room.id }}" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        {% if room.picture1 %}
+        <div class="carousel-item active">
+          <img src="{{ room.picture1.url }}" class="d-block w-100 rounded-top" style="height: 220px; object-fit: cover;" alt="{{ room.title }}">
         </div>
-      </div>
-
-
-
-
-      <script>
-        let timeout;
-        const input = document.getElementById("locationInput");
-        const suggestionsBox = document.getElementById("suggestions");
-        const loadingIndicator = document.getElementById("loading");
-
-        input.addEventListener("input", function () {
-          const query = this.value.trim();
-
-          // Clear previous timeout
-          clearTimeout(timeout);
-
-          // Hide suggestions if query too short
-          if (query.length < 1) {
-            suggestionsBox.style.display = "none";
-            loadingIndicator.style.display = "none";
-            return;
-          }
-
-          // Show loading, wait 300ms before fetching
-          loadingIndicator.style.display = "block";
-          timeout = setTimeout(() => {
-            fetch(`/search-places/?q=${encodeURIComponent(query)}`)
-              .then((res) => res.json())
-              .then((data) => {
-                suggestionsBox.innerHTML = "";
-                if (data.length > 0) {
-                  data.forEach((item) => {
-                    const li = document.createElement("li");
-                    li.textContent = item;
-                    li.classList.add("list-group-item", "list-group-item-action");
-                    suggestionsBox.appendChild(li);
-                  });
-                  suggestionsBox.style.display = "block";
-                } else {
-                  suggestionsBox.style.display = "none";
-                }
-              })
-              .catch((err) => {
-                console.error("Error fetching places:", err);
-                suggestionsBox.style.display = "none";
-              })
-              .finally(() => {
-                loadingIndicator.style.display = "none";
-              });
-          }, 300);
-        });
-
-        // Select a suggestion
-        suggestionsBox.addEventListener("click", function (e) {
-          if (e.target.tagName === "LI") {
-            input.value = e.target.textContent;
-            suggestionsBox.style.display = "none";
-          }
-        });
-
-        // Hide suggestions when clicking outside
-        document.addEventListener("click", function (e) {
-          if (!suggestionsBox.contains(e.target) && e.target !== input) {
-            suggestionsBox.style.display = "none";
-          }
-        });
-      </script>
-
-
-
-
-      <div class="col-md-3">
-        <label class="form-label fw-semibold">🏠 Property Type</label>
-        {{ form.room_type|add_class:"form-select" }}
-      </div>
-      <div class="col-md-2">
-        <label class="form-label fw-semibold">🛏️ Beds</label>
-        {{ form.beds|add_class:"form-select" }}
-      </div>
-      <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-success"><i class="bi bi-search"></i> Search</button>
-      </div>
-    </form>
-
-    <!-- Room Listings -->
-    <h2 class="mb-4 text-center fw-bold text-primary">🏡 Available Rooms for Rent</h2>
-    <div class="row g-4">
-      {% for room in rooms %}
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow rounded-4 border-0 overflow-hidden">
-            
-            <!-- Room Image Carousel -->
-            <div id="carousel{{ room.id }}" class="carousel slide" data-bs-ride="carousel">
-              <div class="carousel-inner" style="height: 220px;">
-                {% if room.picture1 %}
-                  <div class="carousel-item active">
-                    <img src="{{ room.picture1.url }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ room.title }}">
-                  </div>
-                {% endif %}
-                {% if room.picture2 %}
-                  <div class="carousel-item">
-                    <img src="{{ room.picture2.url }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ room.title }}">
-                  </div>
-                {% endif %}
-                {% if room.picture3 %}
-                  <div class="carousel-item">
-                    <img src="{{ room.picture3.url }}" class="d-block w-100 h-100 object-fit-cover" alt="{{ room.title }}">
-                  </div>
-                {% endif %}
-              </div>
-    
-              {% if room.picture2 or room.picture3 %}
-                <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ room.id }}" data-bs-slide="prev">
-                  <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ room.id }}" data-bs-slide="next">
-                  <span class="carousel-control-next-icon"></span>
-                </button>
-              {% endif %}
-            </div>
-    
-            <!-- Room Details -->
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title mb-1">
-                <a href="{{ room.get_absolute_url }}" class="text-decoration-none text-dark">{{ room.title }}</a>
-              </h5>
-              <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
-              <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
-              <p class="mb-1 fw-semibold text-primary">KES {{ room.amount }}</p>
-              <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
-              <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
-              <div class="mt-auto pt-2">
-                <a href="{{ room.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill">
-                  <i class="fab fa-whatsapp me-1"></i> Chat on WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
+        {% endif %}
+        {% if room.picture2 %}
+        <div class="carousel-item">
+          <img src="{{ room.picture2.url }}" class="d-block w-100" style="height: 220px; object-fit: cover;" alt="{{ room.title }}">
         </div>
-      {% empty %}
-        <div class="col-12 text-center">
-          <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i>No rooms found. Try different filters.
-          </div>
+        {% endif %}
+        {% if room.picture3 %}
+        <div class="carousel-item">
+          <img src="{{ room.picture3.url }}" class="d-block w-100" style="height: 220px; object-fit: cover;" alt="{{ room.title }}">
         </div>
-      {% endfor %}
+        {% endif %}
+      </div>
+      {% if room.picture2 or room.picture3 %}
+      <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ room.id }}"
+        data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ room.id }}"
+        data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+      {% endif %}
     </div>
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">
+        <a href="{{ room.get_absolute_url }}" class="text-decoration-none">{{ room.title }}</a>
+      </h5>
+      <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
+      <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
+      <p class="mb-1"><strong>KES {{ room.amount }}</strong></p>
+      <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
+      <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
+      <div class="mt-auto">
+        <a href="{{ room.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+          <i class="fab fa-whatsapp me-1"></i> WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="col-12 text-center">
+  <div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle me-2"></i>No rooms found. Try different filters.
+  </div>
+</div>
+{% endfor %}
+</div>
+
+<!-- Scroll to Results After Search -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const hasSearch = params.has("location") || params.has("room_type") || params.has("beds");
+  const resultsSection = document.getElementById("search-results");
+
+  if (hasSearch && resultsSection) {
+    setTimeout(() => {
+      resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
+  }
+});
+</script>
+
+<!-- Optional: Smooth scroll style globally -->
+<style>
+html {
+  scroll-behavior: smooth;
+}
+</style>
+
     
 
     <!-- Pagination -->
@@ -216,26 +224,35 @@
 
     <!-- Freelancers -->
     <section class="mt-5 py-5 bg-light rounded shadow-sm">
-      <h2 class="text-center fw-bold mb-5">💼 Freelance Professionals</h2>
-      <div class="row g-4">
-        {% for freelancer in freelancers %}
-        <div class="col-6 col-md-3">
-          <div class="card text-center border-0 shadow-sm h-100">
-            <img src="{{ freelancer.photo.url }}" class="rounded-circle mx-auto mt-4" alt="{{ freelancer.name }}"
-              style="width: 100px; height: 100px; object-fit: cover;">
-            <div class="card-body d-flex flex-column">
-              <h6 class="fw-bold">{{ freelancer.name }}</h6>
-              <small class="text-muted">{{ freelancer.location }}</small>
-              <div class="mt-auto">
-                <a href="{% url 'freelancer_detail' freelancer.id %}" class="btn btn-sm btn-primary mt-2">View
-                  Profile</a>
+      <div class="container">
+        <h2 class="text-center fw-bold mb-5">💼 Freelance Professionals</h2>
+        <div class="row g-4">
+          {% for freelancer in freelancers %}
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 h-100 shadow-lg rounded-4">
+              <div class="position-relative p-3">
+                <img src="{{ freelancer.photo.url }}"
+                     class="rounded-circle border border-3 border-white shadow-sm mx-auto d-block"
+                     alt="{{ freelancer.name }}"
+                     style="width: 110px; height: 110px; object-fit: cover; margin-top: -60px;">
+              </div>
+              <div class="card-body d-flex flex-column px-3">
+                <h6 class="fw-semibold mb-1">{{ freelancer.name }}</h6>
+                <small class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1 text-primary"></i>{{ freelancer.location }}</small>
+                <span class="badge bg-success text-white small mb-3">Available</span>
+                <div class="mt-auto">
+                  <a href="{% url 'freelancer_detail' freelancer.id %}" class="btn btn-outline-primary btn-sm rounded-pill">
+                    <i class="fas fa-user me-1"></i> View Profile
+                  </a>
+                </div>
               </div>
             </div>
           </div>
+          {% endfor %}
         </div>
-        {% endfor %}
       </div>
     </section>
+    
 
 
     <!-- Partners -->
@@ -284,7 +301,7 @@
           </div>
         </div>
         <div class="text-center mt-4 border-top pt-3 text-white-50">
-          <small>© 2025 RoomRiser. All rights reserved.</small>
+          <small>© 2025 Kirofinder. All rights reserved.</small>
         </div>
       </div>
     </footer>
