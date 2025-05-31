@@ -1,0 +1,70 @@
+{% extends 'users/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Discover Second-hand Items</h2>
+
+  {% if user.is_authenticated %}
+    <div class="text-end mb-3">
+      <a href="{% url 'upload_item' %}" class="btn btn-success">+ Upload Item</a>
+    </div>
+  {% endif %}
+
+  <!-- Search and Filters -->
+  <form method="GET" class="row g-2 mb-4">
+    <div class="col-md-3">
+      <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ query }}">
+    </div>
+    <div class="col-md-2">
+      <select name="category" class="form-control">
+        <option value="">All Categories</option>
+        <option value="Furniture" {% if category == "Furniture" %}selected{% endif %}>Furniture</option>
+        <option value="Electronics" {% if category == "Electronics" %}selected{% endif %}>Electronics</option>
+        <option value="Kitchen" {% if category == "Kitchen" %}selected{% endif %}>Kitchen</option>
+        <option value="Clothing" {% if category == "Clothing" %}selected{% endif %}>Clothing</option>
+        <option value="Other" {% if category == "Other" %}selected{% endif %}>Other</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ min_price }}">
+    </div>
+    <div class="col-md-2">
+      <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ max_price }}">
+    </div>
+    <div class="col-md-2">
+      <select name="sort" class="form-control">
+        <option value="">Newest</option>
+        <option value="liked" {% if request.GET.sort == "liked" %}selected{% endif %}>Most Liked</option>
+        <option value="loved" {% if request.GET.sort == "loved" %}selected{% endif %}>Most Loved</option>
+      </select>
+    </div>
+    <div class="col-md-1">
+      <button type="submit" class="btn btn-primary w-100">Go</button>
+    </div>
+  </form>
+
+  <!-- Item Cards -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+    {% for item in items %}
+      <div class="col">
+        <div class="card h-100 shadow-sm border-0">
+          {% if item.image %}
+            <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 180px; object-fit: cover;">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-truncate">{{ item.title }}</h5>
+            <p class="card-text fw-bold text-success">KES {{ item.price }}</p>
+            <p class="text-muted small overflow-hidden" style="max-height: 60px;">{{ item.description|truncatechars:100 }}</p>
+            <div class="mt-auto">
+              <a href="{% url 'react_to_item' item.id 'like' %}" class="me-3 text-decoration-none">👍 {{ item.like_count }}</a>
+              <a href="{% url 'react_to_item' item.id 'love' %}" class="text-decoration-none">❤️ {{ item.love_count }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No items found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

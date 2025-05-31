@@ -44,3 +44,13 @@ class VacantRoomAdmin(admin.ModelAdmin):
         return "No video"
 
     video_preview.short_description = "Video Tour Preview"
+from django.contrib import admin
+from .models import Item, Reaction
+
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ('title', 'category', 'price', 'user', 'posted_at')
+    list_filter = ('category', 'posted_at')
+    search_fields = ('title', 'description', 'user__username')
+
+

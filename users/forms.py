@@ -226,3 +226,12 @@ class FreelancerContactForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'help_text': forms.Textarea(attrs={'rows': 4}),
         }
+
+# users/forms.py
+from django import forms
+from .models import Item
+
+class ItemForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        fields = ['title', 'description', 'price', 'category', 'image']

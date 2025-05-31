@@ -99,6 +99,9 @@ urlpatterns = [
     path('search-places/', autocomplete_places, name='search_places'),
     path('remove-location/', views.remove_location, name='remove-location'),
 
+    path('discover/', views.discover_items, name='discover'),
+    path('upload/', views.upload_item, name='upload_item'),
+    path('react/<int:item_id>/<str:reaction_type>/', views.react_to_item, name='react_to_item'),
 
 
     
@@ -107,3 +110,7 @@ urlpatterns = [
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+
+    

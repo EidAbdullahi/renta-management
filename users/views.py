@@ -119,6 +119,77 @@ from .models import Payment, Expense  # Adjust the import path if needed
 import calendar
 from django.shortcuts import render, redirect
 from .forms import FreelancerContactForm
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Item, Reaction
+from .forms import ItemForm
+from django.db.models import Count, Q
+from django.contrib.auth.decorators import login_required
+
+from django.db.models import Count, Q
+
+def discover_items(request):
+    query = request.GET.get('q', '')
+    category = request.GET.get('category', '')
+    min_price = request.GET.get('min_price', '')
+    max_price = request.GET.get('max_price', '')
+    sort = request.GET.get('sort', '')
+
+    items = Item.objects.all()
+
+    if query:
+        items = items.filter(Q(title__icontains=query) | Q(description__icontains=query))
+    if category:
+        items = items.filter(category=category)
+    if min_price:
+        items = items.filter(price__gte=min_price)
+    if max_price:
+        items = items.filter(price__lte=max_price)
+
+    # Annotate like and love counts for all items (no matter sorting)
+    items = items.annotate(
+        like_count=Count('reactions', filter=Q(reactions__reaction_type='like')),
+        love_count=Count('reactions', filter=Q(reactions__reaction_type='love')),
+    )
+
+    if sort == 'liked':
+        items = items.order_by('-like_count')
+    elif sort == 'loved':
+        items = items.order_by('-love_count')
+    else:
+        items = items.order_by('-posted_at')
+
+    return render(request, 'users/discover.html', {
+        'items': items,
+        'query': query,
+        'category': category,
+        'min_price': min_price,
+        'max_price': max_price
+    })
+
+
+@login_required
+def upload_item(request):
+    if request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.user = request.user
+            item.save()
+            return redirect('discover')
+    else:
+        form = ItemForm()
+    return render(request, 'users/upload.html', {'form': form})
+
+def react_to_item(request, item_id, reaction_type):
+    item = get_object_or_404(Item, id=item_id)
+    if not request.session.session_key:
+        request.session.save()
+    session_id = request.session.session_key
+
+    # Prevent duplicate reaction
+    if not Reaction.objects.filter(item=item, session_id=session_id, reaction_type=reaction_type).exists():
+        Reaction.objects.create(item=item, session_id=session_id, reaction_type=reaction_type)
+    return redirect('discover')
 
 @login_required
 def preview_invoice(request, payment_id):
