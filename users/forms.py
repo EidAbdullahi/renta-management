@@ -26,9 +26,13 @@ from django import forms
 class VacantRoomForm(forms.ModelForm):
     class Meta:
         model = VacantRoom
-        fields = '__all__'
         exclude = ['user']
-
+        widgets = {
+            'available_from': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+        }
 
 
 class VacancySearchForm(forms.Form):
