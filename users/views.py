@@ -319,7 +319,7 @@ def vacancy_list(request):
         room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
 
     # Pagination
-    paginator = Paginator(rooms, 6)
+    paginator = Paginator(rooms, 12)
     page = request.GET.get('page')
     rooms = paginator.get_page(page)
 
