@@ -15,11 +15,14 @@
             <a href="{% url 'vacancy_list' %}" class="btn btn-primary">🏡 Rent</a>
             <a href="{% url 'for_sale_list' %}" class="btn btn-warning text-dark">🏠 For Sale</a>
             <a href="{% url 'commercial_list' %}" class="btn btn-secondary">🏢 Commercial</a>
-            <a href="{% url 'discover' %}" class="btn btn btn-success">🏢 Discover</a>
+            <a href="{% url 'discover' %}" class="btn btn-success">
+              <i class="fas fa-store me-1"></i> Marketplace
+            </a>
+            
           </div>
         </div>
         <div class="mt-3 mt-md-0">
-
+  
           <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4 py-2">🔑 Login</a>
         </div>
       </div>
@@ -162,6 +165,9 @@ document.addEventListener("click", function (e) {
       <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
       <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
       <p class="mb-1"><strong>KES {{ room.amount }}</strong></p>
+      <small class="text-muted">📅 Posted {{ room.posted_ago }}</small>
+      
+
       <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
       <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
       <div class="mt-auto">

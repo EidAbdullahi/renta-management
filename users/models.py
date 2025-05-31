@@ -44,6 +44,13 @@ class Reaction(models.Model):
     class Meta:
         unique_together = ('item', 'session_id', 'reaction_type')
 
+from django.utils.text import slugify
+from django.urls import reverse
+from cloudinary.models import CloudinaryField
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils.timesince import timesince
+from django.utils.timezone import now
 
 class VacantRoom(models.Model):
     ROOM_TYPE_CHOICES = (
@@ -51,7 +58,7 @@ class VacantRoom(models.Model):
         ('Double', 'Double'),
         ('Self-Contained', 'Self-Contained'),
         ('Bedsitter', 'Bedsitter'),
-         ('Airbnb', 'Airbnb'),
+        ('Airbnb', 'Airbnb'),
         ('1 Bedroom', '1 Bedroom'),
         ('2 Bedroom', '2 Bedroom'),
         ('3 Bedroom', '3 Bedroom'),
@@ -64,6 +71,7 @@ class VacantRoom(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=100)
     room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES)
+
     picture1 = CloudinaryField('image', null=True, blank=True)
     picture2 = CloudinaryField('image', null=True, blank=True)
     picture3 = CloudinaryField('image', null=True, blank=True)
@@ -84,6 +92,9 @@ class VacantRoom(models.Model):
 
     def get_images(self):
         return [self.picture1, self.picture2, self.picture3]
+
+    def posted_ago(self):
+        return timesince(self.created_at, now()) + " ago"
 
     def __str__(self):
         return f"{self.title} - {self.room_type} - {self.location}"

@@ -1,8 +1,28 @@
 {% extends 'users/base.html' %}
 {% load widget_tweaks %}
+
 {% block content %}
 <div class="container mt-4">
-  <h2 class="mb-4">Discover Second-hand Items</h2>
+  <div class="p-4 bg-light rounded shadow-sm mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+      <div>
+        <h4 class="fw-bold">✨ Discover Your Ideal Room with Our Exclusive Offer!</h4>
+        <div class="d-flex gap-2 flex-wrap mt-3">
+          <a href="{% url 'vacancy_list' %}" class="btn btn-primary">🏡 Rent</a>
+          <a href="{% url 'for_sale_list' %}" class="btn btn-warning text-dark">🏠 For Sale</a>
+          <a href="{% url 'commercial_list' %}" class="btn btn-secondary">🏢 Commercial</a>
+          <a href="{% url 'discover' %}" class="btn btn-success">
+            <i class="fas fa-store me-1"></i> Marketplace
+          </a>
+          
+        </div>
+      </div>
+      <div class="mt-3 mt-md-0">
+
+        <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4 py-2">🔑 Login</a>
+      </div>
+    </div>
+  </div>
 
   {% if user.is_authenticated %}
     <div class="text-end mb-3">
@@ -10,83 +30,110 @@
     </div>
   {% endif %}
 
- <!-- Search and Filters -->
-<form method="GET" class="card shadow-sm p-3 mb-4 border-0">
-  <div class="row g-2 align-items-end">
-    <!-- Search -->
-    <div class="col-md-3">
-      <label class="form-label fw-semibold text-muted">🔍 Search</label>
-      <input type="text" name="q" class="form-control" placeholder="Find an item..." value="{{ query }}">
+  <div class="row">
+    <!-- Sidebar Filter Form -->
+    <div class="col-md-3 mb-4">
+      <form method="GET" class="card shadow-sm p-3 border-0">
+        <h5 class="fw-bold mb-3">🔍 Filter Items</h5>
+
+        <!-- Search -->
+        <div class="mb-3">
+          <label class="form-label">Search</label>
+          <input type="text" name="q" class="form-control" placeholder="Find an item..." value="{{ query }}">
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-select">
+            <option value="">All</option>
+            <option value="Furniture" {% if category == "Furniture" %}selected{% endif %}>Furniture</option>
+            <option value="Electronics" {% if category == "Electronics" %}selected{% endif %}>Electronics</option>
+            <option value="Kitchen" {% if category == "Kitchen" %}selected{% endif %}>Kitchen</option>
+            <option value="Clothing" {% if category == "Clothing" %}selected{% endif %}>Clothing</option>
+            <option value="Other" {% if category == "Other" %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <!-- Min Price -->
+        <div class="mb-3">
+          <label class="form-label">Min Price</label>
+          <input type="number" name="min_price" class="form-control" placeholder="e.g. 100" value="{{ min_price }}">
+        </div>
+
+        <!-- Max Price -->
+        <div class="mb-3">
+          <label class="form-label">Max Price</label>
+          <input type="number" name="max_price" class="form-control" placeholder="e.g. 5000" value="{{ max_price }}">
+        </div>
+
+        <!-- Sort -->
+        <div class="mb-3">
+          <label class="form-label">Sort</label>
+          <select name="sort" class="form-select">
+            <option value="">Newest</option>
+            <option value="liked" {% if request.GET.sort == "liked" %}selected{% endif %}>Most Liked</option>
+            <option value="loved" {% if request.GET.sort == "loved" %}selected{% endif %}>Most Loved</option>
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-outline-primary fw-semibold">Apply</button>
+          <a href="{% url 'discover' %}" class="btn btn-outline-secondary">Clear Filters</a>
+        </div>
+      </form>
     </div>
 
-    <!-- Category -->
-    <div class="col-md-2">
-      <label class="form-label fw-semibold text-muted">🗂️ Category</label>
-      <select name="category" class="form-select">
-        <option value="">All Categories</option>
-        <option value="Furniture" {% if category == "Furniture" %}selected{% endif %}>Furniture</option>
-        <option value="Electronics" {% if category == "Electronics" %}selected{% endif %}>Electronics</option>
-        <option value="Kitchen" {% if category == "Kitchen" %}selected{% endif %}>Kitchen</option>
-        <option value="Clothing" {% if category == "Clothing" %}selected{% endif %}>Clothing</option>
-        <option value="Other" {% if category == "Other" %}selected{% endif %}>Other</option>
-      </select>
-    </div>
-
-    <!-- Min Price -->
-    <div class="col-md-2">
-      <label class="form-label fw-semibold text-muted">💰 Min Price</label>
-      <input type="number" name="min_price" class="form-control" placeholder="e.g. 500" value="{{ min_price }}">
-    </div>
-
-    <!-- Max Price -->
-    <div class="col-md-2">
-      <label class="form-label fw-semibold text-muted">💰 Max Price</label>
-      <input type="number" name="max_price" class="form-control" placeholder="e.g. 5000" value="{{ max_price }}">
-    </div>
-
-    <!-- Sort -->
-    <div class="col-md-2">
-      <label class="form-label fw-semibold text-muted">📊 Sort By</label>
-      <select name="sort" class="form-select">
-        <option value="">Newest</option>
-        <option value="liked" {% if request.GET.sort == "liked" %}selected{% endif %}>Most Liked</option>
-        <option value="loved" {% if request.GET.sort == "loved" %}selected{% endif %}>Most Loved</option>
-      </select>
-    </div>
-
-    <!-- Submit -->
-    <div class="col-md-1 d-grid">
-      <button type="submit" class="btn btn-outline-primary fw-semibold">Go</button>
-    </div>
-  </div>
-</form>
-
-  <!-- Item Cards -->
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-    {% for item in items %}
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0">
-          {% if item.image %}
-            <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 180px; object-fit: cover;">
-          {% endif %}
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title text-truncate">{{ item.title }}</h5>
-            <p class="card-text fw-bold text-success">KES {{ item.price }}</p>
-            <p class="text-muted small overflow-hidden" style="max-height: 60px;">{{ item.description|truncatechars:100 }}</p>
-            <div class="mt-auto">
-              <a href="{% url 'react_to_item' item.id 'like' %}" class="me-3 text-decoration-none">👍 {{ item.like_count }}</a>
-              <a href="{% url 'react_to_item' item.id 'love' %}" class="text-decoration-none">❤️ {{ item.love_count }}</a>
-              <a href="{{ item.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm">
-                <i class="fab fa-whatsapp me-1"></i> WhatsApp
-              </a>
+    <!-- Results Section -->
+    <div class="col-md-9">
+      <div id="results" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+        {% for item in items %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+              {% if item.image %}
+                <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 180px; object-fit: cover;">
+              {% endif %}
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-truncate">{{ item.title }}</h5>
+                <p class="card-text fw-bold text-success">KES {{ item.price }}</p>
+                <p class="text-muted small overflow-hidden" style="max-height: 60px;">{{ item.description|truncatechars:100 }}</p>
+                <div class="mt-auto">
+                  <a href="{% url 'react_to_item' item.id 'like' %}" class="me-3 text-decoration-none">👍 {{ item.like_count }}</a>
+                  <a href="{% url 'react_to_item' item.id 'love' %}" class="text-decoration-none">❤️ {{ item.love_count }}</a>
+                  <a href="{{ item.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+                    <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        {% empty %}
+          <div class="col-12">
+            <p class="text-muted">No items found.</p>
+          </div>
+        {% endfor %}
       </div>
-    {% empty %}
-      <p>No items found.</p>
-    {% endfor %}
+    </div>
   </div>
 </div>
 
+<!-- Scroll-to-results JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (
+      urlParams.has('q') ||
+      urlParams.has('category') ||
+      urlParams.has('min_price') ||
+      urlParams.has('max_price') ||
+      urlParams.has('sort')
+    ) {
+      const resultsSection = document.getElementById('results');
+      if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
+</script>
 {% endblock %}
