@@ -10,13 +10,19 @@
     </div>
   {% endif %}
 
-  <!-- Search and Filters -->
-  <form method="GET" class="row g-2 mb-4">
+ <!-- Search and Filters -->
+<form method="GET" class="card shadow-sm p-3 mb-4 border-0">
+  <div class="row g-2 align-items-end">
+    <!-- Search -->
     <div class="col-md-3">
-      <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ query }}">
+      <label class="form-label fw-semibold text-muted">🔍 Search</label>
+      <input type="text" name="q" class="form-control" placeholder="Find an item..." value="{{ query }}">
     </div>
+
+    <!-- Category -->
     <div class="col-md-2">
-      <select name="category" class="form-control">
+      <label class="form-label fw-semibold text-muted">🗂️ Category</label>
+      <select name="category" class="form-select">
         <option value="">All Categories</option>
         <option value="Furniture" {% if category == "Furniture" %}selected{% endif %}>Furniture</option>
         <option value="Electronics" {% if category == "Electronics" %}selected{% endif %}>Electronics</option>
@@ -25,23 +31,35 @@
         <option value="Other" {% if category == "Other" %}selected{% endif %}>Other</option>
       </select>
     </div>
+
+    <!-- Min Price -->
     <div class="col-md-2">
-      <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ min_price }}">
+      <label class="form-label fw-semibold text-muted">💰 Min Price</label>
+      <input type="number" name="min_price" class="form-control" placeholder="e.g. 500" value="{{ min_price }}">
     </div>
+
+    <!-- Max Price -->
     <div class="col-md-2">
-      <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ max_price }}">
+      <label class="form-label fw-semibold text-muted">💰 Max Price</label>
+      <input type="number" name="max_price" class="form-control" placeholder="e.g. 5000" value="{{ max_price }}">
     </div>
+
+    <!-- Sort -->
     <div class="col-md-2">
-      <select name="sort" class="form-control">
+      <label class="form-label fw-semibold text-muted">📊 Sort By</label>
+      <select name="sort" class="form-select">
         <option value="">Newest</option>
         <option value="liked" {% if request.GET.sort == "liked" %}selected{% endif %}>Most Liked</option>
         <option value="loved" {% if request.GET.sort == "loved" %}selected{% endif %}>Most Loved</option>
       </select>
     </div>
-    <div class="col-md-1">
-      <button type="submit" class="btn btn-primary w-100">Go</button>
+
+    <!-- Submit -->
+    <div class="col-md-1 d-grid">
+      <button type="submit" class="btn btn-outline-primary fw-semibold">Go</button>
     </div>
-  </form>
+  </div>
+</form>
 
   <!-- Item Cards -->
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
