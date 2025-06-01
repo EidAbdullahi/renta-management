@@ -1,0 +1,48 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Admin Sales Report (Grouped by User)</h2>
+
+    <div class="alert alert-info">
+        <strong>Overall Total Sales:</strong> KES {{ overall_total }}
+    </div>
+
+    <div class="accordion" id="salesAccordion">
+        {% for user, sales in user_sales.items %}
+        <div class="accordion-item mb-3">
+            <h2 class="accordion-header" id="heading{{ user.id }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ user.id }}" aria-expanded="false" aria-controls="collapse{{ user.id }}">
+                    {{ user.username }} — Total: KES {{ user_totals.user }}
+                </button>
+            </h2>
+            <div id="collapse{{ user.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ user.id }}" data-bs-parent="#salesAccordion">
+                <div class="accordion-body">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in sales %}
+                            <tr>
+                                <td>{{ sale.description }}</td>
+                                <td>KES {{ sale.amount }}</td>
+                                <td>{{ sale.date|date:"Y-m-d H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3">No sales.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No sales found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -105,6 +105,7 @@ urlpatterns = [
     path('admin/register-sale/', views.register_sale, name='register_sale'),
     path('sales/my/', views.user_sales_dashboard, name='user_sales'),
     path('sales/export/', views.export_sales_csv, name='export_sales_csv'),
+    path('admin/sales-report/', views.admin_sales_report, name='admin_sales_report'),
 
     
 ]

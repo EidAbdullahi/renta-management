@@ -137,6 +137,44 @@ from django.http import HttpResponse
 import csv
 from datetime import datetime
 
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Sum
+from django.shortcuts import render
+from .models import Transaction
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
+from django.db.models import Sum
+from collections import defaultdict
+from .models import Transaction
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+@staff_member_required
+def admin_sales_report(request):
+    sales = Transaction.objects.select_related('user').order_by('-date')
+
+    # Group sales by user
+    user_sales = defaultdict(list)
+    user_totals = {}
+
+    for sale in sales:
+        user_sales[sale.user].append(sale)
+
+    for user, transactions in user_sales.items():
+        user_totals[user] = sum(t.amount for t in transactions)
+
+    overall_total = sum(user_totals.values())
+
+    context = {
+        'user_sales': user_sales,
+        'user_totals': user_totals,
+        'overall_total': overall_total
+    }
+    return render(request, 'users/admin_sales_report.html', context)
+
+
 @staff_member_required
 def register_sale(request):
     users = User.objects.all()
@@ -410,7 +448,12 @@ def remove_location(request):
 
 def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
-    return render(request, 'users/vacancy_details.html', {'room': room},{'partners': partners})
+    partners = Partner.objects.all()  # assuming this is what you're doing
+    context = {
+        'room': room,
+        'partners': partners
+    }
+    return render(request, 'users/vacancy_details.html', context)
 
 
 # View for editing a payment

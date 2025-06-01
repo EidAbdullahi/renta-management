@@ -160,7 +160,10 @@ document.addEventListener("click", function (e) {
     </div>
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">
-        <a href="{{ room.get_absolute_url }}" class="text-decoration-none">{{ room.title }}</a>
+        <a href="{% url 'vacancy_detail' slug=room.slug %}" class="text-decoration-none">
+          {{ room.title }}
+      </a>
+      
       </h5>
       <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
       <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
