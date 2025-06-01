@@ -87,7 +87,10 @@
             <div class="collapse" id="salesreportMenu">
               <ul class="nav flex-column sub-menu">
                 <li><a class="nav-link" href="{% url 'user_sales' %}"><i class="bi bi-house-add me-2"></i> Your sales</a></li>
-                
+                {% if request.user.is_staff %}
+              <li><a class="dropdown-item" href="{% url 'register_sale' %}">🧾 Register Sale</a></li>
+              {% endif %}
+
               </ul>
             </div>
           </li>
