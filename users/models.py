@@ -59,6 +59,7 @@ class VacantRoom(models.Model):
         ('Self-Contained', 'Self-Contained'),
         ('Bedsitter', 'Bedsitter'),
         ('Airbnb', 'Airbnb'),
+        ('Duplex', 'Duplex'), 
         ('1 Bedroom', '1 Bedroom'),
         ('2 Bedroom', '2 Bedroom'),
         ('3 Bedroom', '3 Bedroom'),
