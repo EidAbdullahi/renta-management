@@ -102,7 +102,9 @@ urlpatterns = [
     path('discover/', views.discover_items, name='discover'),
     path('upload/', views.upload_item, name='upload_item'),
     path('react/<int:item_id>/<str:reaction_type>/', views.react_to_item, name='react_to_item'),
-
+    path('admin/register-sale/', views.register_sale, name='register_sale'),
+    path('sales/my/', views.user_sales_dashboard, name='user_sales'),
+    path('sales/export/', views.export_sales_csv, name='export_sales_csv'),
 
     
 ]
@@ -111,6 +113,8 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+
+# urls.py
 
 
     

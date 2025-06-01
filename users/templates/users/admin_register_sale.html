@@ -1,0 +1,38 @@
+<!-- templates/dashboard/admin_register_sale.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h4 class="mb-4">🧾 Register Sale</h4>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>User:</label>
+                <select name="user" class="form-control" required>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Item Title:</label>
+                <input type="text" name="item_title" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Category:</label>
+                <select name="category" class="form-control" required>
+                    <option value="rent">Rent</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="marketplace">Marketplace</option>
+                    <option value="forsale">For Sale</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Amount (KES):</label>
+                <input type="number" name="amount" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Register Sale</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

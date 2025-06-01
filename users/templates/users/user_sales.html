@@ -1,0 +1,36 @@
+<!-- templates/dashboard/user_sales.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h4 class="mb-4">📊 My Sales Dashboard</h4>
+        <div class="alert alert-info d-flex justify-content-between">
+            <span><strong>Total Sales:</strong> KES {{ total_sales|floatformat:0 }}</span>
+            <span><strong>Transactions:</strong> {{ number_of_sales }}</span>
+            <a href="{% url 'export_sales_csv' %}" class="btn btn-outline-success btn-sm">Export CSV</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Amount (KES)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.item_title }}</td>
+                        <td>{{ sale.get_category_display }}</td>
+                        <td>{{ sale.amount }}</td>
+                        <td>{{ sale.date|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

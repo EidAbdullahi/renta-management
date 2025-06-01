@@ -9,6 +9,27 @@ from django.dispatch import receiver
 from cloudinary.models import CloudinaryField
 from django.db import models
 from django.contrib.auth.models import User
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class Transaction(models.Model):
+    CATEGORY_CHOICES = [
+        ('rent', 'Rent Property'),
+        ('commercial', 'Commercial Property'),
+        ('marketplace', 'Marketplace Item'),
+        ('forsale', 'Property For Sale'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    item_title = models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.item_title} - {self.amount}"
+
 
 class Item(models.Model):
     CATEGORY_CHOICES = [

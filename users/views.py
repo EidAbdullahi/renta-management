@@ -126,6 +126,58 @@ from django.db.models import Count, Q
 from django.contrib.auth.decorators import login_required
 
 from django.db.models import Count, Q
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Transaction
+from django.contrib.auth.models import User
+from django.db.models import Sum
+from django.http import HttpResponse
+import csv
+from datetime import datetime
+
+@staff_member_required
+def register_sale(request):
+    users = User.objects.all()
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        item_title = request.POST.get('item_title')
+        category = request.POST.get('category')
+        amount = request.POST.get('amount')
+
+        Transaction.objects.create(
+            user_id=user_id,
+            category=category,
+            item_title=item_title,
+            amount=amount
+        )
+        return redirect('register_sale')
+
+    return render(request, 'users/admin_register_sale.html', {'users': users})
+
+
+@login_required
+def user_sales_dashboard(request):
+    sales = Transaction.objects.filter(user=request.user)
+    total_sales = sales.aggregate(Sum('amount'))['amount__sum'] or 0
+    return render(request, 'users/user_sales.html', {
+        'sales': sales,
+        'total_sales': total_sales,
+        'number_of_sales': sales.count()
+    })
+
+
+@login_required
+def export_sales_csv(request):
+    sales = Transaction.objects.filter(user=request.user)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename=\"sales_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv\"'
+    writer = csv.writer(response)
+    writer.writerow(['Item Title', 'Category', 'Amount', 'Date'])
+    for sale in sales:
+        writer.writerow([sale.item_title, sale.get_category_display(), sale.amount, sale.date.strftime('%Y-%m-%d')])
+    return response
 
 def discover_items(request):
     query = request.GET.get('q', '')
