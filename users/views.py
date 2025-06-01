@@ -172,7 +172,7 @@ def user_sales_dashboard(request):
 def export_sales_csv(request):
     sales = Transaction.objects.filter(user=request.user)
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename=\"sales_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv\"'
+    response['Content-Disposition'] = f"attachment; filename='sales_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv'"
     writer = csv.writer(response)
     writer.writerow(['Item Title', 'Category', 'Amount', 'Date'])
     for sale in sales:
