@@ -81,10 +81,10 @@
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#YoursalesMenu" role="button" aria-expanded="false" aria-controls="YoursalesMenu">
-              <i class="bi bi-house-door-fill me-2"></i> Your sales
+            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#salesreportMenu" role="button" aria-expanded="false" aria-controls="salesreportMenu">
+              <i class="bi bi-house-door-fill me-2"></i> sales report
             </a>
-            <div class="collapse" id="YoursalesMenu">
+            <div class="collapse" id="salesreportMenu">
               <ul class="nav flex-column sub-menu">
                 <li><a class="nav-link" href="{% url 'user_sales' %}"><i class="bi bi-house-add me-2"></i> Your sales</a></li>
                 
@@ -327,6 +327,7 @@
       <li><hr></li> {# Bootstrap horizontal rule #}
       <li><span class="nav-link text-secondary">Reports</span></li> {# Bootstrap text-secondary #}
       <li><a class="nav-link" href="{% url 'financial_report' %}"><i class="bi bi-file-earmark-bar-graph me-2"></i> Financial Report</a></li>
+      <li><a class="nav-link" href="{% url 'user_sales' %}"><i class="bi bi-file-earmark-bar-graph me-2"></i> sales Report</a></li>
       {# Add other report links if any #}
 
     </ul>
