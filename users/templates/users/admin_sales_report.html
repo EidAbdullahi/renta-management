@@ -1,48 +1,50 @@
 {% extends 'users/base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Admin Sales Report (Grouped by User)</h2>
+<div class="container mt-4">
+  <h3 class="mb-4">📊 Admin Sales Report</h3>
 
-    <div class="alert alert-info">
-        <strong>Overall Total Sales:</strong> KES {{ overall_total }}
-    </div>
-
-    <div class="accordion" id="salesAccordion">
-        {% for user, sales in user_sales.items %}
-        <div class="accordion-item mb-3">
-            <h2 class="accordion-header" id="heading{{ user.id }}">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ user.id }}" aria-expanded="false" aria-controls="collapse{{ user.id }}">
-                    {{ user.username }} — Total: KES {{ user_totals.user }}
-                </button>
-            </h2>
-            <div id="collapse{{ user.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ user.id }}" data-bs-parent="#salesAccordion">
-                <div class="accordion-body">
-                    <table class="table table-sm table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for sale in sales %}
-                            <tr>
-                                <td>{{ sale.description }}</td>
-                                <td>KES {{ sale.amount }}</td>
-                                <td>{{ sale.date|date:"Y-m-d H:i" }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="3">No sales.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h5>💼 Total Sales by User</h5>
+      <ul class="list-group">
+        {% for entry in user_totals %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ entry.user__username }}
+            <span class="badge bg-success">KES {{ entry.total_amount|floatformat:2 }}</span>
+          </li>
         {% empty %}
-        <p>No sales found.</p>
+          <li class="list-group-item">No transactions yet.</li>
         {% endfor %}
+      </ul>
     </div>
+  </div>
+
+  <div class="table-responsive">
+    <h5>🧾 All Transactions</h5>
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>User</th>
+          <th>Category</th>
+          <th>Item</th>
+          <th>Amount (KES)</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+          <tr>
+            <td>{{ tx.user.username }}</td>
+            <td>{{ tx.get_category_display }}</td>
+            <td>{{ tx.item_title }}</td>
+            <td>{{ tx.amount|floatformat:2 }}</td>
+            <td>{{ tx.date|date:"M d, Y H:i" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-center">No sales yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

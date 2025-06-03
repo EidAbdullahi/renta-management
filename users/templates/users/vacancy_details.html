@@ -51,11 +51,10 @@
         </ul>
 
         <!-- WhatsApp contact -->
-        {% with message="Hello, I'm interested in the room titled '"|add:room.title|add:"' located at "|add:room.location|add:". Is it still available?" %}
-        <a href="https://wa.me/254712345678?text={{ message|urlencode }}" target="_blank" class="btn btn-success mt-3 w-100">
-          <i class="fab fa-whatsapp me-2"></i> Contact via WhatsApp
+        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-outline-success btn-sm">
+          <i class="fab fa-whatsapp me-1"></i> WhatsApp
         </a>
-        {% endwith %}
+        
       </div>
     </div>
   </div>

@@ -148,31 +148,29 @@ from django.db.models import Sum
 from collections import defaultdict
 from .models import Transaction
 from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from django.contrib.auth.models import User
+# from .models import Sale
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
 
 @staff_member_required
 def admin_sales_report(request):
-    sales = Transaction.objects.select_related('user').order_by('-date')
+    users = User.objects.all()
+    transactions = Transaction.objects.select_related('user').order_by('-date')
 
-    # Group sales by user
-    user_sales = defaultdict(list)
-    user_totals = {}
-
-    for sale in sales:
-        user_sales[sale.user].append(sale)
-
-    for user, transactions in user_sales.items():
-        user_totals[user] = sum(t.amount for t in transactions)
-
-    overall_total = sum(user_totals.values())
+    # Group totals by user
+    user_totals = (
+        Transaction.objects.values('user__username')
+        .annotate(total_amount=Sum('amount'))
+        .order_by('-total_amount')
+    )
 
     context = {
-        'user_sales': user_sales,
+        'transactions': transactions,
         'user_totals': user_totals,
-        'overall_total': overall_total
     }
     return render(request, 'users/admin_sales_report.html', context)
+
 
 
 @staff_member_required
@@ -446,14 +444,23 @@ def remove_location(request):
 
 
 
+from urllib.parse import quote
+
 def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
-    partners = Partner.objects.all()  # assuming this is what you're doing
+    partners = Partner.objects.all()
+
+    message = f"Hello, I'm interested in the room '{room.title}' located at {room.location}. Is it still available?"
+    phone_number = "0798883849"  # ✅ Replace with your actual number
+    whatsapp_url = f"https://wa.me/{phone_number}?text={quote(message)}"
+
     context = {
         'room': room,
-        'partners': partners
+        'partners': partners,
+        'whatsapp_url': whatsapp_url,
     }
     return render(request, 'users/vacancy_details.html', context)
+
 
 
 # View for editing a payment
