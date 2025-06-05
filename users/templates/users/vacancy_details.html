@@ -1,62 +1,106 @@
 {% extends 'users/base.html' %}
+{% load humanize %}
+
+
 {% block content %}
-<div class="container my-4">
-  <div class="card shadow-lg border-0">
+<div class="container my-5">
+
+  <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
     <div class="row g-0">
+      
+      <!-- Left: Carousel Images -->
       <div class="col-md-6">
-        <!-- Room Images Carousel -->
-        <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">
+        <div id="roomCarousel" class="carousel slide h-100" data-bs-ride="carousel">
+          <div class="carousel-inner h-100">
             {% if room.picture1 %}
-              <div class="carousel-item active">
-                <img src="{{ room.picture1.url }}" class="d-block w-100 rounded-start" alt="Room image 1">
+              <div class="carousel-item active h-100">
+                <img src="{{ room.picture1.url }}" class="d-block w-100 h-100 object-fit-cover" alt="Room image 1">
               </div>
             {% endif %}
             {% if room.picture2 %}
-              <div class="carousel-item {% if not room.picture1 %}active{% endif %}">
-                <img src="{{ room.picture2.url }}" class="d-block w-100" alt="Room image 2">
+              <div class="carousel-item {% if not room.picture1 %}active{% endif %} h-100">
+                <img src="{{ room.picture2.url }}" class="d-block w-100 h-100 object-fit-cover" alt="Room image 2">
               </div>
             {% endif %}
             {% if room.picture3 %}
-              <div class="carousel-item {% if not room.picture1 and not room.picture2 %}active{% endif %}">
-                <img src="{{ room.picture3.url }}" class="d-block w-100" alt="Room image 3">
+              <div class="carousel-item {% if not room.picture1 and not room.picture2 %}active{% endif %} h-100">
+                <img src="{{ room.picture3.url }}" class="d-block w-100 h-100 object-fit-cover" alt="Room image 3">
               </div>
             {% endif %}
           </div>
           <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
           </button>
         </div>
       </div>
 
-      <div class="col-md-6 p-4">
-        <h2 class="fw-bold">{{ room.title }}</h2>
-        <p class="text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> {{ room.location }}</p>
-        <p class="mb-2"><strong>Room Type:</strong> {{ room.room_type }}</p>
-        <h4 class="text-primary">KES {{ room.amount }}</h4>
+      <!-- Right: Room Details -->
+      <div class="col-md-6 p-4 d-flex flex-column justify-content-between">
+        <div>
+          <h2 class="fw-bold mb-2">{{ room.title }}</h2>
+          <p class="text-muted mb-1">
+            <i class="fas fa-map-marker-alt me-2 text-danger"></i> {{ room.location }}
+          </p>
+          <p class="mb-2"><strong>Room Type:</strong> {{ room.room_type }}</p>
+          <h4 class="text-primary mb-3">KES {{ room.amount|intcomma }}</h4>
 
-        <p class="mt-3">{{ room.description }}</p>
+          <p class="text-secondary">{{ room.description|linebreaksbr }}</p>
 
-        <!-- Amenities (static list or from model if added later) -->
-        <h6 class="mt-4">🛎️ Amenities</h6>
-        <ul class="list-unstyled">
-          <li>✔️ Water & Electricity included</li>
-          <li>✔️ Free Wi-Fi</li>
-          <li>✔️ Secure Parking</li>
-          <li>✔️ CCTV Surveillance</li>
-          <li>✔️ Private Bathroom</li>
-        </ul>
+          <!-- Amenities -->
+          <h5 class="mt-4 mb-3">🛎️ Amenities</h5>
+          <ul class="list-unstyled d-flex flex-wrap gap-3">
+            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Water & Electricity included</li>
+            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Free Wi-Fi</li>
+            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Secure Parking</li>
+            <li class="badge bg-success text-white py-2 px-3 rounded-pill">CCTV Surveillance</li>
+            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Private Bathroom</li>
+          </ul>
+        </div>
 
-        <!-- WhatsApp contact -->
-        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-outline-success btn-sm">
-          <i class="fab fa-whatsapp me-1"></i> WhatsApp
-        </a>
-        
+        <!-- WhatsApp Contact Button -->
+        <div class="mt-4">
+          <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+            <i class="fab fa-whatsapp fa-lg"></i> Contact Owner on WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- More Rooms by Owner -->
+  <div class="mt-5">
+    <h4 class="mb-4">More Rooms from this Owner</h4>
+    {% if other_rooms %}
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for r in other_rooms %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+              {% if r.picture1 %}
+                <img src="{{ r.picture1.url }}" class="card-img-top object-fit-cover" style="height: 180px;" alt="{{ r.title }}">
+              {% else %}
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 180px;">
+                  No Image Available
+                </div>
+              {% endif %}
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ r.title|truncatechars:30 }}</h5>
+                <p class="text-muted mb-1"><i class="fas fa-map-marker-alt"></i> {{ r.location|truncatechars:30 }}</p>
+                <p class="mb-3"><strong>{{ r.room_type }}</strong> | KES {{ r.amount|intcomma }}</p>
+                <a href="{% url 'vacancy_detail' r.slug %}" class="btn btn-outline-primary mt-auto">View Details</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No other rooms listed by this owner.</p>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}

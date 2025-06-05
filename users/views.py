@@ -346,67 +346,74 @@ def add_vacancy(request):
 
 def vacancy_list(request):
     form = VacancySearchForm(request.GET)
-    rooms = VacantRoom.objects.filter(is_available=True)
+    rooms = VacantRoom.objects.filter(is_available=True).order_by('-created_at')  # Order latest first
     freelancers = Freelancer.objects.all()
     partners = Partner.objects.all()
 
-    # Initialize search history if it doesn't exist
+    # --- Search history management ---
     if 'search_history' not in request.session:
         request.session['search_history'] = []
 
-    # Fetch location from GET or session
     location = request.GET.get('location', request.session.get('location', ''))
 
-    # Save location in session for history (even after page reloads)
     if location and location not in request.session['search_history']:
-        request.session['search_history'].insert(0, location)  # Insert at the beginning
-        # Limit the history to a specific number (e.g., 5)
+        request.session['search_history'].insert(0, location)
         if len(request.session['search_history']) > 5:
-            request.session['search_history'].pop()  # Remove the oldest one
+            request.session['search_history'].pop()
         request.session.modified = True
 
-    # Filtering by other parameters from the form
+    # --- Filter form processing ---
     if form.is_valid():
         query = form.cleaned_data.get('query')
         room_type = form.cleaned_data.get('room_type')
         min_price = form.cleaned_data.get('min_price')
         max_price = form.cleaned_data.get('max_price')
 
-        # Apply filters if provided
         if query:
             rooms = rooms.filter(Q(title__icontains=query) | Q(location__icontains=query))
         if location:
             rooms = rooms.filter(location__icontains=location)
-        if room_type and room_type != '':
+        if room_type:
             rooms = rooms.filter(room_type=room_type)
         if min_price is not None:
             rooms = rooms.filter(amount__gte=min_price)
         if max_price is not None:
             rooms = rooms.filter(amount__lte=max_price)
 
-    rooms = list(rooms)  # convert to list for modification
+    # --- One room per user if no filters/search applied ---
+    is_filtered = any([
+        request.GET.get('query'),
+        request.GET.get('location'),
+        request.GET.get('room_type'),
+        request.GET.get('min_price'),
+        request.GET.get('max_price'),
+    ])
 
-    # Add full image URL and WhatsApp message URL for each room
+    if not is_filtered:
+        unique_user_rooms = {}
+        for room in rooms:
+            if room.user_id not in unique_user_rooms:
+                unique_user_rooms[room.user_id] = room  # Keep the latest room for each user
+        rooms = list(unique_user_rooms.values())
+    else:
+        rooms = list(rooms)
+
+    # --- WhatsApp message generation ---
     for room in rooms:
         if room.picture1:
             room.picture1_url = request.build_absolute_uri(room.picture1.url)
         else:
             room.picture1_url = ""
 
-        # Prepare truncated description without newlines
         short_desc = room.description.replace('\n', ' ').replace('\r', '')[:100]
-
-        # Build WhatsApp message string
         message = (
             f"Hello, I'm interested in \"{room.title}\" located in {room.location}. "
             f"Description: {short_desc}. "
             f"Photo: {room.picture1_url}"
         )
-
-        # URL encode the entire message
         room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
 
-    # Pagination
+    # --- Pagination ---
     paginator = Paginator(rooms, 12)
     page = request.GET.get('page')
     rooms = paginator.get_page(page)
@@ -450,14 +457,19 @@ def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
     partners = Partner.objects.all()
 
+    # WhatsApp message setup
     message = f"Hello, I'm interested in the room '{room.title}' located at {room.location}. Is it still available?"
-    phone_number = "0798883849"  # ✅ Replace with your actual number
+    phone_number = "0798883849"
     whatsapp_url = f"https://wa.me/{phone_number}?text={quote(message)}"
+
+    # Get other rooms by the same user
+    other_rooms = VacantRoom.objects.filter(user=room.user, is_available=True).exclude(id=room.id)
 
     context = {
         'room': room,
         'partners': partners,
         'whatsapp_url': whatsapp_url,
+        'other_rooms': other_rooms,
     }
     return render(request, 'users/vacancy_details.html', context)
 

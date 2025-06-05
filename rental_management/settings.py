@@ -36,13 +36,10 @@ INSTALLED_APPS = [
    'django.contrib.staticfiles',
    'django.contrib.humanize',
 
-
-
    # Your apps
    'users',
    'freelancers',
    'offplan',
-
 
    # Third-party
    'widget_tweaks',
