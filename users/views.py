@@ -153,23 +153,28 @@ from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 
+
+from django.db.models import Count, Sum
+from .models import Transaction
+
 @staff_member_required
 def admin_sales_report(request):
-    users = User.objects.all()
-    transactions = Transaction.objects.select_related('user').order_by('-date')
-
-    # Group totals by user
     user_totals = (
-        Transaction.objects.values('user__username')
-        .annotate(total_amount=Sum('amount'))
+        Transaction.objects
+        .values('user__username')
+        .annotate(total_amount=Sum('amount'), transaction_count=Count('id'))
         .order_by('-total_amount')
     )
+
+    transactions = Transaction.objects.select_related('user').order_by('-date')
 
     context = {
         'transactions': transactions,
         'user_totals': user_totals,
     }
     return render(request, 'users/admin_sales_report.html', context)
+
+
 
 
 
@@ -1168,22 +1173,7 @@ def commercial_list_view(request):
 # Detail view
 def commercial_detail_view(request, pk):
     property = get_object_or_404(CommercialProperty, pk=pk)
-
-    # Assuming you have a get_absolute_url method on CommercialProperty
-    property_url = request.build_absolute_uri(property.get_absolute_url())
-
-    message = (
-        f"Hello, I'm interested in \"{property.title}\" located at {property.location}. "
-        f"Is it still available? Here is the link: {property_url}"
-    )
-
-    phone_number = "254798883849"  # Replace with your actual number
-    whatsapp_url = f"https://wa.me/{phone_number}?text={quote(message)}"
-
-    return render(request, 'users/commercial_detail.html', {
-        'property': property,
-        'whatsapp_url': whatsapp_url,
-    })
+    return render(request, 'users/commercial_detail.html', {'property': property})
 
 # Create new commercial property
 def commercial_create_view(request):
