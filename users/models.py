@@ -334,6 +334,10 @@ class CommercialProperty(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True)
 
+
+    def get_absolute_url(self):
+        return reverse('commercial_detail', kwargs={'pk': self.pk})
+
 from django.db import models
 
 class FreelancerContact(models.Model):
