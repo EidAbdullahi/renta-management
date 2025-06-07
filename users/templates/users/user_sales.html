@@ -1,36 +1,188 @@
-<!-- templates/dashboard/user_sales.html -->
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load humanize %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow p-4">
-        <h4 class="mb-4">📊 My Sales Dashboard</h4>
-        <div class="alert alert-info d-flex justify-content-between">
-            <span><strong>Total Sales:</strong> KES {{ total_sales|floatformat:0 }}</span>
-            <span><strong>Transactions:</strong> {{ number_of_sales }}</span>
-            <a href="{% url 'export_sales_csv' %}" class="btn btn-outline-success btn-sm">Export CSV</a>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb;
+    color: #2d3748;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 1rem 1.5rem;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    color: #2c5282;
+    text-align: center;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(44, 82, 130, 0.1);
+    padding: 24px 30px;
+    user-select: none;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .user-name {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #2c5282;
+  }
+
+  .stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 1rem;
+    color: #4a5568;
+  }
+
+  .stats strong {
+    color: #2c5282;
+  }
+
+  .stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+  }
+
+  .stars span {
+    font-size: 1.25rem;
+  }
+
+  .star-filled {
+    color: #ecc94b; /* golden */
+  }
+
+  .star-empty {
+    color: #cbd5e0; /* gray */
+  }
+
+  .transactions-list {
+    margin-top: 1.5rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    color: #2d3748;
+  }
+
+  thead {
+    background-color: #ebf4ff;
+    border-bottom: 2px solid #cbd5e0;
+  }
+
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  tbody tr:hover {
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+
+  /* Print friendly */
+  @media print {
+    .card {
+      box-shadow: none !important;
+      border: 1px solid #000 !important;
+      page-break-inside: avoid;
+    }
+
+    .transactions-list {
+      overflow: visible !important;
+      padding: 12px 0 !important;
+    }
+  }
+</style>
+
+<div class="container">
+  <h1>My Sales Dashboard</h1>
+
+  <div class="card" aria-expanded="true">
+    <div class="card-header">
+      <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div class="stats">
+        <div>Total Sales: <strong>Ksh {{ total_sales|floatformat:2|intcomma }}</strong></div>
+        <div>Transactions: <strong>{{ number_of_sales }}</strong></div>
+
+        <div class="stars" aria-label="User rating: {{ star_rating }} stars" role="img">
+          {% for i in "12345" %}
+            {% if forloop.counter <= star_rating %}
+              <span class="star-filled" aria-hidden="true">★</span>
+            {% else %}
+              <span class="star-empty" aria-hidden="true">★</span>
+            {% endif %}
+          {% endfor %}
         </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Item</th>
-                        <th>Category</th>
-                        <th>Amount (KES)</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sale in sales %}
-                    <tr>
-                        <td>{{ sale.item_title }}</td>
-                        <td>{{ sale.get_category_display }}</td>
-                        <td>{{ sale.amount }}</td>
-                        <td>{{ sale.date|date:"M d, Y" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+      </div>
     </div>
+
+    <div class="transactions-list">
+      {% if sales %}
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Item Title</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaction in sales %}
+          <tr>
+            <td>{{ transaction.date|date:"Y-m-d H:i" }}</td>
+            <td>{{ transaction.get_category_display }}</td>
+            <td>{{ transaction.item_title }}</td>
+            <td>Ksh {{ transaction.amount|floatformat:2|intcomma }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="padding: 1rem; text-align: center; color: #718096;">No sales transactions found.</p>
+      {% endif %}
+    </div>
+  </div>
 </div>
+
 {% endblock %}

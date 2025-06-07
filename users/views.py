@@ -224,15 +224,36 @@ def register_sale(request):
     return render(request, 'users/admin_register_sale.html', {'users': users})
 
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.shortcuts import render
+from .models import Transaction
+
 @login_required
 def user_sales_dashboard(request):
-    sales = Transaction.objects.filter(user=request.user)
+    sales = Transaction.objects.filter(user=request.user).order_by('-date')
     total_sales = sales.aggregate(Sum('amount'))['amount__sum'] or 0
+    number_of_sales = sales.count()
+
+    # Determine star rating
+    if number_of_sales <= 30:
+        star_rating = 1
+    elif number_of_sales <= 60:
+        star_rating = 2
+    elif number_of_sales <= 120:
+        star_rating = 3
+    elif number_of_sales <= 240:
+        star_rating = 4
+    else:
+        star_rating = 5
+
     return render(request, 'users/user_sales.html', {
         'sales': sales,
         'total_sales': total_sales,
-        'number_of_sales': sales.count()
+        'number_of_sales': number_of_sales,
+        'star_rating': star_rating,  # just an int now
     })
+
 
 
 @login_required
