@@ -145,8 +145,7 @@ document.addEventListener("click", function (e) {
   {% for room in rooms %}
   <div class="col-12 col-md-6 col-lg-4">
     <div class="card h-100 shadow-sm border-0 hover-shadow" style="transition: transform 0.2s;">
-      <a href="{% url 'vacancy_detail' slug=room.slug %}" class="stretched-link"></a>
-      
+
       <!-- Carousel -->
       <div id="carousel{{ room.id }}" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
@@ -184,15 +183,20 @@ document.addEventListener("click", function (e) {
         <small class="text-muted">📅 Posted {{ room.posted_ago }}</small>
         <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
         <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>
-        
-        <!-- WhatsApp button that works independently -->
-        <div class="mt-auto">
-          <a href="{{ room.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm z-3 position-relative"
+
+        <!-- Action Buttons -->
+        <div class="mt-auto d-flex justify-content-between align-items-center">
+          <a href="{{ room.whatsapp_message_url }}" target="_blank" class="btn btn-outline-success btn-sm"
              onclick="event.stopPropagation();">
             <i class="fab fa-whatsapp me-1"></i> WhatsApp
           </a>
+          <a href="{% url 'vacancy_detail' slug=room.slug %}"  class="btn btn-outline-success btn-sm"
+          onclick="event.stopPropagation();">
+            View Details
+          </a>
         </div>
       </div>
+
     </div>
   </div>
   {% empty %}
