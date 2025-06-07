@@ -195,7 +195,7 @@
   <div class="no-print">
     <input type="text" class="filter-input" id="userFilter" placeholder="Filter users by name..." oninput="filterUsers()" />
     <button class="print-btn" onclick="window.print()">Print Report</button>
-    <div class="total-sales">Total Sales: ${{ total_sales|floatformat:2|intcomma }}</div>
+    <div class="total-sales">Total Sales: Ksh{{ total_sales|floatformat:2|intcomma }}</div>
   </div>
 
   <div id="userBlocks">
@@ -204,7 +204,7 @@
       <div class="user-header" onclick="this.parentElement.classList.toggle('active'); toggleAria(this.parentElement);">
         <div class="user-name">{{ user.user__username }}</div>
         <div class="user-stats">
-          Total Sales: <strong>${{ user.total_amount|floatformat:2|intcomma }}</strong>
+          Total Sales: <strong>Ksh{{ user.total_amount|floatformat:2|intcomma }}</strong>
           <svg class="toggle-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </div>
@@ -225,7 +225,7 @@
                 <td>{{ transaction.date|date:"Y-m-d H:i" }}</td>
                 <td>{{ transaction.get_category_display }}</td>
                 <td>{{ transaction.item_title }}</td>
-                <td>${{ transaction.amount|floatformat:2|intcomma }}</td>
+                <td>Ksh{{ transaction.amount|floatformat:2|intcomma }}</td>
               </tr>
               {% endif %}
             {% endfor %}
