@@ -1,5 +1,6 @@
 {% extends 'users/base.html' %}
 {% load widget_tweaks %}
+{% load humanize %}
 {% block content %}
 
 <!-- Main Background Wrapper -->
@@ -179,7 +180,7 @@ document.addEventListener("click", function (e) {
         <h5 class="card-title">{{ room.title }}</h5>
         <p class="mb-1 text-muted"><i class="fas fa-user me-2"></i>{{ room.user }}</p>
         <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-2"></i>{{ room.location }}</p>
-        <p class="mb-1"><strong>KES {{ room.amount }}</strong></p>
+        <p class="mb-1"><strong>KES {{ room.amount|intcomma }}</strong></p>
         <small class="text-muted">📅 Posted {{ room.posted_ago }}</small>
         <p class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Available: {{ room.available_from }}</p>
         <p class="text-muted small">{{ room.description|truncatewords:20 }}</p>

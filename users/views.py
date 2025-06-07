@@ -450,19 +450,26 @@ def remove_location(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 
-
 from urllib.parse import quote
+
 
 def vacancy_detail(request, slug):
     room = get_object_or_404(VacantRoom, slug=slug)
     partners = Partner.objects.all()
 
-    # WhatsApp message setup
-    message = f"Hello, I'm interested in the room '{room.title}' located at {room.location}. Is it still available?"
-    phone_number = "0798883849"
+    # Create full URL to the room detail page
+    current_site = request.get_host()
+    property_url = f"https://{current_site}{room.get_absolute_url()}"  # Ensure get_absolute_url() is defined
+
+    # WhatsApp message including link
+    message = (
+        f"Hello, I'm interested in the room '{room.title}' located at {room.location}. "
+        f"Is it still available? Here is the link: {property_url}"
+    )
+
+    phone_number = "254798883849"  # International format for WhatsApp
     whatsapp_url = f"https://wa.me/{phone_number}?text={quote(message)}"
 
-    # Get other rooms by the same user
     other_rooms = VacantRoom.objects.filter(user=room.user, is_available=True).exclude(id=room.id)
 
     context = {
@@ -472,6 +479,8 @@ def vacancy_detail(request, slug):
         'other_rooms': other_rooms,
     }
     return render(request, 'users/vacancy_details.html', context)
+
+
 
 
 

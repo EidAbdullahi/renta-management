@@ -1,15 +1,13 @@
 {% extends 'users/base.html' %}
 {% load humanize %}
 
-
 {% block content %}
 <div class="container my-5">
 
-  <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+  <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
     <div class="row g-0">
-      
-      <!-- Left: Carousel Images -->
-      <div class="col-md-6">
+
+      <div class="col-md-7"> {# Increased column width for images #}
         <div id="roomCarousel" class="carousel slide h-100" data-bs-ride="carousel">
           <div class="carousel-inner h-100">
             {% if room.picture1 %}
@@ -39,66 +37,67 @@
         </div>
       </div>
 
-      <!-- Right: Room Details -->
-      <div class="col-md-6 p-4 d-flex flex-column justify-content-between">
+      <div class="col-md-5 p-4 d-flex flex-column justify-content-between"> {# Adjusted column width #}
         <div>
-          <h2 class="fw-bold mb-2">{{ room.title }}</h2>
-          <p class="text-muted mb-1">
-            <i class="fas fa-map-marker-alt me-2 text-danger"></i> {{ room.location }}
+          <h1 class="fw-bold mb-3 text-dark">{{ room.title }}</h1> {# Larger heading #}
+          <p class="text-muted mb-2 fs-5">
+            <i class="fas fa-map-marker-alt me-2 text-primary"></i> {{ room.location }}
           </p>
-          <p class="mb-2"><strong>Room Type:</strong> {{ room.room_type }}</p>
-          <h4 class="text-primary mb-3">KES {{ room.amount|intcomma }}</h4>
+          <p class="mb-2 fs-5"><strong>Type:</strong> <span class="badge bg-info-subtle text-info">{{ room.room_type }}</span></p> {# Room type as a badge #}
+          <h3 class="text-success mb-4 mt-3">KES {{ room.amount|intcomma }}<small class="text-muted fs-6">/month</small></h3> {# Clearer pricing #}
 
-          <p class="text-secondary">{{ room.description|linebreaksbr }}</p>
+          <hr class="my-4"> {# Separator #}
 
-          <!-- Amenities -->
-          <h5 class="mt-4 mb-3">🛎️ Amenities</h5>
-          <ul class="list-unstyled d-flex flex-wrap gap-3">
-            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Water & Electricity included</li>
-            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Free Wi-Fi</li>
-            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Secure Parking</li>
-            <li class="badge bg-success text-white py-2 px-3 rounded-pill">CCTV Surveillance</li>
-            <li class="badge bg-success text-white py-2 px-3 rounded-pill">Private Bathroom</li>
+          <h5 class="mb-3 text-dark">About this Room</h5>
+          <p class="text-secondary-emphasis lh-lg">{{ room.description|linebreaksbr }}</p> {# Improved line height #}
+
+          <h5 class="mt-4 mb-3 text-dark">🛎️ What's Included</h5>
+          <ul class="list-unstyled row g-2"> {# Grid for amenities #}
+            <li class="col-6"><span class="badge bg-light text-dark border border-success py-2 px-3 rounded-pill w-100 text-start"><i class="fas fa-plug me-2 text-success"></i> Water & Electricity included</span></li>
+            <li class="col-6"><span class="badge bg-light text-dark border border-success py-2 px-3 rounded-pill w-100 text-start"><i class="fas fa-wifi me-2 text-success"></i> Free Wi-Fi</span></li>
+            <li class="col-6"><span class="badge bg-light text-dark border border-success py-2 px-3 rounded-pill w-100 text-start"><i class="fas fa-car-alt me-2 text-success"></i> Secure Parking</span></li>
+            <li class="col-6"><span class="badge bg-light text-dark border border-success py-2 px-3 rounded-pill w-100 text-start"><i class="fas fa-video me-2 text-success"></i> CCTV Surveillance</span></li>
+            <li class="col-6"><span class="badge bg-light text-dark border border-success py-2 px-3 rounded-pill w-100 text-start"><i class="fas fa-bath me-2 text-success"></i> Private Bathroom</span></li>
           </ul>
         </div>
 
-        <!-- WhatsApp Contact Button -->
-        <div class="mt-4">
-          <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
-            <i class="fab fa-whatsapp fa-lg"></i> Contact Owner on WhatsApp
+        <div class="mt-4 pt-3 border-top"> {# Separated contact button #}
+          <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2 rounded-pill shadow-sm">
+            <i class="fab fa-whatsapp fa-xl"></i> Contact Owner on WhatsApp
           </a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- More Rooms by Owner -->
+  ---
+
   <div class="mt-5">
-    <h4 class="mb-4">More Rooms from this Owner</h4>
+    <h3 class="mb-4 text-dark">More Rooms from this Owner</h3>
     {% if other_rooms %}
-      <div class="row row-cols-1 row-cols-md-3 g-4">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> {# Responsive grid for more rooms #}
         {% for r in other_rooms %}
           <div class="col">
-            <div class="card h-100 shadow-sm border-0 rounded-3">
+            <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden">
               {% if r.picture1 %}
-                <img src="{{ r.picture1.url }}" class="card-img-top object-fit-cover" style="height: 180px;" alt="{{ r.title }}">
+                <img src="{{ r.picture1.url }}" class="card-img-top object-fit-cover" style="height: 200px;" alt="{{ r.title }}">
               {% else %}
-                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 180px;">
-                  No Image Available
+                <div class="bg-light text-muted d-flex align-items-center justify-content-center" style="height: 200px;">
+                  <i class="fas fa-image fa-3x"></i>
                 </div>
               {% endif %}
               <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ r.title|truncatechars:30 }}</h5>
-                <p class="text-muted mb-1"><i class="fas fa-map-marker-alt"></i> {{ r.location|truncatechars:30 }}</p>
-                <p class="mb-3"><strong>{{ r.room_type }}</strong> | KES {{ r.amount|intcomma }}</p>
-                <a href="{% url 'vacancy_detail' r.slug %}" class="btn btn-outline-primary mt-auto">View Details</a>
+                <h5 class="card-title text-truncate mb-2">{{ r.title }}</h5>
+                <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-2 text-primary"></i> {{ r.location|truncatechars:30 }}</p>
+                <p class="mb-3"><strong class="text-info">{{ r.room_type }}</strong> | <span class="text-success fw-bold">KES {{ r.amount|intcomma }}</span></p>
+                <a href="{% url 'vacancy_detail' r.slug %}" class="btn btn-outline-primary mt-auto rounded-pill">View Details <i class="fas fa-arrow-right ms-2"></i></a>
               </div>
             </div>
           </div>
         {% endfor %}
       </div>
     {% else %}
-      <p class="text-muted">No other rooms listed by this owner.</p>
+      <p class="text-muted text-center py-4">No other rooms listed by this owner at the moment.</p>
     {% endif %}
   </div>
 
