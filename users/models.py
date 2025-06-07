@@ -308,7 +308,8 @@ class ForSaleProperty(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True)
 
-
+    def get_absolute_url(self):
+        return reverse('for_sale_detail', kwargs={'pk': self.pk})
 
 class CommercialProperty(models.Model):
     COMMERCIAL_TYPE_CHOICES = (

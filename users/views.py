@@ -1127,8 +1127,23 @@ def for_sale_list_view(request):
 # Detail view
 def for_sale_detail_view(request, pk):
     property = get_object_or_404(ForSaleProperty, pk=pk)
-    return render(request, 'users/for_sale_detail.html', {'property': property})
 
+    # Full link to this property detail page
+    property_url = request.build_absolute_uri(property.get_absolute_url())
+
+    # WhatsApp message
+    message = (
+        f"Hello, I'm interested in \"{property.title}\" located at {property.location}. "
+        f"Is it still available? Here is the link: {property_url}"
+    )
+
+    phone_number = "254798883849"  # Your WhatsApp phone number (international format)
+    whatsapp_url = f"https://wa.me/{phone_number}?text={quote(message)}"
+
+    return render(request, 'users/for_sale_detail.html', {
+        'property': property,
+        'whatsapp_url': whatsapp_url,
+    })
 # Create new property
 def for_sale_create_view(request):
     if request.method == 'POST':
@@ -1153,7 +1168,22 @@ def commercial_list_view(request):
 # Detail view
 def commercial_detail_view(request, pk):
     property = get_object_or_404(CommercialProperty, pk=pk)
-    return render(request, 'users/commercial_detail.html', {'property': property})
+
+    # Assuming you have a get_absolute_url method on CommercialProperty
+    property_url = request.build_absolute_uri(property.get_absolute_url())
+
+    message = (
+        f"Hello, I'm interested in \"{property.title}\" located at {property.location}. "
+        f"Is it still available? Here is the link: {property_url}"
+    )
+
+    phone_number = "254798883849"  # Replace with your actual number
+    whatsapp_url = f"https://wa.me/{phone_number}?text={quote(message)}"
+
+    return render(request, 'users/commercial_detail.html', {
+        'property': property,
+        'whatsapp_url': whatsapp_url,
+    })
 
 # Create new commercial property
 def commercial_create_view(request):
