@@ -157,6 +157,7 @@ from django.shortcuts import render
 from django.db.models import Count, Sum
 from .models import Transaction
 
+
 @staff_member_required
 def admin_sales_report(request):
     user_totals = (
@@ -168,11 +169,16 @@ def admin_sales_report(request):
 
     transactions = Transaction.objects.select_related('user').order_by('-date')
 
+    # Calculate total sales by summing total_amounts from user_totals
+    total_sales = sum(user['total_amount'] for user in user_totals) or 0
+
     context = {
         'transactions': transactions,
         'user_totals': user_totals,
+        'total_sales': total_sales,
     }
     return render(request, 'users/admin_sales_report.html', context)
+
 
 
 
