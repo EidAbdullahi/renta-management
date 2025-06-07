@@ -221,7 +221,7 @@ def discover_items(request):
     min_price = request.GET.get('min_price', '')
     max_price = request.GET.get('max_price', '')
     sort = request.GET.get('sort', '')
-
+     
     items = Item.objects.all()
 
     if query:
@@ -402,16 +402,19 @@ def vacancy_list(request):
     for room in rooms:
         if room.picture1:
             room.picture1_url = request.build_absolute_uri(room.picture1.url)
-        else:
-            room.picture1_url = ""
+    else:
+        room.picture1_url = ""
 
-        short_desc = room.description.replace('\n', ' ').replace('\r', '')[:100]
-        message = (
-            f"Hello, I'm interested in \"{room.title}\" located in {room.location}. "
-            f"Description: {short_desc}. "
-            f"Photo: {room.picture1_url}"
-        )
-        room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
+    short_desc = room.description.replace('\n', ' ').replace('\r', '')[:100]
+    room_url = request.build_absolute_uri(room.get_absolute_url())  # Full detail page URL
+
+    message = (
+        f"Hello, I'm interested in \"{room.title}\" located in {room.location}. "
+        f"Description: {short_desc}. "
+        f"Details here: {room_url} "
+        f"Photo: {room.picture1_url}"
+    )
+    room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
 
     # --- Pagination ---
     paginator = Paginator(rooms, 12)
