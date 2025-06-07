@@ -158,26 +158,46 @@ from django.db.models import Count, Sum
 from .models import Transaction
 
 
+from django.shortcuts import render
+from django.db.models import Sum, Count
+from django.utils.timezone import now
+from datetime import datetime
+from .models import Transaction
+from django.contrib.admin.views.decorators import staff_member_required
+
 @staff_member_required
 def admin_sales_report(request):
+    # Get selected month/year or use current
+    current = now()
+    month = int(request.GET.get('month', current.month))
+    year = int(request.GET.get('year', current.year))
+
+    # Filter transactions by month/year
+    transactions = Transaction.objects.filter(date__year=year, date__month=month).select_related('user').order_by('-date')
+
+    # Aggregated totals per user
     user_totals = (
-        Transaction.objects
+        transactions
         .values('user__username')
-        .annotate(total_amount=Sum('amount'), transaction_count=Count('id'))
+        .annotate(
+            total_amount=Sum('amount'),
+            transaction_count=Count('id')
+        )
         .order_by('-total_amount')
     )
 
-    transactions = Transaction.objects.select_related('user').order_by('-date')
-
-    # Calculate total sales by summing total_amounts from user_totals
-    total_sales = sum(user['total_amount'] for user in user_totals) or 0
+    # Total for display
+    total_sales = user_totals.aggregate(total=Sum('total_amount'))['total'] or 0
 
     context = {
         'transactions': transactions,
         'user_totals': user_totals,
         'total_sales': total_sales,
+        'selected_month': month,
+        'selected_year': year,
     }
     return render(request, 'users/admin_sales_report.html', context)
+
 
 
 

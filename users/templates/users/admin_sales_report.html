@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize custom_filters %}
 
 {% block content %}
 <style>
+  /* Your CSS styles as before */
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
   body {
@@ -100,6 +101,11 @@
     gap: 8px;
   }
 
+  .stars {
+    font-size: 1.2rem;
+    margin-left: 10px;
+  }
+
   .toggle-arrow {
     width: 18px;
     height: 18px;
@@ -160,7 +166,6 @@
     }
   }
 
-  /* Print styles */
   @media print {
     .no-print {
       display: none !important;
@@ -205,6 +210,43 @@
         <div class="user-name">{{ user.user__username }}</div>
         <div class="user-stats">
           Total Sales: <strong>Ksh{{ user.total_amount|floatformat:2|intcomma }}</strong>
+          |
+          Transactions: {{ user.transaction_count }}
+          <div class="stars">
+            {% if user.transaction_count < 30 %}
+              {% for i in 1|get_range %}
+                <span style="color: gold;">★</span>
+              {% endfor %}
+              {% for i in 4|get_range %}
+                <span style="color: lightgray;">★</span>
+              {% endfor %}
+            {% elif user.transaction_count < 60 %}
+              {% for i in 2|get_range %}
+                <span style="color: gold;">★</span>
+              {% endfor %}
+              {% for i in 3|get_range %}
+                <span style="color: lightgray;">★</span>
+              {% endfor %}
+            {% elif user.transaction_count < 120 %}
+              {% for i in 3|get_range %}
+                <span style="color: gold;">★</span>
+              {% endfor %}
+              {% for i in 2|get_range %}
+                <span style="color: lightgray;">★</span>
+              {% endfor %}
+            {% elif user.transaction_count < 240 %}
+              {% for i in 4|get_range %}
+                <span style="color: gold;">★</span>
+              {% endfor %}
+              {% for i in 1|get_range %}
+                <span style="color: lightgray;">★</span>
+              {% endfor %}
+            {% else %}
+              {% for i in 5|get_range %}
+                <span style="color: gold;">★</span>
+              {% endfor %}
+            {% endif %}
+          </div>
           <svg class="toggle-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </div>
