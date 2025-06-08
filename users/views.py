@@ -398,11 +398,11 @@ def add_vacancy(request):
 
 def vacancy_list(request):
     form = VacancySearchForm(request.GET)
-    rooms = VacantRoom.objects.filter(is_available=True).order_by('-created_at')  # Order latest first
+    rooms = VacantRoom.objects.filter(is_available=True).order_by('-created_at')
     freelancers = Freelancer.objects.all()
     partners = Partner.objects.all()
 
-    # --- Search history management ---
+    # Search history
     if 'search_history' not in request.session:
         request.session['search_history'] = []
 
@@ -414,7 +414,7 @@ def vacancy_list(request):
             request.session['search_history'].pop()
         request.session.modified = True
 
-    # --- Filter form processing ---
+    # Filtering
     if form.is_valid():
         query = form.cleaned_data.get('query')
         room_type = form.cleaned_data.get('room_type')
@@ -423,8 +423,16 @@ def vacancy_list(request):
 
         if query:
             rooms = rooms.filter(Q(title__icontains=query) | Q(location__icontains=query))
+
+        # Handle location as "Area, City"
         if location:
-            rooms = rooms.filter(location__icontains=location)
+            location_parts = [part.strip() for part in location.split(',')]
+            if len(location_parts) == 2:
+                area, city = location_parts
+                rooms = rooms.filter(Q(location__icontains=area) & Q(location__icontains=city))
+            else:
+                rooms = rooms.filter(location__icontains=location)
+
         if room_type:
             rooms = rooms.filter(room_type=room_type)
         if min_price is not None:
@@ -432,7 +440,7 @@ def vacancy_list(request):
         if max_price is not None:
             rooms = rooms.filter(amount__lte=max_price)
 
-    # --- One room per user if no filters/search applied ---
+    # One room per user if no filters applied
     is_filtered = any([
         request.GET.get('query'),
         request.GET.get('location'),
@@ -445,30 +453,33 @@ def vacancy_list(request):
         unique_user_rooms = {}
         for room in rooms:
             if room.user_id not in unique_user_rooms:
-                unique_user_rooms[room.user_id] = room  # Keep the latest room for each user
+                unique_user_rooms[room.user_id] = room
         rooms = list(unique_user_rooms.values())
     else:
         rooms = list(rooms)
 
-    # --- WhatsApp message generation ---
-    for room in rooms:
-        if room.picture1:
-            room.picture1_url = request.build_absolute_uri(room.picture1.url)
+    # WhatsApp message generation
+    if rooms:
+        for room in rooms:
+            if room.picture1:
+                room.picture1_url = request.build_absolute_uri(room.picture1.url)
+            else:
+                room.picture1_url = ""
+
+            short_desc = room.description.replace('\n', ' ').replace('\r', '')[:100]
+            room_url = request.build_absolute_uri(room.get_absolute_url())
+
+            message = (
+                f"Hello, I'm interested in \"{room.title}\" located in {room.location}. "
+                f"Description: {short_desc}. "
+                f"Details here: {room_url} "
+                f"Photo: {room.picture1_url}"
+            )
+            room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
     else:
-        room.picture1_url = ""
+        rooms = []
 
-    short_desc = room.description.replace('\n', ' ').replace('\r', '')[:100]
-    room_url = request.build_absolute_uri(room.get_absolute_url())  # Full detail page URL
-
-    message = (
-        f"Hello, I'm interested in \"{room.title}\" located in {room.location}. "
-        f"Description: {short_desc}. "
-        f"Details here: {room_url} "
-        f"Photo: {room.picture1_url}"
-    )
-    room.whatsapp_message_url = "https://wa.me/254798883849?text=" + urllib.parse.quote(message)
-
-    # --- Pagination ---
+    # Pagination
     paginator = Paginator(rooms, 12)
     page = request.GET.get('page')
     rooms = paginator.get_page(page)
@@ -488,7 +499,6 @@ def vacancy_list(request):
     }
 
     return render(request, 'users/vacancy_list.html', context)
-
 
 @login_required
 def home(request):
