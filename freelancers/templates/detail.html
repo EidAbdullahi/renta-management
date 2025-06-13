@@ -37,16 +37,17 @@
 
             <!-- Video Section -->
             {% if freelancer.video %}
-                <h5 class="mt-4 fw-bold" style="font-size: 1.25rem; color: #222;">Introduction Video</h5>
-                <div class="mb-4">
-                    <div class="ratio ratio-16x9">
-                        <video class="w-100 rounded shadow-lg" controls>
-                            <source src="{{ freelancer.video.url }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
+            <h5 class="mt-4 fw-bold" style="font-size: 1.25rem; color: #222;">Introduction Video</h5>
+            <div class="mb-4">
+                <div class="ratio ratio-16x9">
+                    <video class="w-100 rounded shadow-lg" controls>
+                        <source src="{{ freelancer.secure_video_url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
-            {% endif %}
+            </div>
+        {% endif %}
+        
 
             <!-- Contact Info Section -->
             <h5 class="mt-4 fw-bold" style="font-size: 1.25rem; color: #222;">Contact Info</h5>
