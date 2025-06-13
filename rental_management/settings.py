@@ -157,13 +157,12 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # SECURITY SETTINGS (Only enforced in production)
 if not DEBUG:
-   SECURE_SSL_REDIRECT = True
-   SESSION_COOKIE_SECURE = True
-   CSRF_COOKIE_SECURE = True
-   SECURE_HSTS_SECONDS = 3600
-   SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-   SECURE_HSTS_PRELOAD = True
-
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # MESSAGE TAGS (Bootstrap-compatible)
 from django.contrib.messages import constants as messages
