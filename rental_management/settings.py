@@ -132,13 +132,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
-# Cloudinary Storage
 CLOUDINARY_STORAGE = {
-   'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-   'API_KEY': config('CLOUDINARY_API_KEY'),
-   'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    'SECURE': True,  # <-- This forces HTTPS URLs
 }
+
 
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
