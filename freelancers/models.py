@@ -19,9 +19,16 @@ class Freelancer(models.Model):
     location = models.CharField(max_length=100)
     video = CloudinaryField('video', resource_type='video', blank=True, null=True)  # Cloudinary video field
     created_at = models.DateTimeField(auto_now_add=True)
+  
 
+    @property
+    def secure_video_url(self):
+        if self.video:
+            return self.video.url.replace("http://", "https://")
+        return None
     def __str__(self):
         return self.name
+    
 
 
 class Comment(models.Model):
