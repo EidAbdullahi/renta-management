@@ -26,6 +26,8 @@ DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 
+
+
 # APPLICATIONS
 INSTALLED_APPS = [
    'django.contrib.admin',
@@ -40,6 +42,8 @@ INSTALLED_APPS = [
    'users',
    'freelancers',
    'offplan',
+   'hotels',
+
 
    # Third-party
    'widget_tweaks',
@@ -189,3 +193,4 @@ CACHES = {
 
 # DEFAULT AUTO FIELD
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

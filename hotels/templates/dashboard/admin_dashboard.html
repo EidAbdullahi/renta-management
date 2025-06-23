@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; }
+        .dashboard-container { max-width: 1000px; margin: auto; padding: 20px; background: white; border-radius: 8px; }
+        .stat { margin-bottom: 20px; padding: 15px; background: #e8f5e9; border-left: 5px solid #388e3c; }
+        h1 { color: #2e7d32; }
+        h2 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Admin Dashboard</h1>
+        <div class="stat"><strong>Total Hotels:</strong> {{ total_hotels }}</div>
+        <div class="stat"><strong>Total Rooms:</strong> {{ total_rooms }}</div>
+        <div class="stat"><strong>Total Reservations:</strong> {{ total_reservations }}</div>
+        <div class="stat"><strong>Upcoming Reservations:</strong> {{ upcoming_reservations }}</div>
+
+        <h2>Top 5 Hotels by Reservations</h2>
+        <ul>
+            {% for hotel in reservations_per_hotel %}
+                <li>{{ hotel.name }} - {{ hotel.num_reservations }} reservations</li>
+            {% empty %}
+                <li>No data available.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

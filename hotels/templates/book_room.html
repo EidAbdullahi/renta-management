@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Your Booking - {{ room.room_type.name }} at {{ hotel.name }}</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header Bar - Consistent with other pages */
+        .header-bar {
+            background-color: #003580; /* Booking.com blue */
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .header-bar h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .header-bar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        .header-bar a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex; /* Use flexbox for layout */
+            gap: 30px;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        /* Booking Summary Section */
+        .booking-summary {
+            flex: 2; /* Takes 2 parts of available space */
+            min-width: 300px; /* Minimum width for summary */
+            background-color: #f6f6f6;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        .booking-summary h2 {
+            color: #0071c2;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        .booking-summary p {
+            margin: 8px 0;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+        }
+        .booking-summary p strong {
+            color: #333;
+        }
+        .booking-summary .highlight {
+            font-weight: bold;
+            color: #e62200; /* Price color */
+            font-size: 1.2em;
+        }
+        .booking-summary .total-price {
+            border-top: 2px solid #003580;
+            padding-top: 15px;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #003580;
+        }
+
+        /* Booking Form Section */
+        .booking-form-section {
+            flex: 3; /* Takes 3 parts of available space */
+            min-width: 350px; /* Minimum width for form */
+            padding: 25px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .booking-form-section h2 {
+            color: #0071c2;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .booking-form-section form p {
+            margin-bottom: 15px;
+        }
+        .booking-form-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .booking-form-section input[type="text"],
+        .booking-form-section input[type="email"],
+        .booking-form-section input[type="tel"],
+        .booking-form-section select,
+        .booking-form-section textarea {
+            width: calc(100% - 22px); /* Account for padding and border */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+        .booking-form-section input:focus,
+        .booking-form-section select:focus,
+        .booking-form-section textarea:focus {
+            border-color: #0071c2;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 113, 194, 0.3);
+        }
+        .booking-form-section .helptext {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 5px;
+            display: block;
+        }
+        .booking-form-section ul.errorlist {
+            color: #c0392b;
+            list-style-type: none;
+            padding: 0;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        .booking-form-section button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background-color: #0071c2; /* Booking.com button blue */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .booking-form-section button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Success Message Styling */
+        .success-message {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green */
+            border: 1px solid #c3e6cb;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none; /* Hidden by default, shown by JS */
+        }
+        .success-message a {
+            color: #155724;
+            text-decoration: underline;
+        }
+
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .back-link a {
+            color: #0071c2;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 10px;
+                padding: 15px;
+            }
+            .booking-summary,
+            .booking-form-section {
+                min-width: unset; /* Remove min-width to allow full flexibility */
+                width: 100%; /* Take full width */
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <a href="{% url 'hotel_search' %}">Kirofinder.com</a>
+    </div>
+
+    <div class="container">
+        <div class="booking-summary">
+            <h2>Your Booking Summary</h2>
+            <p><strong>Hotel:</strong> <span>{{ hotel.name }}</span></p>
+            <p><strong>Room Type:</strong> <span>{{ room.room_type.name }}</span></p>
+            <p><strong>Room Number:</strong> <span>{{ room.room_number }}</span></p>
+            <p><strong>Check-in:</strong> <span>{{ check_in|date:"D, M d, Y" }}</span></p>
+            <p><strong>Check-out:</strong> <span>{{ check_out|date:"D, M d, Y" }}</span></p>
+            <p><strong>Nights:</strong> <span id="num-nights">Calculating...</span></p>
+            <p><strong>Price per night:</strong> <span>${{ room.room_type.price_per_night|floatformat:2 }}</span></p>
+            <p class="total-price">
+                <strong>Total Price:</strong> <span id="total-price-display">Calculating...</span>
+            </p>
+        </div>
+
+        <div class="booking-form-section">
+            <h2>Enter Your Details</h2>
+            <div id="success-alert" class="success-message">
+                Reservation successful! Thank you for booking.
+                <br>
+                <a href="{% url 'hotel_detail' hotel.id %}">← Back to hotel details</a>
+
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Complete Booking</button>
+            </form>
+            
+        </div>
+    </div>
+
+    <div class="back-link">
+        <p><a href="{% url 'book_room' room.id %}?check_in={{ check_in }}&check_out={{ check_out }}">Book Now</a>
+        </p>
+    </div>
+
+    <script>
+        // JavaScript to calculate number of nights and total price
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkInDateStr = "{{ check_in|date:'Y-m-d' }}";
+            const checkOutDateStr = "{{ check_out|date:'Y-m-d' }}";
+            const pricePerNight = parseFloat("{{ room.room_type.price_per_night }}");
+
+            if (checkInDateStr && checkOutDateStr && !isNaN(pricePerNight)) {
+                const checkInDate = new Date(checkInDateStr);
+                const checkOutDate = new Date(checkOutDateStr);
+
+                // Calculate difference in milliseconds
+                const diffTime = Math.abs(checkOutDate - checkInDate);
+                // Convert to days
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                document.getElementById('num-nights').innerText = diffDays;
+                const totalPrice = pricePerNight * diffDays;
+                document.getElementById('total-price-display').innerText = '$' + totalPrice.toFixed(2);
+            } else {
+                document.getElementById('num-nights').innerText = 'N/A';
+                document.getElementById('total-price-display').innerText = 'N/A';
+            }
+
+            // Handle success message display
+            {% if success %}
+                document.getElementById('success-alert').style.display = 'block';
+                // You might want to disable the form or redirect after a short delay here
+                // setTimeout(function() {
+                //     window.location.href = "{% url 'hotel_detail' hotel.id %}";
+                // }, 3000); // Redirect after 3 seconds
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

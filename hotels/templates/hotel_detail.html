@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ hotel.name }} | Hotel Details</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background: #f8f8f8;
+            color: #333;
+        }
+        header {
+            background: #004080;
+            color: #fff;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        h1, h2 {
+            color: #004080;
+        }
+        .hotel-info, .room {
+            margin-bottom: 30px;
+        }
+        .image-gallery img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .amenities ul {
+            list-style: none;
+            padding: 0;
+        }
+        .amenities li::before {
+            content: "✔️";
+            margin-right: 8px;
+            color: green;
+        }
+        .room {
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .room h3 {
+            margin-top: 0;
+        }
+        .room a {
+            background: #0071c2;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .no-rooms {
+            background: #ffe5e5;
+            color: #a00;
+            padding: 15px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>{{ hotel.name }}</h1>
+</header>
+
+<div class="container">
+    <div class="hotel-info">
+        <div class="image-gallery">
+            {% if hotel.image %}
+                <img src="{{ hotel.image.url }}" alt="{{ hotel.name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/960x300?text=Hotel+Image" alt="Default Hotel Image">
+            {% endif %}
+        </div>
+        <p><strong>Location:</strong> {{ hotel.location }}</p>
+        <p><strong>Rating:</strong> {{ hotel.star_rating }} stars</p>
+        <p>{{ hotel.description }}</p>
+    </div>
+
+    <div class="amenities">
+        <h2>Amenities</h2>
+        {% if hotel.amenities.all %}
+            <ul>
+                {% for amenity in hotel.amenities.all %}
+                    <li>{{ amenity.name }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No amenities listed.</p>
+        {% endif %}
+    </div>
+
+    <div class="rooms">
+        <h2>Available Rooms</h2>
+        {% if available_rooms %}
+            {% for room in available_rooms %}
+                <div class="room">
+                    <h3>{{ room.room_type.name }}</h3>
+                    <p><strong>Room Number:</strong> {{ room.room_number }}</p>
+                    <p><strong>Capacity:</strong> {{ room.room_type.capacity }} guests</p>
+                    <p><strong>Price per night:</strong> ${{ room.room_type.price_per_night }}</p>
+                    <p>{{ room.room_type.description }}</p>
+                    <a href="{% url 'book_room' room.id %}?check_in={{ check_in }}&check_out={{ check_out }}">Book Now</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-rooms">
+                {% if check_in and check_out %}
+                    No rooms available for {{ check_in }} to {{ check_out }}.
+                {% else %}
+                    Please select check-in and check-out dates.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

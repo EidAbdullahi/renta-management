@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirofinder.com - Find Your Next Stay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Global Styles & Reset --- */
+        :root {
+            --primary-green: hsl(140, 60%, 30%); /* Deep Sage Green */
+            --accent-blue: hsl(205, 70%, 50%); /* Vibrant Sky Blue */
+            --accent-blue-hover: hsl(205, 70%, 40%);
+            --text-dark: #343A40;
+            --text-medium: #555;
+            --bg-light: #F8F9FA;
+            --card-bg: #fff;
+            --border-light: #DDE2E6;
+            --shadow-subtle: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.08);
+            --price-red: #E62200;
+            --border-radius-sm: 6px;
+            --border-radius-md: 10px;
+            --border-radius-lg: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- Container --- */
+        .container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: var(--card-bg);
+            box-shadow: 0 8px 25px var(--shadow-medium);
+            border-radius: var(--border-radius-lg);
+        }
+
+        /* --- Header --- */
+        .header {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2em, 4vw + 1em, 3em);
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        /* --- Search Form Container --- */
+        .search-form-container {
+            padding: 30px;
+            background-color: var(--card-bg);
+            margin-bottom: 30px;
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 4px 15px var(--shadow-subtle);
+        }
+
+        .search-form-container h2 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: var(--text-dark);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .search-form-container form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end; /* Align items to the bottom, useful for different input heights */
+        }
+
+        .form-group {
+            position: relative; /* For guest picker positioning */
+        }
+
+        .search-form-container label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: var(--text-medium);
+            font-size: 0.95em;
+        }
+
+        .search-form-container input[type="text"],
+        .search-form-container input[type="date"],
+        .search-form-container select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            -webkit-appearance: none; /* Remove default browser styling for consistency */
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .search-form-container input:focus,
+        .search-form-container select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 194, 0.2);
+        }
+
+        .search-form-container button[type="submit"] {
+            grid-column: span 1; /* Occupy one column */
+            padding: 12px 25px;
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            align-self: end; /* Align button to bottom of its grid cell */
+            width: 100%; /* Ensure button takes full width of its grid column */
+        }
+
+        .search-form-container button[type="submit"]:hover {
+            background-color: var(--accent-blue-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Guest Picker Styling */
+        #guestPicker {
+            position: absolute;
+            background-color: white;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            top: calc(100% + 10px); /* Position below the input */
+            left: 0;
+            right: 0;
+            width: 280px; /* Fixed width for the picker */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .guest-input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .guest-input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .guest-input-row label {
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 1em;
+            color: var(--text-dark);
+            flex-grow: 1; /* Allows label to take available space */
+        }
+
+        .guest-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .guest-controls button {
+            background-color: #e9ecef;
+            color: var(--text-dark);
+            border: 1px solid #ced4da;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .guest-controls button:hover {
+            background-color: #dce0e4;
+            border-color: #b0b4b8;
+        }
+
+        .guest-controls input[type="number"] {
+            width: 40px;
+            text-align: center;
+            -moz-appearance: textfield; /* Hide arrows in Firefox */
+        }
+        .guest-controls input[type="number"]::-webkit-outer-spin-button,
+        .guest-controls input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none; /* Hide arrows in Chrome, Safari, Edge */
+            margin: 0;
+        }
+
+
+        /* --- Results Container --- */
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 3fr; /* Sidebar 1 part, List 3 parts */
+            gap: 30px;
+        }
+
+        /* --- Filters Sidebar --- */
+        .filters-sidebar {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 4px 15px var(--shadow-subtle);
+        }
+
+        .filters-sidebar h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .filters-sidebar p {
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-medium);
+        }
+
+        /* Basic range input style - can be heavily customized with JS/CSS */
+        .filters-sidebar input[type="range"] {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .filters-sidebar label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .filters-sidebar input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1); /* Slightly larger checkbox */
+        }
+
+        /* --- Hotel List --- */
+        .hotel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .hotel-list h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hotel-item {
+            background-color: var(--card-bg);
+            border: 1px solid #ECEFF1;
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            box-shadow: 0 4px 15px var(--shadow-subtle);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hotel-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow-medium);
+        }
+
+        .hotel-item img {
+            width: 180px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--border-radius-sm);
+            flex-shrink: 0; /* Prevent image from shrinking */
+        }
+
+        .hotel-info {
+            flex-grow: 1;
+        }
+
+        .hotel-info h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--accent-blue);
+            font-size: 1.5em;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hotel-info p {
+            margin: 0 0 6px 0;
+            color: var(--text-medium);
+            font-size: 0.95em;
+        }
+
+        .hotel-price {
+            font-weight: bold;
+            color: var(--price-red);
+            font-size: 1.6em;
+            text-align: right;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .view-details-button {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: var(--accent-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .view-details-button:hover {
+            background-color: var(--accent-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-medium);
+            font-size: 1.3em;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 4px 15px var(--shadow-subtle);
+            margin-top: 20px;
+        }
+
+        /* --- Responsive Adjustments (Mobile-First) --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+                border-radius: var(--border-radius-md); /* Slightly smaller on mobile */
+            }
+
+            .header {
+                border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .search-form-container {
+                padding: 20px;
+            }
+
+            .search-form-container form {
+                grid-template-columns: 1fr; /* Single column on mobile */
+                gap: 15px;
+            }
+            .search-form-container button[type="submit"] {
+                grid-column: auto;
+                width: 100%;
+            }
+
+            .results-container {
+                grid-template-columns: 1fr; /* Single column on mobile */
+                gap: 20px;
+            }
+
+            .filters-sidebar {
+                margin-bottom: 20px;
+            }
+
+            .hotel-item {
+                flex-direction: column; /* Stack image and info on mobile */
+                text-align: center;
+                align-items: center;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .hotel-item img {
+                width: 100%; /* Full width image on mobile */
+                max-width: 250px; /* Prevent image from becoming too large on small screens */
+                height: 180px;
+                margin-bottom: 10px;
+            }
+
+            .hotel-info {
+                width: 100%; /* Ensure info block takes full width */
+            }
+
+            .hotel-price {
+                width: 100%;
+                align-items: center; /* Center price and button */
+            }
+
+            #guestPicker {
+                position: static; /* Stack normally on mobile */
+                width: 100%;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-form-container h2 {
+                font-size: 1.5em;
+            }
+            .hotel-info h3 {
+                font-size: 1.3em;
+            }
+            .hotel-price {
+                font-size: 1.4em;
+            }
+            .view-details-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Kirofinder.com</h1>
+    </div>
+
+    <div class="container">
+        <div class="search-form-container">
+            <h2>Find your next stay</h2>
+            <form method="get">
+                <div class="form-group">
+                    <label for="id_destination">Destination/property name:</label>
+                    <input type="text" id="id_destination" name="destination" placeholder="e.g., Nairobi, hotel name..." value="{{ form.destination.value|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_check_in">Check-in date:</label>
+                    <input type="date" id="id_check_in" name="check_in" value="{{ form.check_in.value|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_check_out">Check-out date:</label>
+                    <input type="date" id="id_check_out" name="check_out" value="{{ form.check_out.value|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="guests_display">Guests:</label>
+                    <input type="text" id="guests_display" name="guests_display" value="2 Adults, 0 Children, 0 Infants" readonly>
+
+                    <div id="guestPicker" style="display: none;">
+                        <div class="guest-input-row">
+                            <label for="numAdults">Adults:</label>
+                            <div class="guest-controls">
+                                <button type="button" data-type="adults" data-change="-1">-</button>
+                                <input type="number" id="numAdults" name="adults" value="{{ form.adults.value|default:2 }}" min="1" readonly>
+                                <button type="button" data-type="adults" data-change="1">+</button>
+                            </div>
+                        </div>
+                        <div class="guest-input-row">
+                            <label for="numChildren">Children:</label>
+                            <div class="guest-controls">
+                                <button type="button" data-type="children" data-change="-1">-</button>
+                                <input type="number" id="numChildren" name="children" value="{{ form.children.value|default:0 }}" min="0" readonly>
+                                <button type="button" data-type="children" data-change="1">+</button>
+                            </div>
+                        </div>
+                        <div class="guest-input-row">
+                            <label for="numInfants">Infants:</label>
+                            <div class="guest-controls">
+                                <button type="button" data-type="infants" data-change="-1">-</button>
+                                <input type="number" id="numInfants" name="infants" value="{{ form.infants.value|default:0 }}" min="0" readonly>
+                                <button type="button" data-type="infants" data-change="1">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        {% if hotels %}
+            <div class="results-container">
+                <div class="filters-sidebar">
+                    <h3>Filter by:</h3>
+                    <p>Price range:</p>
+                    <input type="range" min="0" max="1000" value="500">
+                    <p>Star rating:</p>
+                    <label><input type="checkbox" name="stars" value="5"> 5 stars</label>
+                    <label><input type="checkbox" name="stars" value="4"> 4 stars</label>
+                    <label><input type="checkbox" name="stars" value="3"> 3 stars</label>
+                    <label><input type="checkbox" name="stars" value="2"> 2 stars</label>
+                    <label><input type="checkbox" name="stars" value="1"> 1 star</label>
+                </div>
+
+                <div class="hotel-list">
+                    <h2>Available Hotels</h2>
+                    {% for hotel in hotels %}
+                        <div class="hotel-item">
+                            <img src="https://via.placeholder.com/180x120?text=Hotel+Image" alt="Hotel Image for {{ hotel.name }}">
+                            <div class="hotel-info">
+                                <h3>{{ hotel.name }}</h3>
+                                <p>Location: {{ hotel.location }}</p>
+                                <p>Rating: {{ hotel.rating }} / 5</p>
+                            </div>
+                            <div class="hotel-price">
+                                
+                                <a href="{% url 'hotel_detail' hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="view-details-button">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif check_in and check_out %}
+            <p class="no-results">No hotels found for the selected dates.</p>
+        {% else %}
+            <p class="no-results">Start your search by entering your destination and dates.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const guestsDisplayInput = document.getElementById('guests_display');
+            const guestPicker = document.getElementById('guestPicker');
+            const numAdultsInput = document.getElementById('numAdults');
+            const numChildrenInput = document.getElementById('numChildren');
+            const numInfantsInput = document.getElementById('numInfants');
+
+            // Initialize display value based on hidden input values (for Django pre-population)
+            function initializeGuestDisplay() {
+                updateGuestsDisplay();
+            }
+
+            function updateGuestsDisplay() {
+                const adults = parseInt(numAdultsInput.value);
+                const children = parseInt(numChildrenInput.value);
+                const infants = parseInt(numInfantsInput.value);
+                guestsDisplayInput.value = `${adults} Adult${adults !== 1 ? 's' : ''}, ${children} Child${children !== 1 ? 'ren' : ''}, ${infants} Infant${infants !== 1 ? 's' : ''}`;
+            }
+
+            // Handle increment/decrement buttons for guests
+            document.querySelectorAll('.guest-controls button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const type = event.target.dataset.type;
+                    const change = parseInt(event.target.dataset.change);
+                    let targetInput;
+
+                    if (type === 'adults') {
+                        targetInput = numAdultsInput;
+                    } else if (type === 'children') {
+                        targetInput = numChildrenInput;
+                    } else if (type === 'infants') {
+                        targetInput = numInfantsInput;
+                    }
+
+                    let newValue = parseInt(targetInput.value) + change;
+                    if (newValue < parseInt(targetInput.min)) {
+                        newValue = parseInt(targetInput.min);
+                    }
+                    targetInput.value = newValue;
+                    updateGuestsDisplay();
+                });
+            });
+
+            // Toggle guest picker visibility
+            guestsDisplayInput.addEventListener('click', (event) => {
+                // Prevent click on input from closing picker if it's already open
+                event.stopPropagation();
+                guestPicker.style.display = guestPicker.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Close guest picker when clicking outside
+            document.addEventListener('click', (event) => {
+                // Check if the click was outside the guestsDisplayInput and guestPicker
+                if (!guestsDisplayInput.contains(event.target) && !guestPicker.contains(event.target)) {
+                    guestPicker.style.display = 'none';
+                }
+            });
+
+            // Prevent clicks inside the guest picker from closing it
+            guestPicker.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+
+            // Initialize guest display on page load
+            initializeGuestDisplay();
+
+            /*
+            // --- Flatpickr Date Picker Integration (Uncomment and set up if using) ---
+            // Ensure Flatpickr CSS and JS are linked in the <head>
+            
+            const checkInInput = document.getElementById('id_check_in');
+            const checkOutInput = document.getElementById('id_check_out');
+
+            const checkInFlatpickr = flatpickr(checkInInput, {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                altInput: true, // Use a more user-friendly input
+                altFormat: "F j, Y",
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        // Set minDate for check-out to be check-in date
+                        checkOutFlatpickr.set("minDate", selectedDates[0]);
+                        // If check-out is before check-in, reset check-out
+                        if (checkOutInput.value && new Date(checkOutInput.value) < selectedDates[0]) {
+                            checkOutInput.value = dateStr;
+                        }
+                    } else {
+                        checkOutFlatpickr.set("minDate", "today");
+                    }
+                }
+            });
+
+            const checkOutFlatpickr = flatpickr(checkOutInput, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                minDate: checkInInput.value || "today" // Set initial minDate based on check-in or today
+            });
+
+            // If check-in already has a value (e.g., from Django), ensure check-out minDate is correct
+            if (checkInInput.value) {
+                checkOutFlatpickr.set("minDate", checkInInput.value);
+            }
+            */
+        });
+    </script>
+</body>
+</html>
