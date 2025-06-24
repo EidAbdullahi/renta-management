@@ -2,69 +2,247 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ hotel.name }} | Hotel Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #0056b3; /* Darker blue for accents */
+            --secondary-color: #007bff; /* Original blue for main buttons/links */
+            --light-gray: #f4f7f6;
+            --medium-gray: #e9ecef;
+            --dark-gray: #495057;
+            --text-color: #343a40;
+            --white: #ffffff;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
-            background: #f8f8f8;
-            color: #333;
+            background: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         header {
-            background: #004080;
-            color: #fff;
-            padding: 15px 20px;
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 25px 20px;
             text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
         .container {
-            max-width: 960px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
+            max-width: 1080px;
+            margin: 30px auto;
+            padding: 30px;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
-        h1, h2 {
-            color: #004080;
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
-        .hotel-info, .room {
+
+        h2 {
+            font-size: 2em;
+            border-bottom: 2px solid var(--medium-gray);
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .hotel-info, .room-section {
+            margin-bottom: 40px;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
             margin-bottom: 30px;
         }
+
         .image-gallery img {
             width: 100%;
-            max-height: 300px;
+            height: 250px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
         }
+
+        .image-gallery img:hover {
+            transform: scale(1.02);
+        }
+
+        .hotel-meta p {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: var(--dark-gray);
+        }
+
+        .hotel-meta strong {
+            color: var(--primary-color);
+        }
+
+        .hotel-description {
+            margin-top: 20px;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
         .amenities ul {
             list-style: none;
             padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
         }
-        .amenities li::before {
-            content: "✔️";
-            margin-right: 8px;
-            color: green;
-        }
-        .room {
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-        }
-        .room h3 {
-            margin-top: 0;
-        }
-        .room a {
-            background: #0071c2;
-            color: white;
+
+        .amenities li {
+            background: var(--light-gray);
             padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .no-rooms {
-            background: #ffe5e5;
-            color: #a00;
-            padding: 15px;
             border-radius: 6px;
+            display: flex;
+            align-items: center;
+            font-size: 1.05em;
+            color: var(--dark-gray);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .amenities li::before {
+            content: "✨"; /* More modern icon */
+            margin-right: 10px;
+            color: var(--success-color);
+            font-size: 1.2em;
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .room-card {
+            background: var(--white);
+            border: 1px solid var(--medium-gray);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .room-card p {
+            margin-bottom: 8px;
+            color: var(--dark-gray);
+        }
+
+        .room-card .price {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--success-color);
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .room-card a.button {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            display: inline-block;
+            text-align: center;
+            font-weight: 600;
+            transition: background 0.3s ease-in-out;
+            margin-top: auto; /* Pushes the button to the bottom */
+        }
+
+        .room-card a.button:hover {
+            background: var(--primary-color);
+        }
+
+        .no-rooms {
+            background: var(--error-color);
+            color: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-top: 30px;
+        }
+
+        .placeholder-image {
+            background: var(--medium-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-gray);
+            font-size: 1.5em;
+            text-align: center;
+            height: 250px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .amenities ul {
+                grid-template-columns: 1fr;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -76,49 +254,62 @@
 <div class="container">
     <div class="hotel-info">
         <div class="image-gallery">
-            {% if hotel.image %}
-                <img src="{{ hotel.image.url }}" alt="{{ hotel.name }}">
+            {% if hotel.images.all %}
+                {% for img in hotel.images.all %}
+                    <img src="{{ img.image.url }}" alt="Hotel image for {{ hotel.name }}">
+                {% endfor %}
             {% else %}
-                <img src="https://via.placeholder.com/960x300?text=Hotel+Image" alt="Default Hotel Image">
+                <div class="placeholder-image">
+                    No Image Available
+                </div>
             {% endif %}
         </div>
-        <p><strong>Location:</strong> {{ hotel.location }}</p>
-        <p><strong>Rating:</strong> {{ hotel.star_rating }} stars</p>
-        <p>{{ hotel.description }}</p>
+        
+        <div class="hotel-meta">
+            <p><strong>Location:</strong> {{ hotel.location }}</p>
+            <p><strong>Rating:</strong> {{ hotel.star_rating }} stars</p>
+        </div>
+        <p class="hotel-description">{{ hotel.description }}</p>
     </div>
 
-    <div class="amenities">
+    <div class="amenities-section">
         <h2>Amenities</h2>
-        {% if hotel.amenities.all %}
-            <ul>
-                {% for amenity in hotel.amenities.all %}
-                    <li>{{ amenity.name }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No amenities listed.</p>
-        {% endif %}
+        <div class="amenities">
+            {% if hotel.amenities.all %}
+                <ul>
+                    {% for amenity in hotel.amenities.all %}
+                        <li>{{ amenity.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No amenities listed for this hotel.</p>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="rooms">
+    <div class="room-section">
         <h2>Available Rooms</h2>
         {% if available_rooms %}
-            {% for room in available_rooms %}
-                <div class="room">
-                    <h3>{{ room.room_type.name }}</h3>
-                    <p><strong>Room Number:</strong> {{ room.room_number }}</p>
-                    <p><strong>Capacity:</strong> {{ room.room_type.capacity }} guests</p>
-                    <p><strong>Price per night:</strong> ${{ room.room_type.price_per_night }}</p>
-                    <p>{{ room.room_type.description }}</p>
-                    <a href="{% url 'book_room' room.id %}?check_in={{ check_in }}&check_out={{ check_out }}">Book Now</a>
-                </div>
-            {% endfor %}
+            <div class="room-grid">
+                {% for room in available_rooms %}
+                    <div class="room-card">
+                        <h3>{{ room.room_type.name }}</h3>
+                        <p><strong>Room Number:</strong> {{ room.room_number }}</p>
+                        <p><strong>Capacity:</strong> {{ room.room_type.capacity }} guests</p>
+                        <p>{{ room.room_type.description }}</p>
+                        <div class="price">
+                            <strong>Price per night:</strong> ${{ room.room_type.price_per_night }}
+                        </div>
+                        <a href="{% url 'book_room' room.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="button">Book Now</a>
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
             <div class="no-rooms">
                 {% if check_in and check_out %}
-                    No rooms available for {{ check_in }} to {{ check_out }}.
+                    No rooms available for your selected dates ({{ check_in }} to {{ check_out }}).
                 {% else %}
-                    Please select check-in and check-out dates.
+                    Please select your desired check-in and check-out dates to view room availability.
                 {% endif %}
             </div>
         {% endif %}
