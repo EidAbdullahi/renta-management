@@ -522,14 +522,19 @@
                     <h2>Available Hotels</h2>
                     {% for hotel in hotels %}
                         <div class="hotel-item">
-                            <img src="https://via.placeholder.com/180x120?text=Hotel+Image" alt="Hotel Image for {{ hotel.name }}">
+                            {% if hotel.main_image %}
+    <img src="{{ hotel.main_image.image.url }}" alt="Hotel Image for {{ hotel.name }}">
+{% else %}
+    <img src="https://via.placeholder.com/180x120?text=No+Image+Available" alt="No image available for {{ hotel.name }}">
+{% endif %}
+
+                            
                             <div class="hotel-info">
                                 <h3>{{ hotel.name }}</h3>
                                 <p>Location: {{ hotel.location }}</p>
                                 <p>Rating: {{ hotel.rating }} / 5</p>
                             </div>
                             <div class="hotel-price">
-                                
                                 <a href="{% url 'hotel_detail' hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="view-details-button">
                                     View Details
                                 </a>
@@ -537,6 +542,7 @@
                         </div>
                     {% endfor %}
                 </div>
+                
             </div>
         {% elif check_in and check_out %}
             <p class="no-results">No hotels found for the selected dates.</p>

@@ -35,6 +35,7 @@ class ReservationAdmin(admin.ModelAdmin):
 
 
 from django.contrib import admin
-from .models import Amenity
+from .models import Amenity,HotelImage
 
 admin.site.register(Amenity)
+admin.site.register(HotelImage)

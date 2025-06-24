@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from cloudinary.models import CloudinaryField
 
 class Hotel(models.Model):
     name = models.CharField(max_length=255)
@@ -8,11 +9,15 @@ class Hotel(models.Model):
     description = models.TextField()
     address = models.CharField(max_length=300,blank=True, null=True)
     star_rating = models.IntegerField(default=3)
-    image = models.ImageField(upload_to='hotel_images/', blank=True, null=True)
+    image = CloudinaryField('image') 
 
     def __str__(self):
         return self.name
     
+
+    @property
+    def main_image(self):
+        return self.images.filter(is_main=True).first() or self.images.first()
 
 class Amenity(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -90,7 +95,7 @@ class Reservation(models.Model):
 
 class HotelImage(models.Model):
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='hotel_images/')
+    image = CloudinaryField('image') 
     is_main = models.BooleanField(default=False)  # Optional: for main image tagging
 
     def __str__(self):
