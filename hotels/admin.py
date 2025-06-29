@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Hotel, RoomType, Room, Reservation
-from .models import Amenity
+from .models import Hotel, RoomType, Reservation, Amenity, HotelImage
+
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'star_rating')
@@ -10,32 +10,27 @@ class HotelAdmin(admin.ModelAdmin):
 
 @admin.register(RoomType)
 class RoomTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'hotel', 'capacity', 'price_per_night')
+    list_display = ('name', 'hotel', 'capacity', 'price_per_night', 'quantity')
     search_fields = ('name', 'hotel__name')
     list_filter = ('hotel',)
-
-
-@admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
-    list_display = ('room_number', 'room_type', 'get_hotel', 'is_available')
-    list_filter = ('room_type__hotel', 'is_available')
-    search_fields = ('room_number',)
-
-    def get_hotel(self, obj):
-        return obj.room_type.hotel.name
-    get_hotel.short_description = 'Hotel'
+    filter_horizontal = ('amenities',)  # For ManyToManyField
 
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ('guest_name', 'room', 'check_in', 'check_out', 'created_at')
-    list_filter = ('check_in', 'check_out')
-    search_fields = ('guest_name', 'guest_email', 'room__room_number')
-    raw_id_fields = ('room', 'user')
+    list_display = ('guest_name', 'room_type', 'check_in', 'check_out', 'created_at')
+    list_filter = ('check_in', 'check_out', 'room_type__hotel')
+    search_fields = ('guest_name', 'guest_email', 'room_type__name')
+    raw_id_fields = ('user',)
 
 
-from django.contrib import admin
-from .models import Amenity,HotelImage
+@admin.register(Amenity)
+class AmenityAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
 
-admin.site.register(Amenity)
-admin.site.register(HotelImage)
+
+@admin.register(HotelImage)
+class HotelImageAdmin(admin.ModelAdmin):
+    list_display = ('hotel', 'is_main')
+    list_filter = ('is_main',)

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Receipt</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: auto; }
+        h1 { color: #003580; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        td, th { padding: 10px; border-bottom: 1px solid #ddd; }
+        .total { font-weight: bold; color: #003580; font-size: 1.2em; }
+        .download { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Booking Receipt</h1>
+    <p><strong>Guest:</strong> {{ reservation.guest_name }}</p>
+    <p><strong>Email:</strong> {{ reservation.guest_email }}</p>
+    <p><strong>Hotel:</strong> {{ hotel.name }}</p>
+    <p><strong>Room Type:</strong> {{ reservation.room_type.name }}</p>
+    <p><strong>Check-in:</strong> {{ reservation.check_in }}</p>
+    <p><strong>Check-out:</strong> {{ reservation.check_out }}</p>
+    <p><strong>Nights:</strong> {{ nights }}</p>
+
+    <table>
+        <tr>
+            <td>Price per Night</td>
+            <td>${{ reservation.room_type.price_per_night }}</td>
+        </tr>
+        <tr class="total">
+            <td>Total</td>
+            <td>${{ total_price }}</td>
+        </tr>
+    </table>
+
+    <div class="download">
+        <a href="?format=pdf">⬇️ Download PDF</a>
+    </div>
+</body>
+</html>

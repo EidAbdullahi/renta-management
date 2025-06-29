@@ -105,6 +105,22 @@
                 <li><a class="nav-link" href="{% url 'admin_sales_report' %}"><i class="bi bi-graph-up me-2"></i> Admin Report</a></li>
                 {% endif %}
               </ul>
+
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#hotelReservationsMenu" role="button" aria-expanded="false" aria-controls="hotelReservationsMenu">
+              <i class="bi bi-receipt me-2"></i>  hotel Reservations
+            </a>
+            <div class="collapse" id="hotelReservationsMenu">
+              <ul class="nav flex-column sub-menu">
+                
+                {% if request.user.is_staff %}
+                <li><a class="nav-link" href="{% url 'hotel_dashboard' %}"><i class="bi bi-person-lines-fill me-2"></i> view hotel reservations</a></li>
+                
+                {% endif %}
+              </ul>
+              
             </div>
           </li>
     

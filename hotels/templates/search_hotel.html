@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirofinder.com - Find Your Next Stay</title>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
     <style>
         /* --- Global Styles & Reset --- */
         :root {
-            --primary-green: hsl(140, 60%, 30%); /* Deep Sage Green */
-            --accent-blue: hsl(205, 70%, 50%); /* Vibrant Sky Blue */
+            --primary-green: hsl(140, 60%, 30%);
+            /* Deep Sage Green */
+            --accent-blue: hsl(205, 70%, 50%);
+            /* Vibrant Sky Blue */
             --accent-blue-hover: hsl(205, 70%, 40%);
             --text-dark: #343A40;
             --text-medium: #555;
@@ -86,11 +91,13 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            align-items: end; /* Align items to the bottom, useful for different input heights */
+            align-items: end;
+            /* Align items to the bottom, useful for different input heights */
         }
 
         .form-group {
-            position: relative; /* For guest picker positioning */
+            position: relative;
+            /* For guest picker positioning */
         }
 
         .search-form-container label {
@@ -110,7 +117,8 @@
             border-radius: var(--border-radius-sm);
             font-size: 1em;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            -webkit-appearance: none; /* Remove default browser styling for consistency */
+            -webkit-appearance: none;
+            /* Remove default browser styling for consistency */
             -moz-appearance: none;
             appearance: none;
         }
@@ -123,7 +131,8 @@
         }
 
         .search-form-container button[type="submit"] {
-            grid-column: span 1; /* Occupy one column */
+            grid-column: span 1;
+            /* Occupy one column */
             padding: 12px 25px;
             background-color: var(--accent-blue);
             color: white;
@@ -133,8 +142,10 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            align-self: end; /* Align button to bottom of its grid cell */
-            width: 100%; /* Ensure button takes full width of its grid column */
+            align-self: end;
+            /* Align button to bottom of its grid cell */
+            width: 100%;
+            /* Ensure button takes full width of its grid column */
         }
 
         .search-form-container button[type="submit"]:hover {
@@ -151,10 +162,12 @@
             padding: 20px;
             z-index: 100;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            top: calc(100% + 10px); /* Position below the input */
+            top: calc(100% + 10px);
+            /* Position below the input */
             left: 0;
             right: 0;
-            width: 280px; /* Fixed width for the picker */
+            width: 280px;
+            /* Fixed width for the picker */
             margin-left: auto;
             margin-right: auto;
         }
@@ -175,7 +188,8 @@
             margin-bottom: 0;
             font-size: 1em;
             color: var(--text-dark);
-            flex-grow: 1; /* Allows label to take available space */
+            flex-grow: 1;
+            /* Allows label to take available space */
         }
 
         .guest-controls {
@@ -207,11 +221,14 @@
         .guest-controls input[type="number"] {
             width: 40px;
             text-align: center;
-            -moz-appearance: textfield; /* Hide arrows in Firefox */
+            -moz-appearance: textfield;
+            /* Hide arrows in Firefox */
         }
+
         .guest-controls input[type="number"]::-webkit-outer-spin-button,
         .guest-controls input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none; /* Hide arrows in Chrome, Safari, Edge */
+            -webkit-appearance: none;
+            /* Hide arrows in Chrome, Safari, Edge */
             margin: 0;
         }
 
@@ -219,7 +236,8 @@
         /* --- Results Container --- */
         .results-container {
             display: grid;
-            grid-template-columns: 1fr 3fr; /* Sidebar 1 part, List 3 parts */
+            grid-template-columns: 1fr 3fr;
+            /* Sidebar 1 part, List 3 parts */
             gap: 30px;
         }
 
@@ -260,7 +278,8 @@
 
         .filters-sidebar input[type="checkbox"] {
             margin-right: 8px;
-            transform: scale(1.1); /* Slightly larger checkbox */
+            transform: scale(1.1);
+            /* Slightly larger checkbox */
         }
 
         /* --- Hotel List --- */
@@ -299,7 +318,8 @@
             height: 120px;
             object-fit: cover;
             border-radius: var(--border-radius-sm);
-            flex-shrink: 0; /* Prevent image from shrinking */
+            flex-shrink: 0;
+            /* Prevent image from shrinking */
         }
 
         .hotel-info {
@@ -364,7 +384,8 @@
             .container {
                 margin: 15px;
                 padding: 15px;
-                border-radius: var(--border-radius-md); /* Slightly smaller on mobile */
+                border-radius: var(--border-radius-md);
+                /* Slightly smaller on mobile */
             }
 
             .header {
@@ -381,16 +402,19 @@
             }
 
             .search-form-container form {
-                grid-template-columns: 1fr; /* Single column on mobile */
+                grid-template-columns: 1fr;
+                /* Single column on mobile */
                 gap: 15px;
             }
+
             .search-form-container button[type="submit"] {
                 grid-column: auto;
                 width: 100%;
             }
 
             .results-container {
-                grid-template-columns: 1fr; /* Single column on mobile */
+                grid-template-columns: 1fr;
+                /* Single column on mobile */
                 gap: 20px;
             }
 
@@ -399,7 +423,8 @@
             }
 
             .hotel-item {
-                flex-direction: column; /* Stack image and info on mobile */
+                flex-direction: column;
+                /* Stack image and info on mobile */
                 text-align: center;
                 align-items: center;
                 padding: 15px;
@@ -407,23 +432,28 @@
             }
 
             .hotel-item img {
-                width: 100%; /* Full width image on mobile */
-                max-width: 250px; /* Prevent image from becoming too large on small screens */
+                width: 100%;
+                /* Full width image on mobile */
+                max-width: 250px;
+                /* Prevent image from becoming too large on small screens */
                 height: 180px;
                 margin-bottom: 10px;
             }
 
             .hotel-info {
-                width: 100%; /* Ensure info block takes full width */
+                width: 100%;
+                /* Ensure info block takes full width */
             }
 
             .hotel-price {
                 width: 100%;
-                align-items: center; /* Center price and button */
+                align-items: center;
+                /* Center price and button */
             }
 
             #guestPicker {
-                position: static; /* Stack normally on mobile */
+                position: static;
+                /* Stack normally on mobile */
                 width: 100%;
                 box-shadow: none;
                 border: none;
@@ -435,12 +465,15 @@
             .search-form-container h2 {
                 font-size: 1.5em;
             }
+
             .hotel-info h3 {
                 font-size: 1.3em;
             }
+
             .hotel-price {
                 font-size: 1.4em;
             }
+
             .view-details-button {
                 padding: 8px 15px;
                 font-size: 0.9em;
@@ -448,6 +481,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Kirofinder.com</h1>
@@ -459,7 +493,8 @@
             <form method="get">
                 <div class="form-group">
                     <label for="id_destination">Destination/property name:</label>
-                    <input type="text" id="id_destination" name="destination" placeholder="e.g., Nairobi, hotel name..." value="{{ form.destination.value|default:'' }}">
+                    <input type="text" id="id_destination" name="destination" placeholder="e.g., Nairobi, hotel name..."
+                        value="{{ form.destination.value|default:'' }}">
                 </div>
                 <div class="form-group">
                     <label for="id_check_in">Check-in date:</label>
@@ -471,14 +506,16 @@
                 </div>
                 <div class="form-group">
                     <label for="guests_display">Guests:</label>
-                    <input type="text" id="guests_display" name="guests_display" value="2 Adults, 0 Children, 0 Infants" readonly>
+                    <input type="text" id="guests_display" name="guests_display" value="2 Adults, 0 Children, 0 Infants"
+                        readonly>
 
                     <div id="guestPicker" style="display: none;">
                         <div class="guest-input-row">
                             <label for="numAdults">Adults:</label>
                             <div class="guest-controls">
                                 <button type="button" data-type="adults" data-change="-1">-</button>
-                                <input type="number" id="numAdults" name="adults" value="{{ form.adults.value|default:2 }}" min="1" readonly>
+                                <input type="number" id="numAdults" name="adults"
+                                    value="{{ form.adults.value|default:2 }}" min="1" readonly>
                                 <button type="button" data-type="adults" data-change="1">+</button>
                             </div>
                         </div>
@@ -486,7 +523,8 @@
                             <label for="numChildren">Children:</label>
                             <div class="guest-controls">
                                 <button type="button" data-type="children" data-change="-1">-</button>
-                                <input type="number" id="numChildren" name="children" value="{{ form.children.value|default:0 }}" min="0" readonly>
+                                <input type="number" id="numChildren" name="children"
+                                    value="{{ form.children.value|default:0 }}" min="0" readonly>
                                 <button type="button" data-type="children" data-change="1">+</button>
                             </div>
                         </div>
@@ -494,7 +532,8 @@
                             <label for="numInfants">Infants:</label>
                             <div class="guest-controls">
                                 <button type="button" data-type="infants" data-change="-1">-</button>
-                                <input type="number" id="numInfants" name="infants" value="{{ form.infants.value|default:0 }}" min="0" readonly>
+                                <input type="number" id="numInfants" name="infants"
+                                    value="{{ form.infants.value|default:0 }}" min="0" readonly>
                                 <button type="button" data-type="infants" data-change="1">+</button>
                             </div>
                         </div>
@@ -505,49 +544,51 @@
         </div>
 
         {% if hotels %}
-            <div class="results-container">
-                <div class="filters-sidebar">
-                    <h3>Filter by:</h3>
-                    <p>Price range:</p>
-                    <input type="range" min="0" max="1000" value="500">
-                    <p>Star rating:</p>
-                    <label><input type="checkbox" name="stars" value="5"> 5 stars</label>
-                    <label><input type="checkbox" name="stars" value="4"> 4 stars</label>
-                    <label><input type="checkbox" name="stars" value="3"> 3 stars</label>
-                    <label><input type="checkbox" name="stars" value="2"> 2 stars</label>
-                    <label><input type="checkbox" name="stars" value="1"> 1 star</label>
-                </div>
-
-                <div class="hotel-list">
-                    <h2>Available Hotels</h2>
-                    {% for hotel in hotels %}
-                        <div class="hotel-item">
-                            {% if hotel.main_image %}
-    <img src="{{ hotel.main_image.image.url }}" alt="Hotel Image for {{ hotel.name }}">
-{% else %}
-    <img src="https://via.placeholder.com/180x120?text=No+Image+Available" alt="No image available for {{ hotel.name }}">
-{% endif %}
-
-                            
-                            <div class="hotel-info">
-                                <h3>{{ hotel.name }}</h3>
-                                <p>Location: {{ hotel.location }}</p>
-                                <p>Rating: {{ hotel.rating }} / 5</p>
-                            </div>
-                            <div class="hotel-price">
-                                <a href="{% url 'hotel_detail' hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="view-details-button">
-                                    View Details
-                                </a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                
+        <div class="results-container">
+            <div class="filters-sidebar">
+                <h3>Filter by:</h3>
+                <p>Price range:</p>
+                <input type="range" min="0" max="1000" value="500">
+                <p>Star rating:</p>
+                <label><input type="checkbox" name="stars" value="5"> 5 stars</label>
+                <label><input type="checkbox" name="stars" value="4"> 4 stars</label>
+                <label><input type="checkbox" name="stars" value="3"> 3 stars</label>
+                <label><input type="checkbox" name="stars" value="2"> 2 stars</label>
+                <label><input type="checkbox" name="stars" value="1"> 1 star</label>
             </div>
+
+            <div class="hotel-list">
+                <h2>Available Hotels</h2>
+                {% for hotel in hotels %}
+                <div class="hotel-item">
+                    {% if hotel.main_image %}
+                    <img src="{{ hotel.main_image.image.url }}" alt="Hotel Image for {{ hotel.name }}">
+                    {% else %}
+                    <img src="https://via.placeholder.com/180x120?text=No+Image+Available"
+                        alt="No image available for {{ hotel.name }}">
+                    {% endif %}
+
+
+                    <div class="hotel-info">
+                        <h3>{{ hotel.name }}</h3>
+                        <p>Location: {{ hotel.location }}</p>
+                        <p>Rating: {{ hotel.rating }} / 5</p>
+                    </div>
+                    <div class="hotel-price">
+                        <a href="{% url 'hotel_detail' hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}"
+                            class="view-details-button">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
         {% elif check_in and check_out %}
-            <p class="no-results">No hotels found for the selected dates.</p>
+        <p class="no-results">No hotels found for the selected dates.</p>
         {% else %}
-            <p class="no-results">Start your search by entering your destination and dates.</p>
+        <p class="no-results">Start your search by entering your destination and dates.</p>
         {% endif %}
     </div>
 
@@ -659,4 +700,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -1,14 +1,12 @@
 from django import forms
-from .models import Reservation, Room
+from .models import Reservation, RoomType
 from django.core.exceptions import ValidationError
-
-
 
 
 class SearchForm(forms.Form):
     destination = forms.CharField(required=False, label="Destination")
     name = forms.CharField(required=False, label="Hotel Name")
-    
+
     check_in = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date'}),
         label="Check-in Date"
@@ -32,23 +30,16 @@ class SearchForm(forms.Form):
     )
 
 
-
-
-
-
-
-
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Reservation
-        fields = ['guest_name', 'guest_email', 'check_in', 'check_out']
+        fields = ['guest_name', 'guest_email', 'guest_phone', 'check_in', 'check_out']
 
     def __init__(self, *args, **kwargs):
-        self.room = kwargs.pop('room', None)
-        readonly = kwargs.pop('readonly', False)  # Optional: make fields readonly
+        self.room_type = kwargs.pop('room_type', None)
+        readonly = kwargs.pop('readonly', False)
         super().__init__(*args, **kwargs)
 
-        # Set input types for better UI (calendar picker)
         self.fields['check_in'].widget.attrs.update({'type': 'date'})
         self.fields['check_out'].widget.attrs.update({'type': 'date'})
 
@@ -58,20 +49,21 @@ class BookingForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if self.room is None:
-            raise forms.ValidationError("Room must be specified.")
         check_in = cleaned_data.get('check_in')
         check_out = cleaned_data.get('check_out')
 
+        if not self.room_type:
+            raise forms.ValidationError("Room type must be specified.")
         if not check_in or not check_out:
             raise forms.ValidationError("Check-in and check-out dates are required.")
-        self.instance.room = self.room
+        if check_in >= check_out:
+            raise forms.ValidationError("Check-out must be after check-in.")
+
+        # Assign to the instance
+        self.instance.room_type = self.room_type
         self.instance.check_in = check_in
         self.instance.check_out = check_out
-        try:
-            self.instance.clean()
-        except ValidationError as e:
-            raise forms.ValidationError(
-                e.message_dict if hasattr(e, 'message_dict') else e.messages
-        )
+
+        # No quantity restriction — we allow overbooking now
         return cleaned_data
+

@@ -1,0 +1,113 @@
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<div class="min-h-screen bg-gray-100 p-8">
+  <h1 class="text-4xl font-extrabold text-gray-900 mb-8">Admin Dashboard</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition duration-300 ease-in-out">
+      <h2 class="text-lg font-semibold text-gray-600 mb-2">Total Hotels</h2>
+      <p class="text-4xl font-bold text-blue-700">{{ total_hotels }}</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition duration-300 ease-in-out">
+      <h2 class="text-lg font-semibold text-gray-600 mb-2">Total Reservations</h2>
+      <p class="text-4xl font-bold text-green-700">{{ total_reservations }}</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition duration-300 ease-in-out">
+      <h2 class="text-lg font-semibold text-gray-600 mb-2">Active Reservations</h2>
+      <p class="text-4xl font-bold text-yellow-700">{{ active_reservations|length }}</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition duration-300 ease-in-out">
+      <h2 class="text-lg font-semibold text-gray-600 mb-2">Successful Reservations</h2>
+      <p class="text-4xl font-bold text-indigo-700">{{ successful_count }}</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold text-gray-800 px-6 py-4 border-b border-gray-200">Active Reservations</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">guest email</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">guest number</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hotel</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">check-out</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for res in active_reservations %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ res.guest_name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.guest_email }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.guest_phone }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.room_type.hotel.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.room_type.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.check_in }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.check_out }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                  {% if res.status == 'pending' %} bg-yellow-100 text-yellow-800
+                  {% elif res.status == 'successful' %} bg-green-100 text-green-800
+                  {% else %} bg-red-100 text-red-800
+                  {% endif %}">
+                  {{ res.get_status_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                {% if res.status == "pending" %}
+                  <div class="flex items-center justify-center space-x-2">
+                    <form method="post" action="{% url 'mark_successful' res.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Mark Successful
+                      </button>
+                    </form>
+                    <form method="post" action="{% url 'mark_unsuccessful' res.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Delete & Fail
+                      </button>
+                    </form>
+                  </div>
+                {% else %}
+                  <span class="text-gray-400 text-xs">No actions available</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center mt-8 py-3 px-4 bg-white rounded-2xl shadow-lg">
+    {% if active_reservations.has_previous %}
+      <a href="?page={{ active_reservations.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+        &laquo; Previous
+      </a>
+    {% else %}
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed">
+        &laquo; Previous
+      </span>
+    {% endif %}
+  
+    <span class="text-sm text-gray-700">
+      Page <span class="font-medium">{{ active_reservations.number }}</span> of <span class="font-medium">{{ active_reservations.paginator.num_pages }}</span>
+    </span>
+  
+    {% if active_reservations.has_next %}
+      <a href="?page={{ active_reservations.next_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+        Next &raquo;
+      </a>
+    {% else %}
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed">
+        Next &raquo;
+      </span>
+    {% endif %}
+  </div>
+</div>
