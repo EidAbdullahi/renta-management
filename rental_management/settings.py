@@ -193,4 +193,3 @@ CACHES = {
 
 # DEFAULT AUTO FIELD
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

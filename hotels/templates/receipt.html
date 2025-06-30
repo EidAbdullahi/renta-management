@@ -1,39 +1,264 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Booking Receipt</title>
+    <title>Booking Receipt - Kirofinder.com</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: Arial; max-width: 600px; margin: auto; }
-        h1 { color: #003580; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
-        td, th { padding: 10px; border-bottom: 1px solid #ddd; }
-        .total { font-weight: bold; color: #003580; font-size: 1.2em; }
-        .download { margin-top: 20px; }
+        :root {
+            --primary-blue: #003580;
+            --accent-green: #28a745;
+            --text-dark: #343a40;
+            --text-medium: #6c757d;
+            --border-light: #e9ecef;
+            --bg-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --border-radius-md: 8px;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 25px;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .receipt-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 4px 15px var(--shadow-light);
+            padding: 30px 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            /* Replace with your actual logo image if available */
+            /* For an image logo:
+            background-image: url('your-logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 150px;
+            height: 50px;
+            text-indent: -9999px; // Hide text if using image
+            */
+        }
+
+        .receipt-info {
+            text-align: right;
+        }
+
+        .receipt-info h1 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-blue);
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .receipt-info p {
+            font-size: 0.9em;
+            color: var(--text-medium);
+            margin: 0;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3em;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            font-size: 1em;
+        }
+
+        .detail-row i {
+            color: var(--accent-green);
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .detail-row strong {
+            min-width: 120px; /* Align labels */
+            display: inline-block;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: separate; /* For rounded borders */
+            border-spacing: 0;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-md);
+            overflow: hidden; /* Ensures border-radius applies */
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 1em;
+        }
+
+        th {
+            background-color: var(--bg-light);
+            color: var(--primary-blue);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row td {
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: 600;
+            font-size: 1.3em;
+            padding: 15px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .total-row td:last-child {
+            text-align: right;
+        }
+
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 25px;
+            background-color: var(--primary-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .download-button:hover {
+            background-color: #002a6b;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+            font-size: 0.9em;
+            color: var(--text-medium);
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
     </style>
 </head>
+
 <body>
-    <h1>Booking Receipt</h1>
-    <p><strong>Guest:</strong> {{ reservation.guest_name }}</p>
-    <p><strong>Email:</strong> {{ reservation.guest_email }}</p>
-    <p><strong>Hotel:</strong> {{ hotel.name }}</p>
-    <p><strong>Room Type:</strong> {{ reservation.room_type.name }}</p>
-    <p><strong>Check-in:</strong> {{ reservation.check_in }}</p>
-    <p><strong>Check-out:</strong> {{ reservation.check_out }}</p>
-    <p><strong>Nights:</strong> {{ nights }}</p>
+    <div class="receipt-container">
+        <div class="header">
+            <div class="logo">Kirofinder.com</div>
+            <div class="receipt-info">
+                <h3>Booking Receipt</h3>
+                <p>Receipt No: #KF-{{ reservation.id|default:'123456' }}</p>
+                <p>Date: {% now "F j, Y" %}</p>
 
-    <table>
-        <tr>
-            <td>Price per Night</td>
-            <td>${{ reservation.room_type.price_per_night }}</td>
-        </tr>
-        <tr class="total">
-            <td>Total</td>
-            <td>${{ total_price }}</td>
-        </tr>
-    </table>
+            </div>
+        </div>
 
-    <div class="download">
-        <a href="?format=pdf">⬇️ Download PDF</a>
+        <h2 class="section-title">Guest & Booking Details</h2>
+
+        <div class="detail-row">
+            <i class="fas fa-user"></i> <strong>Guest:</strong> {{ reservation.guest_name }}
+        </div>
+        <div class="detail-row">
+            <i class="fas fa-envelope"></i> <strong>Email:</strong> {{ reservation.guest_email }}
+        </div>
+        <div class="detail-row">
+            <i class="fas fa-hotel"></i> <strong>Hotel:</strong> {{ hotel.name }}
+        </div>
+        <div class="detail-row">
+            <i class="fas fa-bed"></i> <strong>Room Type:</strong> {{ reservation.room_type.name }}
+        </div>
+        <div class="detail-row">
+            <i class="fas fa-calendar-alt"></i> <strong>Check-in:</strong> {{ reservation.check_in|date:"F j, Y" }}
+        </div>
+        <div class="detail-row">
+            <i class="fas fa-calendar-alt"></i> <strong>Check-out:</strong> {{ reservation.check_out|date:"F j, Y" }}
+        </div>
+        <div class="detail-row">
+            <i class="fas fa-moon"></i> <strong>Nights:</strong> {{ nights }}
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Price per Night ({{ nights }} nights)</td>
+                    <td>Ksh {{ reservation.room_type.price_per_night|floatformat:2 }}</td>
+                </tr>
+                </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td>Total Paid</td>
+                    <td>Ksh {{ total_price|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="download-section">
+            <a href="?format=pdf" class="download-button">
+                <i class="fas fa-download"></i> Download PDF
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for booking with Kirofinder.com!</p>
+            <p>Nairobi, Kenya</p>
+            <p>Email: info@kirofinder.com | Phone: +254 7XX XXX XXX</p>
+            <p><a href="https://www.kirofinder.com" style="color:var(--text-medium); text-decoration: none;">www.kirofinder.com</a></p>
+        </div>
     </div>
 </body>
+
 </html>
