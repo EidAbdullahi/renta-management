@@ -178,28 +178,55 @@ from hotels.models import Hotel, RoomType, Reservation
 from datetime import date
 from django.utils.timezone import now
 from django.core.paginator import Paginator
+from django.db.models import Q
 @staff_member_required
 def dashboard_view(request):
     today = now().date()
 
-    total_hotels = Hotel.objects.count()
-    total_reservations = Reservation.objects.count()
+    search_query = request.GET.get('search', '').strip()
+    hotel_id = request.GET.get('hotel')
 
-    all_active = Reservation.objects.filter(check_out__gte=today).order_by('check_in')
-    paginator = Paginator(all_active, 10)  # Show 10 reservations per page
-    page_number = request.GET.get('page')
-    active_reservations = paginator.get_page(page_number)
+    # Base queryset
+    base_qs = Reservation.objects.all()
 
-    successful_reservations = Reservation.objects.filter(status='successful')
-    upcoming_reservations = all_active.filter(check_in__gt=today)
+    # Search filter
+    if search_query:
+        base_qs = base_qs.filter(
+            Q(guest_name__icontains=search_query) |
+            Q(guest_email__icontains=search_query)
+        )
+
+    # Hotel filter
+    if hotel_id:
+        base_qs = base_qs.filter(room_type__hotel__id=hotel_id)
+
+    # Grouped reservations
+    active_reservations_qs = base_qs.filter(check_in__lte=today, check_out__gte=today).order_by('check_in')
+    upcoming_reservations_qs = base_qs.filter(check_in__gt=today).order_by('check_in')
+    past_reservations_qs = base_qs.filter(check_out__lt=today).order_by('-check_out')
+
+    # Paginate each group separately (optional but useful)
+    def paginate(request, qs, per_page=10, key='page'):
+        paginator = Paginator(qs, per_page)
+        page_number = request.GET.get(key)
+        return paginator.get_page(page_number)
+
+    active_reservations = paginate(request, active_reservations_qs, key='active_page')
+    upcoming_reservations = paginate(request, upcoming_reservations_qs, key='upcoming_page')
+    past_reservations = paginate(request, past_reservations_qs, key='past_page')
 
     context = {
-        'total_hotels': total_hotels,
-        'total_reservations': total_reservations,
+        'total_hotels': Hotel.objects.count(),
+        'total_reservations': Reservation.objects.count(),
+        'successful_count': Reservation.objects.filter(status='successful').count(),
+
         'active_reservations': active_reservations,
         'upcoming_reservations': upcoming_reservations,
-        'successful_count': successful_reservations.count(),
+        'past_reservations': past_reservations,
+
+        'hotels': Hotel.objects.all(),
     }
+
     return render(request, 'hotel_dashboard.html', context)
 
 @staff_member_required

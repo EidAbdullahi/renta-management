@@ -2,131 +2,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa; /* Light grey background */
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* A more modern font stack */
+    }
+
+    .container {
+      max-width: 1300px; /* Wider container for more content on large screens */
+    }
+
+    /* Dashboard Header */
+    h1 {
+      color: #343a40; /* Darker text for headings */
+      margin-bottom: 2.5rem; /* More space below the header */
+    }
+
+    /* Stats Cards */
+    .card {
+      border: none;
+      border-radius: 0.75rem; /* More rounded corners */
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .card:hover {
+      transform: translateY(-3px); /* Gentle lift effect on hover */
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; /* More pronounced shadow on hover */
+    }
+
+    .card-body h3 {
+      font-size: 2.2rem; /* Larger numbers for impact */
+      margin-top: 0.5rem;
+      font-weight: 700; /* Bolder numbers */
+    }
+
+    .card-body h6 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6c757d; /* Slightly darker muted text */
+    }
+
+    /* Filter Form */
+    .form-control, .form-select, .btn {
+      border-radius: 0.5rem; /* Consistent rounded corners */
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #004085;
+      transform: translateY(-1px); /* Slight button press effect */
+    }
+
+    /* Tabs */
+    .nav-tabs {
+      border-bottom: 1px solid #dee2e6; /* Bootstrap default */
+    }
+    .nav-tabs .nav-link {
+      color: #495057; /* Default tab text color */
+      border: 1px solid transparent;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      margin-right: 0.25rem; /* Small space between tabs */
+      padding: 0.75rem 1.25rem; /* More comfortable padding */
+      transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-tabs .nav-link:hover {
+      border-color: #e9ecef #e9ecef #dee2e6;
+      background-color: #f8f9fa;
+      color: #007bff; /* Primary color on hover */
+    }
+    .nav-tabs .nav-link.active {
+      color: #007bff; /* Active tab text color */
+      background-color: #ffffff;
+      border-color: #dee2e6 #dee2e6 #fff; /* White bottom border to merge with content */
+      font-weight: 600; /* Bold for active tab */
+    }
+    .tab-content {
+      background-color: #ffffff; /* White background for tab content */
+      padding: 1.5rem;
+      border-radius: 0.75rem; /* Rounded corners for the content area */
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
+      min-height: 400px; /* Ensure content area has a minimum height */
+    }
+
+    /* Mobile specific adjustments */
+    @media (max-width: 767.98px) {
+      .card {
+        margin-bottom: 1rem; /* Space between cards on mobile */
+      }
+      .form-control, .form-select, .btn {
+        margin-bottom: 0.5rem; /* Space between filter elements on mobile */
+      }
+      .g-3 > .col-md-4 { /* Target columns in the filter row */
+          padding-left: calc(var(--bs-gutter-x) * .5);
+          padding-right: calc(var(--bs-gutter-x) * .5);
+      }
+      .form-group-mobile-stack {
+          flex-direction: column !important;
+      }
+      .form-group-mobile-stack > * {
+          width: 100% !important;
+          margin-bottom: 0.5rem;
+      }
+      .form-group-mobile-stack > *:last-child {
+          margin-bottom: 0;
+      }
+      .nav-tabs .nav-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+      }
+      .tab-content {
+          padding: 1rem; /* Slightly less padding on mobile */
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="container py-5">
+  <h1 class="mb-4 fw-bold text-center">Admin Dashboard</h1>
 
-    <!-- Header -->
-    <h1 class="text-4xl font-extrabold mb-8">Admin Dashboard</h1>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-      <div class="bg-white shadow rounded-xl p-6 text-center hover:shadow-lg transition duration-300">
-        <h2 class="text-sm font-semibold text-gray-500 mb-1">Total Hotels</h2>
-        <p class="text-3xl font-bold text-blue-600">{{ total_hotels }}</p>
-      </div>
-      <div class="bg-white shadow rounded-xl p-6 text-center hover:shadow-lg transition duration-300">
-        <h2 class="text-sm font-semibold text-gray-500 mb-1">Total Reservations</h2>
-        <p class="text-3xl font-bold text-green-600">{{ total_reservations }}</p>
-      </div>
-      <div class="bg-white shadow rounded-xl p-6 text-center hover:shadow-lg transition duration-300">
-        <h2 class="text-sm font-semibold text-gray-500 mb-1">Active Reservations</h2>
-        <p class="text-3xl font-bold text-yellow-600">{{ active_reservations|length }}</p>
-      </div>
-      <div class="bg-white shadow rounded-xl p-6 text-center hover:shadow-lg transition duration-300">
-        <h2 class="text-sm font-semibold text-gray-500 mb-1">Successful Reservations</h2>
-        <p class="text-3xl font-bold text-indigo-600">{{ successful_count }}</p>
+  <div class="row g-4 mb-5 justify-content-center"> {# Added justify-content-center for better alignment on smaller screens #}
+    <div class="col-sm-6 col-md-4 col-lg-3"> {# Responsive column sizing #}
+      <div class="card text-center">
+        <div class="card-body">
+          <h6 class="text-muted">Total Hotels</h6>
+          <h3 class="text-primary">{{ total_hotels }}</h3>
+        </div>
       </div>
     </div>
-
-    <!-- Active Reservations Table -->
-    <div class="bg-white shadow rounded-2xl overflow-hidden">
-      <h2 class="text-2xl font-bold px-6 py-4 border-b border-gray-200">Active Reservations</h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Guest</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hotel</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Room Type</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check-in</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check-out</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            {% for res in active_reservations %}
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ res.guest_name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.guest_email }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.guest_phone }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.room_type.hotel.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.room_type.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.check_in }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ res.check_out }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                    {% if res.status == 'pending' %} bg-yellow-100 text-yellow-800
-                    {% elif res.status == 'successful' %} bg-green-100 text-green-800
-                    {% else %} bg-red-100 text-red-800
-                    {% endif %}">
-                    {{ res.get_status_display }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-center text-sm font-medium">
-                  {% if res.status == "pending" %}
-                    <div class="flex items-center justify-center space-x-2">
-                      <form method="post" action="{% url 'mark_successful' res.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="px-4 py-2 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700">
-                          Mark Successful
-                        </button>
-                      </form>
-                      <form method="post" action="{% url 'mark_unsuccessful' res.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="px-4 py-2 text-xs font-medium text-white bg-red-600 rounded hover:bg-red-700">
-                          Delete & Fail
-                        </button>
-                      </form>
-                    </div>
-                  {% else %}
-                    <span class="text-gray-400 text-xs">No actions</span>
-                  {% endif %}
-                </td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="9" class="text-center py-6 text-gray-400">No active reservations.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <div class="col-sm-6 col-md-4 col-lg-3"> {# Responsive column sizing #}
+      <div class="card text-center">
+        <div class="card-body">
+          <h6 class="text-muted">Total Reservations</h6>
+          <h3 class="text-success">{{ total_reservations }}</h3>
+        </div>
       </div>
     </div>
-
-    <!-- Pagination -->
-    {% if active_reservations.has_other_pages %}
-      <div class="flex justify-between items-center mt-6">
-        {% if active_reservations.has_previous %}
-          <a href="?page={{ active_reservations.previous_page_number }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-            &laquo; Previous
-          </a>
-        {% else %}
-          <span class="px-4 py-2 text-gray-400 bg-gray-100 rounded cursor-not-allowed">&laquo; Previous</span>
-        {% endif %}
-
-        <span class="text-sm text-gray-700">
-          Page {{ active_reservations.number }} of {{ active_reservations.paginator.num_pages }}
-        </span>
-
-        {% if active_reservations.has_next %}
-          <a href="?page={{ active_reservations.next_page_number }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-            Next &raquo;
-          </a>
-        {% else %}
-          <span class="px-4 py-2 text-gray-400 bg-gray-100 rounded cursor-not-allowed">Next &raquo;</span>
-        {% endif %}
+    <div class="col-sm-6 col-md-4 col-lg-3"> {# Responsive column sizing #}
+      <div class="card text-center">
+        <div class="card-body">
+          <h6 class="text-muted">Successful Reservations</h6> {# Added "Reservations" for clarity #}
+          <h3 class="text-info">{{ successful_count }}</h3>
+        </div>
       </div>
-    {% endif %}
-
+    </div>
+    {# You might consider adding "Failed/Cancelled Reservations" or "Upcoming Reservations" here if applicable to make it a full row #}
   </div>
+
+  <form class="row g-3 mb-5 align-items-end form-group-mobile-stack" method="get">
+    <div class="col-md-4">
+      <label for="searchGuest" class="form-label visually-hidden">Search Guest/Email</label> {# Added label for accessibility #}
+      <input type="text" class="form-control" id="searchGuest" name="search" placeholder="Search guest name or email..." value="{{ request.GET.search }}">
+    </div>
+    <div class="col-md-4">
+      <label for="selectHotel" class="form-label visually-hidden">Select Hotel</label> {# Added label for accessibility #}
+      <select class="form-select" id="selectHotel" name="hotel">
+        <option value="">All Hotels</option>
+        {% for hotel in hotels %}
+          <option value="{{ hotel.id }}" {% if request.GET.hotel == hotel.id|stringformat:"s" %}selected{% endif %}>{{ hotel.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-2"></i>Apply Filter</button>
+    </div>
+  </form>
+
+  <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist"> {# Increased margin-bottom #}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="true"><i class="fas fa-play-circle me-2"></i>Active</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming" aria-selected="false"><i class="fas fa-hourglass-start me-2"></i>Upcoming</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab" aria-controls="past" aria-selected="false"><i class="fas fa-history me-2"></i>Past</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="dashboardTabsContent">
+    <div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
+      {% include "partials.html" with reservations=active_reservations type="active" %}
+    </div>
+    <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+      {% include "partials.html" with reservations=upcoming_reservations type="upcoming" %}
+    </div>
+    <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+      {% include "partials.html" with reservations=past_reservations type="past" %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,82 @@
+{% load static %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>Guest</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Hotel</th>
+        <th>Room Type</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for res in reservations %}
+        <tr>
+          <td>{{ res.guest_name }}</td>
+          <td>{{ res.guest_email }}</td>
+          <td>{{ res.guest_phone }}</td>
+          <td>{{ res.room_type.hotel.name }}</td>
+          <td>{{ res.room_type.name }}</td>
+          <td>{{ res.check_in }}</td>
+          <td>{{ res.check_out }}</td>
+          <td>
+            <span class="badge
+              {% if res.status == 'pending' %} text-bg-warning
+              {% elif res.status == 'successful' %} text-bg-success
+              {% elif res.status == 'cancelled' %} text-bg-danger {# Assuming 'cancelled' status #}
+              {% else %} text-bg-secondary
+              {% endif %}">
+              {{ res.get_status_display }}
+            </span>
+          </td>
+          <td class="text-center text-nowrap table-actions">
+            {% if res.status == "pending" %}
+              <form method="post" action="{% url 'mark_successful' res.id %}" class="d-inline-block me-1"> {# d-inline-block and margin for spacing #}
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check-circle me-1"></i> Mark Successful</button>
+              </form>
+              <form method="post" action="{% url 'mark_unsuccessful' res.id %}" class="d-inline-block">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-times-circle me-1"></i> Delete & Fail</button>
+              </form>
+            {% elif type == "upcoming" %} {# Example: Add an option to cancel upcoming #}
+                 <form method="post" action="{% url 'cancel_reservation' res.id %}" class="d-inline-block">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-ban me-1"></i> Cancel</button>
+                 </form>
+            {% else %}
+              <span class="text-muted small">No actions</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">No {{ type }} reservations.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if reservations.has_other_pages %}
+  <nav class="mt-4 d-flex flex-column flex-md-row justify-content-between align-items-center pagination-container">
+    {% if reservations.has_previous %}
+      <a class="btn btn-outline-secondary mb-2 mb-md-0" href="?page={{ reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.hotel %}&hotel={{ request.GET.hotel }}{% endif %}"><i class="fas fa-chevron-left me-2"></i>Previous</a>
+    {% else %}
+      <span class="btn btn-outline-secondary disabled mb-2 mb-md-0"><i class="fas fa-chevron-left me-2"></i>Previous</span>
+    {% endif %}
+
+    <span class="text-muted small my-2 my-md-0">Page {{ reservations.number }} of {{ reservations.paginator.num_pages }}</span>
+
+    {% if reservations.has_next %}
+      <a class="btn btn-outline-secondary" href="?page={{ reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.hotel %}&hotel={{ request.GET.hotel }}{% endif %}">Next <i class="fas fa-chevron-right ms-2"></i></a>
+    {% else %}
+      <span class="btn btn-outline-secondary disabled">Next <i class="fas fa-chevron-right ms-2"></i></span>
+    {% endif %}
+  </nav>
+{% endif %}
